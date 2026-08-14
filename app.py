@@ -1,6 +1,7 @@
 import os
 import hashlib
 import base64
+import requests
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
@@ -36,57 +37,30 @@ def ebay_test_auth():
         credentials.encode("utf-8")
 
     ).decode("utf-8")
-
-
-
     response = requests.post(
-
         "https://api.ebay.com/identity/v1/oauth2/token",
-
         headers={
-
             "Content-Type": "application/x-www-form-urlencoded",
-
             "Authorization": f"Basic {encoded_credentials}",
-
         },
-
         data={
-
             "grant_type": "client_credentials",
-
             "scope": "https://api.ebay.com/oauth/api_scope",
-
         },
-
         timeout=20,
-
     )
-
-
-
     if response.status_code == 200:
-
         return jsonify({
-
             "success": True,
 
             "message": "eBay authentication successful"
-
         }), 200
-
-
-
     return jsonify({
-
         "success": False,
-
         "status_code": response.status_code,
-
         "error": response.text
-
     }), response.status_code
-    
+   
     # eBay account-deletion notification received.
     # We intentionally do not log or persist the notification payload here.
     return "", 204
