@@ -63,5 +63,42 @@ def ebay_test_auth():
         "status_code": response.status_code,
         "error": response.text
     }), response.status_code
-   
+
+@app.route("/ebay/search", methods=["GET"])
+def ebay_search():
+    credentials = f"{EBAY_CLIENT_ID}:{EBAY_CLIENT_SECRET}"
+    encoded_credentials = base64.b64encode(
+        credentials.encode("utf-8")
+    ).decode("utf-8")
+    token_response = requests.post(
+        "https://api.ebay.com/identity/v1/oauth2/token",
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": f"Basic {encoded_credentials}",
+        },
+        data={
+            "grant_type": "client_credentials",
+            "scope": "https://api.ebay.com/oauth/api_scope",
+        },
+        timeout=20,
+    )
+    if token_response.status_code != 200:
+        return jsonify({
+            "success": False,
+            "error": token_response.text
+        }), token_response.status_code
+    access_token = token_response.json()["access_token"]
+    search_response = requests.get(
+        "https://api.ebay.com/buy/browse/v1/item_summary/search",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "X-EBAY-C-MARKETPLACE-ID": "EBAY_US",
+        },
+        params={
+            "q": "Bowman Chrome baseball card",
+            "limit": 5,
+        },
+        timeout=20,
+    )
+    return jsonify(search_response.json()), search_response.status_code
     
