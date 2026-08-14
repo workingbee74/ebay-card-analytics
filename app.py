@@ -14,6 +14,23 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "")
 @app.route("/", methods=["GET"])
 def home():
     return "eBay notification endpoint is running", 200
+@app.route("/db-test", methods=["GET"])
+def db_test():
+    try:
+        with psycopg.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1;")
+                result = cur.fetchone()
+        return jsonify({
+            "success": True,
+            "database": "connected",
+            "result": result[0]
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 @app.route("/ebay/account-deletion", methods=["GET", "POST"])
 def ebay_account_deletion():
     if request.method == "GET":
