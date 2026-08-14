@@ -115,7 +115,7 @@ def ebay_search():
         },
         params={
             "q": request.args.get("q", "Bowman Chrome baseball card"),
-            "limit": 5,
+            "limit": 50,
         },
         timeout=20,
     )
