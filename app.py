@@ -10,7 +10,7 @@ ENDPOINT_URL = os.environ.get("EBAY_ENDPOINT_URL", "")
 
 @app.route("/", methods=["GET"])
 def home():
-return "eBay notification endpoint is running", 200
+    return "eBay notification endpoint is running", 200
 
 
 @app.route("/ebay/account-deletion", methods=["GET", "POST"])
