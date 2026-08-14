@@ -119,5 +119,55 @@ def ebay_search():
         },
         timeout=20,
     )
-    return jsonify(search_response.json()), search_response.status_code
-    
+ if search_response.status_code != 200:
+        return jsonify({
+            "success": False,
+            "error": search_response.text
+        }), search_response.status_code
+    data = search_response.json()
+    items = data.get("itemSummaries", [])
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS ebay_listings (
+                    id BIGSERIAL PRIMARY KEY,
+                    ebay_item_id TEXT UNIQUE,
+                    title TEXT,
+                    asking_price NUMERIC(12,2),
+                    seller_name TEXT,
+                    listing_url TEXT,
+                    date_collected TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            for item in items:
+                price = item.get("price", {}).get("value")
+                seller = item.get("seller", {}).get("username")
+                cur.execute("""
+                    INSERT INTO ebay_listings (
+                        ebay_item_id,
+                        title,
+                        asking_price,
+                        seller_name,
+                        listing_url,
+                        date_collected
+                    )
+                    VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+                    ON CONFLICT (ebay_item_id)
+                    DO UPDATE SET
+                        title = EXCLUDED.title,
+                        asking_price = EXCLUDED.asking_price,
+                        seller_name = EXCLUDED.seller_name,
+                        listing_url = EXCLUDED.listing_url,
+                        date_collected = CURRENT_TIMESTAMP;
+                """, (
+                    item.get("itemId"),
+                    item.get("title"),
+                    price,
+                    seller,
+                    item.get("itemWebUrl"),
+                ))
+    return jsonify({
+        "success": True,
+        "listings_received": len(items),
+        "listings_saved": len(items)
+    }), 200    
