@@ -114,7 +114,7 @@ def ebay_search():
             "X-EBAY-C-MARKETPLACE-ID": "EBAY_US",
         },
         params={
-            "q": "Bowman Chrome baseball card",
+            "q": request.args.get("q", "Bowman Chrome baseball card"),
             "limit": 5,
         },
         timeout=20,
