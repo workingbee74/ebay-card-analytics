@@ -25,7 +25,7 @@ def ebay_account_deletion():
             ).encode("utf-8")
         ).hexdigest()
         return jsonify({"challengeResponse": challenge_response}), 200
-    @app.route("/ebay/test-auth", methods=["GET"])
+@app.route("/ebay/test-auth", methods=["GET"])
 
 def ebay_test_auth():
 
