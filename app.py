@@ -2,6 +2,7 @@ import os
 import hashlib
 import base64
 import requests
+import psycopg
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
@@ -9,6 +10,7 @@ VERIFICATION_TOKEN = os.environ.get("EBAY_VERIFICATION_TOKEN", "")
 ENDPOINT_URL = os.environ.get("EBAY_ENDPOINT_URL", "")
 EBAY_CLIENT_ID = os.environ.get("EBAY_CLIENT_ID", "")
 EBAY_CLIENT_SECRET = os.environ.get("EBAY_CLIENT_SECRET", "")
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
 @app.route("/", methods=["GET"])
 def home():
     return "eBay notification endpoint is running", 200
