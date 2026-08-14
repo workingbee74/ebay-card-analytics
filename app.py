@@ -63,6 +63,4 @@ def ebay_test_auth():
         "error": response.text
     }), response.status_code
    
-    # eBay account-deletion notification received.
-    # We intentionally do not log or persist the notification payload here.
-    return "", 204
+    
