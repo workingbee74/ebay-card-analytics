@@ -119,7 +119,7 @@ def ebay_search():
         },
         timeout=20,
     )
- if search_response.status_code != 200:
+    if search_response.status_code != 200:
         return jsonify({
             "success": False,
             "error": search_response.text
@@ -170,4 +170,4 @@ def ebay_search():
         "success": True,
         "listings_received": len(items),
         "listings_saved": len(items)
-    }), 200    
+    }), 200
