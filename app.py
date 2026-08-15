@@ -134,7 +134,7 @@ def parse_card_title(title):
     if re.search(r"\b\d+\s*CARD(?:S)?\s+(?:OR\s+\$?\d+(?:\.\d+)?\s+)?MINIMUM\b", title_upper):
         is_single_card = False
 
-if re.search(r"\$\d+(?:\.\d+)?\s+MINIMUM\b", title_upper):
+    if re.search(r"\$\d+(?:\.\d+)?\s+MINIMUM\b", title_upper):
     is_single_card = False
     return {
         "card_year": card_year,
