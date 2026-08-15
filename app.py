@@ -54,6 +54,12 @@ def parse_card_title(title):
         ("AQUA REFRACTOR", "Aqua Refractor"),
         ("SILVER REFRACTOR", "Silver Refractor"),
         ("MOJO REFRACTOR", "Mojo Refractor"),
+        ("MOJO", "Mojo Refractor"),
+        ("ROSE GOLD", "Rose Gold"),
+        ("FUCHSIA", "Fuchsia"),
+        ("LUNAR GLOW", "Lunar Glow"),
+        ("RAYWAVE", "RayWave"),
+        ("RAY WAVE", "RayWave"),
         ("REFRACTOR", "Refractor"),
         ("SHIMMER", "Shimmer"),
         ("WAVE", "Wave"),
@@ -104,18 +110,21 @@ def parse_card_title(title):
 
     # Identify listings that are NOT individual cards
     exclusion_terms = [
-        "YOU PICK",
-        "PICK YOUR CARD",
-        "HOBBY BOX",
-        "HOBBY CASE",
-        "BLASTER BOX",
-        "MEGA BOX",
-        "SEALED BOX",
-        "2 CARD MIN",
-        "2 CARD MINIMUM",
-        "CARD LOT",
-        "LOT OF",
-    ]
+    "YOU PICK",
+    "PICK YOUR CARD",
+    "CHOOSE YOUR CARD",
+    "HOBBY BOX",
+    "HOBBY CASE",
+    "BLASTER BOX",
+    "MEGA BOX",
+    "SEALED BOX",
+    "2 CARD MIN",
+    "2 CARD MINIMUM",
+    "CARD MIN",
+    "MINIMUM ORDER",
+    "CARD LOT",
+    "LOT OF",
+]
 
     is_single_card = not any(
         term in title_upper for term in exclusion_terms
