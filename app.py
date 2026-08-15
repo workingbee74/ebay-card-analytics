@@ -500,3 +500,69 @@ def ebay_search():
         "listings_saved": len(items)
 
     }), 200
+@app.route("/valuation", methods=["GET"])
+def valuation():
+    player = request.args.get("player", "").strip()
+
+    if not player:
+        return jsonify({
+            "success": False,
+            "error": "Missing player parameter"
+        }), 400
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT
+                    player_name,
+                    card_year,
+                    product,
+                    parallel,
+                    COUNT(*) AS listing_count,
+                    ROUND(MIN(asking_price), 2) AS low_price,
+                    ROUND(
+                        PERCENTILE_CONT(0.5)
+                        WITHIN GROUP (ORDER BY asking_price)::numeric,
+                        2
+                    ) AS median_price,
+                    ROUND(AVG(asking_price), 2) AS average_price,
+                    ROUND(MAX(asking_price), 2) AS high_price
+                FROM ebay_listings
+                WHERE
+                    is_single_card = TRUE
+                    AND player_name ILIKE %s
+                    AND asking_price IS NOT NULL
+                GROUP BY
+                    player_name,
+                    card_year,
+                    product,
+                    parallel
+                ORDER BY
+                    listing_count DESC,
+                    card_year DESC,
+                    product,
+                    parallel;
+            """, (player,))
+
+            rows = cur.fetchall()
+
+    results = []
+
+    for row in rows:
+        results.append({
+            "player_name": row[0],
+            "card_year": row[1],
+            "product": row[2],
+            "parallel": row[3],
+            "listing_count": row[4],
+            "low_price": float(row[5]) if row[5] is not None else None,
+            "median_price": float(row[6]) if row[6] is not None else None,
+            "average_price": float(row[7]) if row[7] is not None else None,
+            "high_price": float(row[8]) if row[8] is not None else None,
+        })
+
+    return jsonify({
+        "success": True,
+        "player": player,
+        "comparables": results
+    }), 200
