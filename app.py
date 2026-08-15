@@ -67,7 +67,28 @@ def parse_card_title(title):
             title,
             re.IGNORECASE
         )
+    # Pattern 3:
+    # "2023 Bowman Chrome MLB Baseball #BCP16 Drew Gilbert Prospect Card"
+    if not player_match:
+        player_match = re.search(
+            r"#[A-Z0-9-]+\s+"
+            r"([A-Za-z.'-]+(?:\s+[A-Za-z.'-]+){1,2})"
+            r"(?=\s+(?:ROOKIE|RC|1ST|PROSPECT|AUTO|AUTOGRAPH|REFRACTOR|MOJO))",
+            title,
+            re.IGNORECASE
+        )
 
+    # Pattern 4:
+    # More flexible Bowman Chrome name placement
+    if not player_match:
+        player_match = re.search(
+            r"(?:BOWMAN CHROME|BOWMAN DRAFT|TOPPS CHROME)\s+"
+            r"([A-Za-z.'-]+(?:\s+[A-Za-z.'-]+){1,2})"
+            r"(?=\s+(?:ROOKIE|RC|1ST|PROSPECT|AUTO|AUTOGRAPH|"
+            r"REFRACTOR|MOJO|SILVER|GOLD|ORANGE|RED|BLUE|GREEN|PURPLE|AQUA|LIGHTNING))",
+            title,
+            re.IGNORECASE
+        )
         if player_match:
             candidate = player_match.group(1).strip()
 
