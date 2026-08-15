@@ -593,3 +593,101 @@ def valuation():
         "player": player,
         "comparables": results
     }), 200
+@app.route("/deals", methods=["GET"])
+def deals():
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                WITH comparable_stats AS (
+                    SELECT
+                        player_name,
+                        card_year,
+                        product,
+                        parallel,
+                        COUNT(*) AS listing_count,
+                        PERCENTILE_CONT(0.5)
+                            WITHIN GROUP (ORDER BY asking_price) AS median_price
+                    FROM ebay_listings
+                    WHERE
+                        is_single_card = TRUE
+                        AND player_name IS NOT NULL
+                        AND asking_price IS NOT NULL
+                    GROUP BY
+                        player_name,
+                        card_year,
+                        product,
+                        parallel
+                    HAVING COUNT(*) >= 2
+                )
+                SELECT
+                    e.title,
+                    e.player_name,
+                    e.card_year,
+                    e.product,
+                    e.parallel,
+                    e.asking_price,
+                    e.shipping_cost,
+                    e.listing_url,
+                    e.seller_name,
+                    c.listing_count,
+                    c.median_price,
+                    ROUND(
+                        (
+                            (
+                                (c.median_price - e.asking_price)
+                                / NULLIF(c.median_price, 0)
+                            ) * 100
+                        )::numeric,
+                        1
+                    ) AS discount_percentage
+                FROM ebay_listings e
+                JOIN comparable_stats c
+                    ON e.player_name = c.player_name
+                    AND e.card_year IS NOT DISTINCT FROM c.card_year
+                    AND e.product IS NOT DISTINCT FROM c.product
+                    AND e.parallel IS NOT DISTINCT FROM c.parallel
+                WHERE
+                    e.is_single_card = TRUE
+                    AND e.asking_price IS NOT NULL
+                    AND e.asking_price < c.median_price
+                ORDER BY
+                    discount_percentage DESC,
+                    c.listing_count DESC
+                LIMIT 50;
+            """)
+
+            rows = cur.fetchall()
+
+    results = []
+
+    for row in rows:
+        discount_percentage = float(row[11])
+
+        if discount_percentage >= 20:
+            deal_rating = "BUY"
+        elif discount_percentage >= 10:
+            deal_rating = "FAIR"
+        else:
+            deal_rating = "HIGH"
+
+        results.append({
+            "title": row[0],
+            "player_name": row[1],
+            "card_year": row[2],
+            "product": row[3],
+            "parallel": row[4],
+            "asking_price": float(row[5]) if row[5] is not None else None,
+            "shipping_cost": float(row[6]) if row[6] is not None else None,
+            "listing_url": row[7],
+            "seller_name": row[8],
+            "comparable_count": row[9],
+            "median_price": float(row[10]) if row[10] is not None else None,
+            "discount_percentage": discount_percentage,
+            "deal_rating": deal_rating,
+        })
+
+    return jsonify({
+        "success": True,
+        "deal_count": len(results),
+        "deals": results
+    }), 200
