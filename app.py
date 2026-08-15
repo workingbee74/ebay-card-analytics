@@ -28,7 +28,7 @@ def parse_card_title(title):
         manufacturer = "Panini"
     # Product
     product = None
-    if "BOWMAN STERLING" in title_upper or "STERLING" in title_upper:
+    if "BOWMAN STERLING" in title_upper:
      product = "Bowman Sterling"
     elif "BOWMAN CHROME" in title_upper:
      product = "Bowman Chrome"
