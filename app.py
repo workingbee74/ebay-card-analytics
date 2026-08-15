@@ -294,7 +294,7 @@ def ebay_search():
             "error": token_response.text
         }), token_response.status_code
     access_token = token_response.json()["access_token"]
-      items = []
+    items = []
 
     queries = [
         "Bowman Chrome baseball card",
