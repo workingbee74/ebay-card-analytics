@@ -549,14 +549,25 @@ def valuation():
     results = []
 
     for row in rows:
+        low_price = float(row[5]) if row[5] is not None else None
+        median_price = float(row[6]) if row[6] is not None else None
+
+        spread_percentage = None
+
+        if low_price is not None and median_price and median_price > 0:
+            spread_percentage = round(
+                ((median_price - low_price) / median_price) * 100,
+                1
+            )
         results.append({
             "player_name": row[0],
             "card_year": row[1],
             "product": row[2],
             "parallel": row[3],
             "listing_count": row[4],
-            "low_price": float(row[5]) if row[5] is not None else None,
-            "median_price": float(row[6]) if row[6] is not None else None,
+            "low_price": low_price,
+            "median_price": median_price,
+            "spread_percentage": spread_percentage,
             "average_price": float(row[7]) if row[7] is not None else None,
             "high_price": float(row[8]) if row[8] is not None else None,
         })
