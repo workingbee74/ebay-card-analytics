@@ -140,46 +140,88 @@ def ebay_search():
                     date_collected TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
             """)
-cur.execute("""
+    cur.execute("""
 
-    ALTER TABLE ebay_listings
+        ALTER TABLE ebay_listings
 
-    ADD COLUMN IF NOT EXISTS listing_type TEXT;
+        ADD COLUMN IF NOT EXISTS listing_type TEXT;
 
-""")
-for item in items:
-                listing_type=item.get("buyingOptions", ["UNKNOWN"])[0]
-                price = item.get("price", {}).get("value")
-                seller = item.get("seller", {}).get("username")
-                cur.execute("""
-                    INSERT INTO ebay_listings (
-                        ebay_item_id,
-                        title,
-                        asking_price,
-                        seller_name,
-                        listing_url,
-                        listing_type,
-                        date_collected
-                    )
-                    VALUES (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
-                    ON CONFLICT (ebay_item_id)
-                    DO UPDATE SET
-                        title = EXCLUDED.title,
-                        asking_price = EXCLUDED.asking_price,
-                        seller_name = EXCLUDED.seller_name,
-                        listing_url = EXCLUDED.listing_url,
-                        listing_type = EXCLUDED.listing_type,
-                        date_collected = CURRENT_TIMESTAMP;
-                """, (
-                    item.get("itemId"),
-                    item.get("title"),
-                    price,
-                    seller,
-                    item.get("itemWebUrl"),
-                    listing_type,
-                ))
-        return jsonify({
-            "success": True,
-            "listings_received": len(items),
-            "listings_saved": len(items)
-        }), 200
+    """)
+
+
+
+    for item in items:
+
+        listing_type = item.get("buyingOptions", ["UNKNOWN"])[0]
+
+        price = item.get("price", {}).get("value")
+
+        seller = item.get("seller", {}).get("username")
+
+
+
+        cur.execute("""
+
+            INSERT INTO ebay_listings (
+
+                ebay_item_id,
+
+                title,
+
+                asking_price,
+
+                seller_name,
+
+                listing_url,
+
+                listing_type,
+
+                date_collected
+
+            )
+
+            VALUES (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+
+            ON CONFLICT (ebay_item_id)
+
+            DO UPDATE SET
+
+                title = EXCLUDED.title,
+
+                asking_price = EXCLUDED.asking_price,
+
+                seller_name = EXCLUDED.seller_name,
+
+                listing_url = EXCLUDED.listing_url,
+
+                listing_type = EXCLUDED.listing_type,
+
+                date_collected = CURRENT_TIMESTAMP;
+
+        """, (
+
+            item.get("itemId"),
+
+            item.get("title"),
+
+            price,
+
+            seller,
+
+            item.get("itemWebUrl"),
+
+            listing_type,
+
+        ))
+
+
+
+    return jsonify({
+
+        "success": True,
+
+        "listings_received": len(items),
+
+        "listings_saved": len(items)
+
+    }), 200
