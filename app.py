@@ -135,7 +135,7 @@ def parse_card_title(title):
         is_single_card = False
 
     if re.search(r"\$\d+(?:\.\d+)?\s+MINIMUM\b", title_upper):
-    is_single_card = False
+        is_single_card = False
     return {
         "card_year": card_year,
         "manufacturer": manufacturer,
