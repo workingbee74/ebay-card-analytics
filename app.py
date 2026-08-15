@@ -604,6 +604,7 @@ def deals():
                         card_year,
                         product,
                         parallel,
+                        autograph,
                         COUNT(*) AS listing_count,
                         PERCENTILE_CONT(0.5)
                             WITHIN GROUP (
@@ -618,7 +619,8 @@ def deals():
                         player_name,
                         card_year,
                         product,
-                        parallel
+                        parallel,
+                        autograph
                     HAVING COUNT(*) >= 3
                 )
                 SELECT
@@ -648,6 +650,7 @@ def deals():
                     AND e.card_year IS NOT DISTINCT FROM c.card_year
                     AND e.product IS NOT DISTINCT FROM c.product
                     AND e.parallel IS NOT DISTINCT FROM c.parallel
+                    AND e.autograph IS NOT DISTINCT FROM c.autograph
                 WHERE
                     e.is_single_card = TRUE
                     AND e.asking_price IS NOT NULL
