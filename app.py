@@ -47,26 +47,29 @@ def parse_card_title(title):
     player_name = None
 
     # Pattern 1:
-    # "2026 Bowman Chrome Kevin McGonigle Rookie..."
+    # "2026 Bowman Chrome Munetaka Murakami #9..."
     player_match = re.search(
-        r"(?:BOWMAN CHROME|BOWMAN DRAFT|BOWMAN|TOPPS CHROME|TOPPS)\s+"
-        r"([A-Z][A-Z.'-]+(?:\s+[A-Z][A-Z.'-]+){1,2})"
-        r"(?=\s+(?:ROOKIE|RC|1ST|PROSPECT|AUTO|AUTOGRAPH|REFRACTOR|MOJO|#))",
-        title_upper
+        r"(?:Bowman Chrome|Bowman Draft|Bowman|Topps Chrome|Topps)\s+"
+        r"(?:Baseball\s+)?"
+        r"([A-Za-z.'-]+(?:\s+[A-Za-z.'-]+){1,2})"
+        r"(?=\s+(?:#|RC\b|Rookie\b|1st\b|Prospect\b|Auto\b|Autograph\b|Refractor\b|Mojo\b))",
+        title,
+        re.IGNORECASE
     )
 
     # Pattern 2:
-    # "KEVIN MCGONIGLE ROOKIE SILVER REFRACTOR 2026 Bowman Chrome..."
+    # "KEVIN MCGONIGLE ROOKIE SILVER REFRACTOR..."
     if not player_match:
         player_match = re.search(
-            r"^([A-Z][A-Z.'-]+(?:\s+[A-Z][A-Z.'-]+){1,2})"
+            r"^([A-Za-z.'-]+(?:\s+[A-Za-z.'-]+){1,2})"
             r"(?=\s+(?:ROOKIE|RC|1ST|PROSPECT|AUTO|AUTOGRAPH|"
-            r"REFRACTOR|MOJO|SILVER|GOLD|ORANGE|RED|BLUE|GREEN|PURPLE|AQUA))",
-            title_upper
+            r"REFRACTOR|MOJO|SILVER|GOLD|ORANGE|RED|BLUE|GREEN|PURPLE|AQUA|LIGHTNING))",
+            title,
+            re.IGNORECASE
         )
 
     if player_match:
-        player_name = player_match.group(1).title()
+        player_name = player_match.group(1).strip().title()
     # Parallel
     parallel = None
 
