@@ -3,6 +3,7 @@ import hashlib
 import base64
 import requests
 import psycopg
+import re
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
@@ -11,6 +12,92 @@ ENDPOINT_URL = os.environ.get("EBAY_ENDPOINT_URL", "")
 EBAY_CLIENT_ID = os.environ.get("EBAY_CLIENT_ID", "")
 EBAY_CLIENT_SECRET = os.environ.get("EBAY_CLIENT_SECRET", "")
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
+def parse_card_title(title):
+    title_upper = title.upper()
+
+    # Year
+    year_match = re.search(r"\b(19|20)\d{2}\b", title)
+    card_year = int(year_match.group()) if year_match else None
+
+    # Manufacturer
+    manufacturer = None
+    if "BOWMAN" in title_upper:
+        manufacturer = "Bowman"
+    elif "TOPPS" in title_upper:
+        manufacturer = "Topps"
+    elif "PANINI" in title_upper:
+        manufacturer = "Panini"
+
+    # Product
+    product = None
+    if "BOWMAN CHROME" in title_upper:
+        product = "Bowman Chrome"
+    elif "BOWMAN DRAFT" in title_upper:
+        product = "Bowman Draft"
+    elif "BOWMAN" in title_upper:
+        product = "Bowman"
+    elif "TOPPS CHROME" in title_upper:
+        product = "Topps Chrome"
+    elif "TOPPS" in title_upper:
+        product = "Topps"
+
+    # Autograph
+    autograph = bool(
+        re.search(r"\b(AUTO|AUTOGRAPH|AUTOGRAPHED)\b", title_upper)
+    )
+
+    # Rookie card
+    rookie_card = bool(
+        re.search(r"\b(RC|ROOKIE)\b", title_upper)
+    )
+
+    # Grading company
+    grade_company = None
+    for company in ["PSA", "BGS", "SGC", "CGC"]:
+        if re.search(rf"\b{company}\b", title_upper):
+            grade_company = company
+            break
+
+    # Grade
+    grade = None
+    if grade_company:
+        grade_match = re.search(
+            rf"\b{grade_company}\s*(\d+(?:\.\d+)?)\b",
+            title_upper
+        )
+        if grade_match:
+            grade = float(grade_match.group(1))
+
+    # Identify listings that are NOT individual cards
+    exclusion_terms = [
+        "YOU PICK",
+        "PICK YOUR CARD",
+        "HOBBY BOX",
+        "HOBBY CASE",
+        "BLASTER BOX",
+        "MEGA BOX",
+        "SEALED BOX",
+        "2 CARD MIN",
+        "2 CARD MINIMUM",
+        "CARD LOT",
+        "LOT OF",
+    ]
+
+    is_single_card = not any(
+        term in title_upper for term in exclusion_terms
+    )
+
+    return {
+        "card_year": card_year,
+        "manufacturer": manufacturer,
+        "product": product,
+        "autograph": autograph,
+        "rookie_card": rookie_card,
+        "grade_company": grade_company,
+        "grade": grade,
+        "is_single_card": is_single_card,
+    }
+
 @app.route("/", methods=["GET"])
 def home():
     return "eBay notification endpoint is running", 200
@@ -154,7 +241,8 @@ def ebay_search():
         """)
         
             for item in items:
-        
+                title = item.get("title", "")
+                card_data = parse_card_title(title)
                 listing_type = item.get("buyingOptions", ["UNKNOWN"])[0]
         
                 price = item.get("price", {}).get("value")
@@ -184,28 +272,37 @@ def ebay_search():
         
                 cur.execute("""
         
-                      INSERT INTO ebay_listings (
-                        ebay_item_id,
-                        title,
-                        asking_price,
-                        seller_name,
-                        listing_url,
-                        listing_type,
-                        condition,
-                        shipping_cost,
-                        seller_feedback_percentage,
-                        seller_feedback_score,
-                        image_url,
-                        category_id,
-                        item_end_date,
-                        currency,
-                        date_collected
-                    )
-                    VALUES (
-                        %s, %s, %s, %s, %s, %s, %s,
-                        %s, %s, %s, %s, %s, %s, %s,
-                        CURRENT_TIMESTAMP
-                    )
+                                 INSERT INTO ebay_listings (
+                ebay_item_id,
+                title,
+                asking_price,
+                seller_name,
+                listing_url,
+                listing_type,
+                condition,
+                shipping_cost,
+                seller_feedback_percentage,
+                seller_feedback_score,
+                image_url,
+                category_id,
+                item_end_date,
+                currency,
+                card_year,
+                manufacturer,
+                product,
+                autograph,
+                rookie_card,
+                grade_company,
+                grade,
+                is_single_card,
+                date_collected
+            )
+            VALUES (
+                %s, %s, %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s, %s, %s, %s,
+                CURRENT_TIMESTAMP
+            )
         
                       ON CONFLICT (ebay_item_id)
                     DO UPDATE SET
@@ -222,6 +319,14 @@ def ebay_search():
                         category_id = EXCLUDED.category_id,
                         item_end_date = EXCLUDED.item_end_date,
                         currency = EXCLUDED.currency,
+                        card_year = EXCLUDED.card_year,
+                        manufacturer = EXCLUDED.manufacturer,
+                        product = EXCLUDED.product,
+                        autograph = EXCLUDED.autograph,
+                        rookie_card = EXCLUDED.rookie_card,
+                        grade_company = EXCLUDED.grade_company,
+                        grade = EXCLUDED.grade,
+                        is_single_card = EXCLUDED.is_single_card,
                         date_collected = CURRENT_TIMESTAMP;
                 """, (
         
@@ -239,12 +344,16 @@ def ebay_search():
             category_id,
             item_end_date,
             currency,
-
+            card_data["card_year"],
+            card_data["manufacturer"],
+            card_data["product"],
+            card_data["autograph"],
+            card_data["rookie_card"],
+            card_data["grade_company"],
+            card_data["grade"],
+            card_data["is_single_card"],
 
         ))
-
-
-
     return jsonify({
 
         "success": True,
