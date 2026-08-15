@@ -316,17 +316,17 @@ for query in queries:
             },
             timeout=20,
         )
-        if search_response.status_code != 200:
-            return jsonify({
-                "success": False,
-                "error": search_response.text
-            }), search_response.status_code
-        data = search_response.json()
-        page_items = data.get("itemSummaries", [])
-        items.extend(page_items)
-
-        if len(page_items) < 200:
-            break
+            if search_response.status_code != 200:
+                return jsonify({
+                    "success": False,
+                    "error": search_response.text
+                }), search_response.status_code
+            data = search_response.json()
+            page_items = data.get("itemSummaries", [])
+            items.extend(page_items)
+    
+            if len(page_items) < 200:
+                break
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
