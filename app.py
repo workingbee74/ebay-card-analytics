@@ -332,8 +332,8 @@ def ebay_search():
             if len(page_items) < 200:
                 break
         with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
+                with conn.cursor() as cur:
+                cur.execute("""
                 CREATE TABLE IF NOT EXISTS ebay_listings (
                     id BIGSERIAL PRIMARY KEY,
                     ebay_item_id TEXT UNIQUE,
@@ -345,7 +345,7 @@ def ebay_search():
                     date_collected TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
             """)
-            cur.execute("""
+                cur.execute("""
             ALTER TABLE ebay_listings
                 ADD COLUMN IF NOT EXISTS listing_type TEXT,
                 ADD COLUMN IF NOT EXISTS condition TEXT,
@@ -358,7 +358,7 @@ def ebay_search():
                 ADD COLUMN IF NOT EXISTS currency TEXT;
         """)
         
-            for item in items:
+                for item in items:
                 title = item.get("title", "")
                 card_data = parse_card_title(title)
                         # Match title against known players in the players table
