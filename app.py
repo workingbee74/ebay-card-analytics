@@ -180,6 +180,8 @@ def parse_card_title(title):
 
     if re.search(r"\$\d+(?:\.\d+)?\s+MINIMUM\b", title_upper):
         is_single_card = False
+    if not is_single_card:
+        player_name = None
     return {
         "card_year": card_year,
         "player_name": player_name,
