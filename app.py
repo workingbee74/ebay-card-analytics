@@ -43,12 +43,27 @@ def parse_card_title(title):
 
     # Common pattern:
     # "2026 Bowman Chrome Kevin McGonigle Rookie..."
+       # Player name
+    player_name = None
+
+    # Pattern 1:
+    # "2026 Bowman Chrome Kevin McGonigle Rookie..."
     player_match = re.search(
         r"(?:BOWMAN CHROME|BOWMAN DRAFT|BOWMAN|TOPPS CHROME|TOPPS)\s+"
         r"([A-Z][A-Z.'-]+(?:\s+[A-Z][A-Z.'-]+){1,2})"
         r"(?=\s+(?:ROOKIE|RC|1ST|PROSPECT|AUTO|AUTOGRAPH|REFRACTOR|MOJO|#))",
         title_upper
     )
+
+    # Pattern 2:
+    # "KEVIN MCGONIGLE ROOKIE SILVER REFRACTOR 2026 Bowman Chrome..."
+    if not player_match:
+        player_match = re.search(
+            r"^([A-Z][A-Z.'-]+(?:\s+[A-Z][A-Z.'-]+){1,2})"
+            r"(?=\s+(?:ROOKIE|RC|1ST|PROSPECT|AUTO|AUTOGRAPH|"
+            r"REFRACTOR|MOJO|SILVER|GOLD|ORANGE|RED|BLUE|GREEN|PURPLE|AQUA))",
+            title_upper
+        )
 
     if player_match:
         player_name = player_match.group(1).title()
