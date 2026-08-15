@@ -147,7 +147,7 @@ cur.execute("""
     ADD COLUMN IF NOT EXISTS listing_type TEXT;
 
 """)
-            for item in items:
+for item in items:
                 listing_type=item.get("buyingOptions", ["UNKNOWN"])[0]
                 price = item.get("price", {}).get("value")
                 seller = item.get("seller", {}).get("username")
