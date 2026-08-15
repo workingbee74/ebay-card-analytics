@@ -294,25 +294,37 @@ def ebay_search():
             "error": token_response.text
         }), token_response.status_code
     access_token = token_response.json()["access_token"]
-    search_response = requests.get(
-        "https://api.ebay.com/buy/browse/v1/item_summary/search",
-        headers={
-            "Authorization": f"Bearer {access_token}",
-            "X-EBAY-C-MARKETPLACE-ID": "EBAY_US",
-        },
-        params={
-            "q": request.args.get("q", "Bowman Chrome baseball card"),
-            "limit": 50,
-        },
-        timeout=20,
-    )
-    if search_response.status_code != 200:
-        return jsonify({
-            "success": False,
-            "error": search_response.text
-        }), search_response.status_code
-    data = search_response.json()
-    items = data.get("itemSummaries", [])
+        items = []
+    query = request.args.get("q", "Bowman Chrome baseball card")
+
+    for offset in (0, 200, 400):
+        search_response = requests.get(
+            "https://api.ebay.com/buy/browse/v1/item_summary/search",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "X-EBAY-C-MARKETPLACE-ID": "EBAY_US",
+            },
+            params={
+                "q": query,
+                "limit": 200,
+                "offset": offset,
+            },
+            timeout=20,
+        )
+
+        if search_response.status_code != 200:
+            return jsonify({
+                "success": False,
+                "error": search_response.text
+            }), search_response.status_code
+
+        data = search_response.json()
+        page_items = data.get("itemSummaries", [])
+
+        items.extend(page_items)
+
+        if len(page_items) < 200:
+            break
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
