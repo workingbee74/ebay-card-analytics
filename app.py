@@ -178,8 +178,8 @@ for item in items:
                     item.get("itemWebUrl"),
                     listing_type,
                 ))
-            return jsonify({
-                "success": True,
-                "listings_received": len(items),
-                "listings_saved": len(items)
-            }), 200
+        return jsonify({
+            "success": True,
+            "listings_received": len(items),
+            "listings_saved": len(items)
+        }), 200
