@@ -606,7 +606,9 @@ def deals():
                         parallel,
                         COUNT(*) AS listing_count,
                         PERCENTILE_CONT(0.5)
-                            WITHIN GROUP (ORDER BY asking_price) AS median_price
+                            WITHIN GROUP (
+                                ORDER BY asking_price + COALESCE(shipping_cost, 0)
+                            ) AS median_price
                     FROM ebay_listings
                     WHERE
                         is_single_card = TRUE
@@ -634,7 +636,7 @@ def deals():
                     ROUND(
                         (
                             (
-                                (c.median_price - e.asking_price)
+                                (c.median_price - (e.asking_price + COALESCE(e.shipping_cost, 0)))
                                 / NULLIF(c.median_price, 0)
                             ) * 100
                         )::numeric,
@@ -649,7 +651,7 @@ def deals():
                 WHERE
                     e.is_single_card = TRUE
                     AND e.asking_price IS NOT NULL
-                    AND e.asking_price < c.median_price
+                    AND (e.asking_price + COALESCE(e.shipping_cost, 0)) < c.median_price
                 ORDER BY
                     discount_percentage DESC,
                     c.listing_count DESC
@@ -678,6 +680,9 @@ def deals():
             "parallel": row[4],
             "asking_price": float(row[5]) if row[5] is not None else None,
             "shipping_cost": float(row[6]) if row[6] is not None else None,
+            "total_cost": (
+                float(row[5]) + (float(row[6]) if row[6] is not None else 0)
+            ),
             "listing_url": row[7],
             "seller_name": row[8],
             "comparable_count": row[9],
