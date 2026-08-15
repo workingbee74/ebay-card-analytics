@@ -28,14 +28,16 @@ def parse_card_title(title):
         manufacturer = "Panini"
     # Product
     product = None
-    if "BOWMAN CHROME" in title_upper:
+   if "BOWMAN STERLING" in title_upper or "STERLING" in title_upper:
+    product = "Bowman Sterling"
+    elif "BOWMAN CHROME" in title_upper:
         product = "Bowman Chrome"
     elif "BOWMAN DRAFT" in title_upper:
         product = "Bowman Draft"
-    elif "BOWMAN" in title_upper:
-        product = "Bowman"
     elif "TOPPS CHROME" in title_upper:
         product = "Topps Chrome"
+    elif "BOWMAN" in title_upper:
+        product = "Bowman"
     elif "TOPPS" in title_upper:
         product = "Topps"
        # Player name
