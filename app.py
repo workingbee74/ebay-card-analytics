@@ -341,8 +341,21 @@ def ebay_search():
             for item in items:
                 title = item.get("title", "")
                 card_data = parse_card_title(title)
-                listing_type = item.get("buyingOptions", ["UNKNOWN"])[0]
+                        # Match title against known players in the players table
+                cur.execute("""
+                    SELECT player_name
+                    FROM players
+                    WHERE %s ILIKE '%%' || player_name || '%%'
+                    ORDER BY LENGTH(player_name) DESC
+                    LIMIT 1
+                """, (title,))
         
+                player_row = cur.fetchone()
+        
+                if player_row:
+                    card_data["player_name"] = player_row[0]
+                listing_type = item.get("buyingOptions", ["UNKNOWN"])[0]
+                
                 price = item.get("price", {}).get("value")
         
                 condition = item.get("condition")
