@@ -30,16 +30,16 @@ def parse_card_title(title):
     product = None
    if "BOWMAN STERLING" in title_upper or "STERLING" in title_upper:
     product = "Bowman Sterling"
-    elif "BOWMAN CHROME" in title_upper:
-        product = "Bowman Chrome"
-    elif "BOWMAN DRAFT" in title_upper:
-        product = "Bowman Draft"
-    elif "TOPPS CHROME" in title_upper:
-        product = "Topps Chrome"
-    elif "BOWMAN" in title_upper:
-        product = "Bowman"
-    elif "TOPPS" in title_upper:
-        product = "Topps"
+   elif "BOWMAN CHROME" in title_upper:
+    product = "Bowman Chrome"
+   elif "BOWMAN DRAFT" in title_upper:
+    product = "Bowman Draft"
+   elif "TOPPS CHROME" in title_upper:
+    product = "Topps Chrome"
+   elif "BOWMAN" in title_upper:
+    product = "Bowman"
+   elif "TOPPS" in title_upper:
+    product = "Topps"
        # Player name
     player_name = None
 
