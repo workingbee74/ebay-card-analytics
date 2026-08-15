@@ -43,88 +43,47 @@ def parse_card_title(title):
 
     # Common pattern:
     # "2026 Bowman Chrome Kevin McGonigle Rookie..."
-       # Player name
+      # Player name
     player_name = None
 
-    # Pattern 1:
-    # "2026 Bowman Chrome Munetaka Murakami #9..."
-    player_match = re.search(
-        r"(?:Bowman Chrome|Bowman Draft|Bowman|Topps Chrome|Topps)\s+"
-        r"(?:Baseball\s+)?"
-        r"([A-Za-z.'-]+(?:\s+[A-Za-z.'-]+){1,2})"
-        r"(?=\s+(?:#|RC\b|Rookie\b|1st\b|Prospect\b|Auto\b|Autograph\b|Refractor\b|Mojo\b))",
+    # Remove obvious non-name phrases first
+    cleaned_title = re.sub(
+        r"\b(?:BOWMAN|TOPPS|CHROME|DRAFT|BASEBALL|CARD|CARDS|"
+        r"ROOKIE|RC|PROSPECT|1ST|AUTO|AUTOGRAPH|REFRACTOR|MOJO|"
+        r"SILVER|GOLD|ORANGE|RED|BLUE|GREEN|PURPLE|AQUA|LIGHTNING|"
+        r"MEGA|HOBBY|BOX|INSERT|PARALLEL|PARALLELS|SIGNED|RARE|HOT)\b",
+        " ",
         title,
-        re.IGNORECASE
+        flags=re.IGNORECASE
     )
 
-    # Pattern 2:
-    # "KEVIN MCGONIGLE ROOKIE SILVER REFRACTOR..."
-    if not player_match:
-        player_match = re.search(
-            r"^([A-Za-z.'-]+(?:\s+[A-Za-z.'-]+){1,2})"
-            r"(?=\s+(?:ROOKIE|RC|1ST|PROSPECT|AUTO|AUTOGRAPH|"
-            r"REFRACTOR|MOJO|SILVER|GOLD|ORANGE|RED|BLUE|GREEN|PURPLE|AQUA|LIGHTNING))",
-            title,
-            re.IGNORECASE
-        )
-    # Pattern 3:
-    # "2023 Bowman Chrome MLB Baseball #BCP16 Drew Gilbert Prospect Card"
-    if not player_match:
-        player_match = re.search(
-            r"#[A-Z0-9-]+\s+"
-            r"([A-Za-z.'-]+(?:\s+[A-Za-z.'-]+){1,2})"
-            r"(?=\s+(?:ROOKIE|RC|1ST|PROSPECT|AUTO|AUTOGRAPH|REFRACTOR|MOJO))",
-            title,
-            re.IGNORECASE
-        )
+    # Remove years, card numbers, serial-like fragments, prices, and punctuation noise
+    cleaned_title = re.sub(r"\b(?:19|20)\d{2}\b", " ", cleaned_title)
+    cleaned_title = re.sub(r"#[A-Za-z0-9-]+", " ", cleaned_title)
+    cleaned_title = re.sub(r"\b\d+\s*/\s*\d+\b", " ", cleaned_title)
+    cleaned_title = re.sub(r"\$\d+(?:\.\d+)?", " ", cleaned_title)
+    cleaned_title = re.sub(r"[^A-Za-z.' -]", " ", cleaned_title)
+    cleaned_title = re.sub(r"\s+", " ", cleaned_title).strip()
 
-    # Pattern 4:
-    # More flexible Bowman Chrome name placement
-    if not player_match:
-        player_match = re.search(
-            r"(?:BOWMAN CHROME|BOWMAN DRAFT|TOPPS CHROME)\s+"
-            r"([A-Za-z.'-]+(?:\s+[A-Za-z.'-]+){1,2})"
-            r"(?=\s+(?:ROOKIE|RC|1ST|PROSPECT|AUTO|AUTOGRAPH|"
-            r"REFRACTOR|MOJO|SILVER|GOLD|ORANGE|RED|BLUE|GREEN|PURPLE|AQUA|LIGHTNING))",
-            title,
-            re.IGNORECASE
-        )
-        if player_match:
-            candidate = player_match.group(1).strip()
+    # Look for plausible 2- or 3-word person names
+    name_match = re.search(
+        r"\b([A-Za-z][A-Za-z.'-]+(?:\s+[A-Za-z][A-Za-z.'-]+){1,2})\b",
+        cleaned_title
+    )
 
-            # Remove seller/descriptive words accidentally captured as part of the name
-            trailing_words = {
-                "ROOKIE", "RC", "PROSPECT", "1ST",
-                "AUTO", "AUTOGRAPH", "SIGNED"
-            }
-    
-            parts = candidate.split()
-    
-            while parts and parts[-1].upper() in trailing_words:
-                parts.pop()
-    
-            # Remove common hype words from the beginning
-            leading_words = {
-                "RARE", "HOT"
-            }
-    
-            while parts and parts[0].upper() in leading_words:
-                parts.pop(0)
-    
-            candidate = " ".join(parts)
-    
-            # Reject phrases that are clearly product/listing descriptions, not players
-            bad_name_words = {
-                "BASEBALL", "CARD", "CARDS", "CHROME",
-                "BOX", "MEGA", "HOBBY", "MOJO",
-                "PARALLEL", "PARALLELS", "INSERT",
-                "PROSPECTS"
-            }
-    
-            candidate_words = set(candidate.upper().split())
-    
-            if candidate and not candidate_words.intersection(bad_name_words):
-                player_name = candidate.title()
+    if name_match:
+        candidate = name_match.group(1).strip()
+
+        bad_name_words = {
+            "PICK", "YOUR", "COMPLETE", "SET", "FREE", "SHIPPING",
+            "MINIMUM", "PRESALE", "INVESTMENT", "MINT", "GEM",
+            "SINGLES", "SEALED", "NEW", "QTY"
+        }
+
+        candidate_words = set(candidate.upper().split())
+
+        if not candidate_words.intersection(bad_name_words):
+            player_name = candidate.title()
     # Parallel
     parallel = None
 
