@@ -351,9 +351,11 @@ def ebay_search():
                 """, (title,))
         
                 player_row = cur.fetchone()
-        
+
                 if player_row:
                     card_data["player_name"] = player_row[0]
+                else:
+                    card_data["player_name"] = None
                 listing_type = item.get("buyingOptions", ["UNKNOWN"])[0]
                 
                 price = item.get("price", {}).get("value")
