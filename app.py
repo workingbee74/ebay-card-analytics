@@ -69,7 +69,7 @@ def parse_card_title(title):
         )
 
         if player_match:
-        candidate = player_match.group(1).strip()
+            candidate = player_match.group(1).strip()
 
         # Remove seller/descriptive words accidentally captured as part of the name
         trailing_words = {
