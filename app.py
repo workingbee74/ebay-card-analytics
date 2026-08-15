@@ -40,7 +40,41 @@ def parse_card_title(title):
         product = "Topps Chrome"
     elif "TOPPS" in title_upper:
         product = "Topps"
+    # Parallel
+    parallel = None
 
+    parallel_patterns = [
+        ("SUPERFRACTOR", "Superfractor"),
+        ("RED REFRACTOR", "Red Refractor"),
+        ("ORANGE REFRACTOR", "Orange Refractor"),
+        ("GOLD REFRACTOR", "Gold Refractor"),
+        ("GREEN REFRACTOR", "Green Refractor"),
+        ("BLUE REFRACTOR", "Blue Refractor"),
+        ("PURPLE REFRACTOR", "Purple Refractor"),
+        ("AQUA REFRACTOR", "Aqua Refractor"),
+        ("SILVER REFRACTOR", "Silver Refractor"),
+        ("MOJO REFRACTOR", "Mojo Refractor"),
+        ("REFRACTOR", "Refractor"),
+        ("SHIMMER", "Shimmer"),
+        ("WAVE", "Wave"),
+        ("SAPPHIRE", "Sapphire"),
+        ("SPECKLE", "Speckle"),
+    ]
+
+    for pattern, name in parallel_patterns:
+        if pattern in title_upper:
+            parallel = name
+            break
+
+    # Serial numbering, e.g. /50, /25, /5, 1/1
+    serial_numbered_to = None
+
+    serial_match = re.search(r"(?<!\d)/(\d{1,4})\b", title_upper)
+    if serial_match:
+        serial_numbered_to = int(serial_match.group(1))
+
+    if re.search(r"\b1\s*/\s*1\b", title_upper):
+        serial_numbered_to = 1
     # Autograph
     autograph = bool(
         re.search(r"\b(AUTO|AUTOGRAPH|AUTOGRAPHED)\b", title_upper)
@@ -91,6 +125,8 @@ def parse_card_title(title):
         "card_year": card_year,
         "manufacturer": manufacturer,
         "product": product,
+        "parallel": parallel,
+        "serial_numbered_to": serial_numbered_to,
         "autograph": autograph,
         "rookie_card": rookie_card,
         "grade_company": grade_company,
@@ -290,6 +326,8 @@ def ebay_search():
                 card_year,
                 manufacturer,
                 product,
+                parallel,
+                serial_numbered_to,
                 autograph,
                 rookie_card,
                 grade_company,
@@ -298,11 +336,12 @@ def ebay_search():
                 date_collected
             )
             VALUES (
-                %s, %s, %s, %s, %s, %s, %s,
-                %s, %s, %s, %s, %s, %s, %s,
-                %s, %s, %s, %s, %s, %s, %s, %s,
-                CURRENT_TIMESTAMP
-            )
+            %s, %s, %s, %s, %s, %s, %s,
+            %s, %s, %s, %s, %s, %s, %s,
+            %s, %s, %s, %s, %s, %s, %s, %s,
+            %s, %s,
+    CURRENT_TIMESTAMP
+)
         
                       ON CONFLICT (ebay_item_id)
                     DO UPDATE SET
@@ -322,6 +361,8 @@ def ebay_search():
                         card_year = EXCLUDED.card_year,
                         manufacturer = EXCLUDED.manufacturer,
                         product = EXCLUDED.product,
+                        parallel = EXCLUDED.parallel,
+                        serial_numbered_to = EXCLUDED.serial_numbered_to,
                         autograph = EXCLUDED.autograph,
                         rookie_card = EXCLUDED.rookie_card,
                         grade_company = EXCLUDED.grade_company,
@@ -347,6 +388,8 @@ def ebay_search():
             card_data["card_year"],
             card_data["manufacturer"],
             card_data["product"],
+            card_data["parallel"],
+            card_data["serial_numbered_to"],
             card_data["autograph"],
             card_data["rookie_card"],
             card_data["grade_company"],
