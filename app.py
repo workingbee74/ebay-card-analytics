@@ -68,8 +68,42 @@ def parse_card_title(title):
             re.IGNORECASE
         )
 
-    if player_match:
-        player_name = player_match.group(1).strip().title()
+        if player_match:
+        candidate = player_match.group(1).strip()
+
+        # Remove seller/descriptive words accidentally captured as part of the name
+        trailing_words = {
+            "ROOKIE", "RC", "PROSPECT", "1ST",
+            "AUTO", "AUTOGRAPH", "SIGNED"
+        }
+
+        parts = candidate.split()
+
+        while parts and parts[-1].upper() in trailing_words:
+            parts.pop()
+
+        # Remove common hype words from the beginning
+        leading_words = {
+            "RARE", "HOT"
+        }
+
+        while parts and parts[0].upper() in leading_words:
+            parts.pop(0)
+
+        candidate = " ".join(parts)
+
+        # Reject phrases that are clearly product/listing descriptions, not players
+        bad_name_words = {
+            "BASEBALL", "CARD", "CARDS", "CHROME",
+            "BOX", "MEGA", "HOBBY", "MOJO",
+            "PARALLEL", "PARALLELS", "INSERT",
+            "PROSPECTS"
+        }
+
+        candidate_words = set(candidate.upper().split())
+
+        if candidate and not candidate_words.intersection(bad_name_words):
+            player_name = candidate.title()
     # Parallel
     parallel = None
 
