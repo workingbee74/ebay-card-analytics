@@ -559,6 +559,21 @@ def valuation():
                 ((median_price - low_price) / median_price) * 100,
                 1
             )
+
+        deal_rating = None
+
+        if row[4] >= 2 and spread_percentage is not None:
+            if spread_percentage >= 20:
+                deal_rating = "BUY"
+            elif spread_percentage >= 10:
+                deal_rating = "FAIR"
+            else:
+                deal_rating = "HIGH"
+        if low_price is not None and median_price and median_price > 0:
+            spread_percentage = round(
+                ((median_price - low_price) / median_price) * 100,
+                1
+            )
         results.append({
             "player_name": row[0],
             "card_year": row[1],
@@ -568,6 +583,7 @@ def valuation():
             "low_price": low_price,
             "median_price": median_price,
             "spread_percentage": spread_percentage,
+            "deal_rating": deal_rating,
             "average_price": float(row[7]) if row[7] is not None else None,
             "high_price": float(row[8]) if row[8] is not None else None,
         })
