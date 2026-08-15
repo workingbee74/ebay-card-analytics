@@ -617,7 +617,7 @@ def deals():
                         card_year,
                         product,
                         parallel
-                    HAVING COUNT(*) >= 2
+                    HAVING COUNT(*) >= 3
                 )
                 SELECT
                     e.title,
