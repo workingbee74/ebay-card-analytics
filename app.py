@@ -333,7 +333,7 @@ def ebay_search():
                 break
         with psycopg.connect(DATABASE_URL) as conn:
                 with conn.cursor() as cur:
-                cur.execute("""
+                    cur.execute("""
                 CREATE TABLE IF NOT EXISTS ebay_listings (
                     id BIGSERIAL PRIMARY KEY,
                     ebay_item_id TEXT UNIQUE,
