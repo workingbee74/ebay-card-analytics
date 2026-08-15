@@ -359,58 +359,122 @@ def ebay_search():
         """)
         
                 for item in items:
-                title = item.get("title", "")
-                card_data = parse_card_title(title)
-                        # Match title against known players in the players table
-                cur.execute("""
-                    SELECT player_name
-                    FROM players
-                    WHERE %s ILIKE '%%' || player_name || '%%'
-                    ORDER BY LENGTH(player_name) DESC
-                    LIMIT 1
-                """, (title,))
-        
-                player_row = cur.fetchone()
-
-                if player_row:
-                    card_data["player_name"] = player_row[0]
-                else:
-                    card_data["player_name"] = None
-                listing_type = item.get("buyingOptions", ["UNKNOWN"])[0]
-                
-                price = item.get("price", {}).get("value")
-        
-                condition = item.get("condition")
-                
-                shipping_options = item.get("shippingOptions", [])
-                shipping_cost = None
-                if shipping_options:
-                    shipping_cost = shipping_options[0].get("shippingCost", {}).get("value")
-                
-                seller_info = item.get("seller", {})
-                seller = seller_info.get("username")
-                seller_feedback_percentage = seller_info.get("feedbackPercentage")
-                seller_feedback_score = seller_info.get("feedbackScore")
-                
-                image_url = item.get("image", {}).get("imageUrl")
-                
-                category_ids = item.get("leafCategoryIds", [])
-                category_id = category_ids[0] if category_ids else None
-                
-                item_end_date = item.get("itemEndDate")
-                
-                currency = item.get("price", {}).get("currency")
-        
-        
-        
-                cur.execute("""
-        
-                                 INSERT INTO ebay_listings (
-                ebay_item_id,
-                title,
-                asking_price,
-                seller_name,
-                listing_url,
+                    title = item.get("title", "")
+                    card_data = parse_card_title(title)
+                            # Match title against known players in the players table
+                    cur.execute("""
+                        SELECT player_name
+                        FROM players
+                        WHERE %s ILIKE '%%' || player_name || '%%'
+                        ORDER BY LENGTH(player_name) DESC
+                        LIMIT 1
+                    """, (title,))
+            
+                    player_row = cur.fetchone()
+    
+                    if player_row:
+                        card_data["player_name"] = player_row[0]
+                    else:
+                        card_data["player_name"] = None
+                    listing_type = item.get("buyingOptions", ["UNKNOWN"])[0]
+                    
+                    price = item.get("price", {}).get("value")
+            
+                    condition = item.get("condition")
+                    
+                    shipping_options = item.get("shippingOptions", [])
+                    shipping_cost = None
+                    if shipping_options:
+                        shipping_cost = shipping_options[0].get("shippingCost", {}).get("value")
+                    
+                    seller_info = item.get("seller", {})
+                    seller = seller_info.get("username")
+                    seller_feedback_percentage = seller_info.get("feedbackPercentage")
+                    seller_feedback_score = seller_info.get("feedbackScore")
+                    
+                    image_url = item.get("image", {}).get("imageUrl")
+                    
+                    category_ids = item.get("leafCategoryIds", [])
+                    category_id = category_ids[0] if category_ids else None
+                    
+                    item_end_date = item.get("itemEndDate")
+                    
+                    currency = item.get("price", {}).get("currency")
+            
+            
+            
+                    cur.execute("""
+            
+                                     INSERT INTO ebay_listings (
+                    ebay_item_id,
+                    title,
+                    asking_price,
+                    seller_name,
+                    listing_url,
+                    listing_type,
+                    condition,
+                    shipping_cost,
+                    seller_feedback_percentage,
+                    seller_feedback_score,
+                    image_url,
+                    category_id,
+                    item_end_date,
+                    currency,
+                    card_year,
+                    player_name,
+                    manufacturer,
+                    product,
+                    parallel,
+                    serial_numbered_to,
+                    autograph,
+                    rookie_card,
+                    grade_company,
+                    grade,
+                    is_single_card,
+                    date_collected
+                )
+                VALUES (
+        %s, %s, %s, %s, %s, %s, %s,
+        %s, %s, %s, %s, %s, %s, %s,
+        %s, %s, %s, %s, %s, %s, %s, %s,
+        %s, %s, %s,
+        CURRENT_TIMESTAMP
+    )
+            
+                          ON CONFLICT (ebay_item_id)
+                        DO UPDATE SET
+                            title = EXCLUDED.title,
+                            asking_price = EXCLUDED.asking_price,
+                            seller_name = EXCLUDED.seller_name,
+                            listing_url = EXCLUDED.listing_url,
+                            listing_type = EXCLUDED.listing_type,
+                            condition = EXCLUDED.condition,
+                            shipping_cost = EXCLUDED.shipping_cost,
+                            seller_feedback_percentage = EXCLUDED.seller_feedback_percentage,
+                            seller_feedback_score = EXCLUDED.seller_feedback_score,
+                            image_url = EXCLUDED.image_url,
+                            category_id = EXCLUDED.category_id,
+                            item_end_date = EXCLUDED.item_end_date,
+                            currency = EXCLUDED.currency,
+                            card_year = EXCLUDED.card_year,
+                            player_name = EXCLUDED.player_name,
+                            manufacturer = EXCLUDED.manufacturer,
+                            product = EXCLUDED.product,
+                            parallel = EXCLUDED.parallel,
+                            serial_numbered_to = EXCLUDED.serial_numbered_to,
+                            autograph = EXCLUDED.autograph,
+                            rookie_card = EXCLUDED.rookie_card,
+                            grade_company = EXCLUDED.grade_company,
+                            grade = EXCLUDED.grade,
+                            is_single_card = EXCLUDED.is_single_card,
+                            date_collected = CURRENT_TIMESTAMP;
+                    """, (
+            
+                item.get("itemId"),
+                item.get("title"),
+                price,
+                seller,
+                item.get("itemWebUrl"),
                 listing_type,
                 condition,
                 shipping_cost,
@@ -420,83 +484,19 @@ def ebay_search():
                 category_id,
                 item_end_date,
                 currency,
-                card_year,
-                player_name,
-                manufacturer,
-                product,
-                parallel,
-                serial_numbered_to,
-                autograph,
-                rookie_card,
-                grade_company,
-                grade,
-                is_single_card,
-                date_collected
-            )
-            VALUES (
-    %s, %s, %s, %s, %s, %s, %s,
-    %s, %s, %s, %s, %s, %s, %s,
-    %s, %s, %s, %s, %s, %s, %s, %s,
-    %s, %s, %s,
-    CURRENT_TIMESTAMP
-)
-        
-                      ON CONFLICT (ebay_item_id)
-                    DO UPDATE SET
-                        title = EXCLUDED.title,
-                        asking_price = EXCLUDED.asking_price,
-                        seller_name = EXCLUDED.seller_name,
-                        listing_url = EXCLUDED.listing_url,
-                        listing_type = EXCLUDED.listing_type,
-                        condition = EXCLUDED.condition,
-                        shipping_cost = EXCLUDED.shipping_cost,
-                        seller_feedback_percentage = EXCLUDED.seller_feedback_percentage,
-                        seller_feedback_score = EXCLUDED.seller_feedback_score,
-                        image_url = EXCLUDED.image_url,
-                        category_id = EXCLUDED.category_id,
-                        item_end_date = EXCLUDED.item_end_date,
-                        currency = EXCLUDED.currency,
-                        card_year = EXCLUDED.card_year,
-                        player_name = EXCLUDED.player_name,
-                        manufacturer = EXCLUDED.manufacturer,
-                        product = EXCLUDED.product,
-                        parallel = EXCLUDED.parallel,
-                        serial_numbered_to = EXCLUDED.serial_numbered_to,
-                        autograph = EXCLUDED.autograph,
-                        rookie_card = EXCLUDED.rookie_card,
-                        grade_company = EXCLUDED.grade_company,
-                        grade = EXCLUDED.grade,
-                        is_single_card = EXCLUDED.is_single_card,
-                        date_collected = CURRENT_TIMESTAMP;
-                """, (
-        
-            item.get("itemId"),
-            item.get("title"),
-            price,
-            seller,
-            item.get("itemWebUrl"),
-            listing_type,
-            condition,
-            shipping_cost,
-            seller_feedback_percentage,
-            seller_feedback_score,
-            image_url,
-            category_id,
-            item_end_date,
-            currency,
-            card_data["card_year"],
-            card_data["player_name"],
-            card_data["manufacturer"],
-            card_data["product"],
-            card_data["parallel"],
-            card_data["serial_numbered_to"],
-            card_data["autograph"],
-            card_data["rookie_card"],
-            card_data["grade_company"],
-            card_data["grade"],
-            card_data["is_single_card"],
-
-        ))
+                card_data["card_year"],
+                card_data["player_name"],
+                card_data["manufacturer"],
+                card_data["product"],
+                card_data["parallel"],
+                card_data["serial_numbered_to"],
+                card_data["autograph"],
+                card_data["rookie_card"],
+                card_data["grade_company"],
+                card_data["grade"],
+                card_data["is_single_card"],
+    
+            ))
     return jsonify({
 
         "success": True,
