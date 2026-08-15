@@ -295,8 +295,13 @@ def ebay_search():
         }), token_response.status_code
     access_token = token_response.json()["access_token"]
     items = []
-    query = request.args.get("q", "Bowman Chrome baseball card")
-
+    queries = [
+    "Bowman Chrome baseball card",
+    "Bowman Draft baseball card",
+    "Bowman Sterling baseball card",
+    "Topps Chrome baseball card",
+]
+for query in queries:
     for offset in (0, 200, 400):
         search_response = requests.get(
             "https://api.ebay.com/buy/browse/v1/item_summary/search",
@@ -311,16 +316,13 @@ def ebay_search():
             },
             timeout=20,
         )
-
         if search_response.status_code != 200:
             return jsonify({
                 "success": False,
                 "error": search_response.text
             }), search_response.status_code
-
         data = search_response.json()
         page_items = data.get("itemSummaries", [])
-
         items.extend(page_items)
 
         if len(page_items) < 200:
