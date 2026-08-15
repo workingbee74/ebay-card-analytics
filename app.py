@@ -129,7 +129,13 @@ def parse_card_title(title):
     is_single_card = not any(
         term in title_upper for term in exclusion_terms
     )
+    # Catch variable minimum-order wording:
+    # "6 card minimum", "2 CARD or $1.50 MINIMUM", "$2 Minimum Order"
+    if re.search(r"\b\d+\s*CARD(?:S)?\s+(?:OR\s+\$?\d+(?:\.\d+)?\s+)?MINIMUM\b", title_upper):
+        is_single_card = False
 
+if re.search(r"\$\d+(?:\.\d+)?\s+MINIMUM\b", title_upper):
+    is_single_card = False
     return {
         "card_year": card_year,
         "manufacturer": manufacturer,
