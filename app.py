@@ -18,7 +18,6 @@ def parse_card_title(title):
     # Year
     year_match = re.search(r"\b(19|20)\d{2}\b", title)
     card_year = int(year_match.group()) if year_match else None
-
     # Manufacturer
     manufacturer = None
     if "BOWMAN" in title_upper:
@@ -27,7 +26,6 @@ def parse_card_title(title):
         manufacturer = "Topps"
     elif "PANINI" in title_upper:
         manufacturer = "Panini"
-
     # Product
     product = None
     if "BOWMAN CHROME" in title_upper:
@@ -40,6 +38,20 @@ def parse_card_title(title):
         product = "Topps Chrome"
     elif "TOPPS" in title_upper:
         product = "Topps"
+       # Player name
+    player_name = None
+
+    # Common pattern:
+    # "2026 Bowman Chrome Kevin McGonigle Rookie..."
+    player_match = re.search(
+        r"(?:BOWMAN CHROME|BOWMAN DRAFT|BOWMAN|TOPPS CHROME|TOPPS)\s+"
+        r"([A-Z][A-Z.'-]+(?:\s+[A-Z][A-Z.'-]+){1,2})"
+        r"(?=\s+(?:ROOKIE|RC|1ST|PROSPECT|AUTO|AUTOGRAPH|REFRACTOR|MOJO|#))",
+        title_upper
+    )
+
+    if player_match:
+        player_name = player_match.group(1).title()
     # Parallel
     parallel = None
 
@@ -138,6 +150,7 @@ def parse_card_title(title):
         is_single_card = False
     return {
         "card_year": card_year,
+        "player_name": player_name,
         "manufacturer": manufacturer,
         "product": product,
         "parallel": parallel,
@@ -339,6 +352,7 @@ def ebay_search():
                 item_end_date,
                 currency,
                 card_year,
+                player_name,
                 manufacturer,
                 product,
                 parallel,
@@ -351,10 +365,10 @@ def ebay_search():
                 date_collected
             )
             VALUES (
-            %s, %s, %s, %s, %s, %s, %s,
-            %s, %s, %s, %s, %s, %s, %s,
-            %s, %s, %s, %s, %s, %s, %s, %s,
-            %s, %s,
+    %s, %s, %s, %s, %s, %s, %s,
+    %s, %s, %s, %s, %s, %s, %s,
+    %s, %s, %s, %s, %s, %s, %s, %s,
+    %s, %s, %s,
     CURRENT_TIMESTAMP
 )
         
@@ -374,6 +388,7 @@ def ebay_search():
                         item_end_date = EXCLUDED.item_end_date,
                         currency = EXCLUDED.currency,
                         card_year = EXCLUDED.card_year,
+                        player_name = EXCLUDED.player_name,
                         manufacturer = EXCLUDED.manufacturer,
                         product = EXCLUDED.product,
                         parallel = EXCLUDED.parallel,
@@ -401,6 +416,7 @@ def ebay_search():
             item_end_date,
             currency,
             card_data["card_year"],
+            card_data["player_name"],
             card_data["manufacturer"],
             card_data["product"],
             card_data["parallel"],
