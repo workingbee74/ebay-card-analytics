@@ -141,14 +141,17 @@ def ebay_search():
                 );
             """)
     cur.execute("""
-
-        ALTER TABLE ebay_listings
-
-        ADD COLUMN IF NOT EXISTS listing_type TEXT;
-
-    """)
-
-
+    ALTER TABLE ebay_listings
+        ADD COLUMN IF NOT EXISTS listing_type TEXT,
+        ADD COLUMN IF NOT EXISTS condition TEXT,
+        ADD COLUMN IF NOT EXISTS shipping_cost NUMERIC(12,2),
+        ADD COLUMN IF NOT EXISTS seller_feedback_percentage NUMERIC(6,3),
+        ADD COLUMN IF NOT EXISTS seller_feedback_score BIGINT,
+        ADD COLUMN IF NOT EXISTS image_url TEXT,
+        ADD COLUMN IF NOT EXISTS category_id TEXT,
+        ADD COLUMN IF NOT EXISTS item_end_date TIMESTAMP,
+        ADD COLUMN IF NOT EXISTS currency TEXT;
+""")
 
     for item in items:
 
@@ -156,61 +159,87 @@ def ebay_search():
 
         price = item.get("price", {}).get("value")
 
-        seller = item.get("seller", {}).get("username")
+        condition = item.get("condition")
+        
+        shipping_options = item.get("shippingOptions", [])
+        shipping_cost = None
+        if shipping_options:
+            shipping_cost = shipping_options[0].get("shippingCost", {}).get("value")
+        
+        seller_info = item.get("seller", {})
+        seller = seller_info.get("username")
+        seller_feedback_percentage = seller_info.get("feedbackPercentage")
+        seller_feedback_score = seller_info.get("feedbackScore")
+        
+        image_url = item.get("image", {}).get("imageUrl")
+        
+        category_ids = item.get("leafCategoryIds", [])
+        category_id = category_ids[0] if category_ids else None
+        
+        item_end_date = item.get("itemEndDate")
+        
+        currency = item.get("price", {}).get("currency")
 
 
 
         cur.execute("""
 
-            INSERT INTO ebay_listings (
-
+              INSERT INTO ebay_listings (
                 ebay_item_id,
-
                 title,
-
                 asking_price,
-
                 seller_name,
-
                 listing_url,
-
                 listing_type,
-
+                condition,
+                shipping_cost,
+                seller_feedback_percentage,
+                seller_feedback_score,
+                image_url,
+                category_id,
+                item_end_date,
+                currency,
                 date_collected
-
+            )
+            VALUES (
+                %s, %s, %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s, %s, %s,
+                CURRENT_TIMESTAMP
             )
 
-            VALUES (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
-
-            ON CONFLICT (ebay_item_id)
-
+              ON CONFLICT (ebay_item_id)
             DO UPDATE SET
-
                 title = EXCLUDED.title,
-
                 asking_price = EXCLUDED.asking_price,
-
                 seller_name = EXCLUDED.seller_name,
-
                 listing_url = EXCLUDED.listing_url,
-
                 listing_type = EXCLUDED.listing_type,
-
+                condition = EXCLUDED.condition,
+                shipping_cost = EXCLUDED.shipping_cost,
+                seller_feedback_percentage = EXCLUDED.seller_feedback_percentage,
+                seller_feedback_score = EXCLUDED.seller_feedback_score,
+                image_url = EXCLUDED.image_url,
+                category_id = EXCLUDED.category_id,
+                item_end_date = EXCLUDED.item_end_date,
+                currency = EXCLUDED.currency,
                 date_collected = CURRENT_TIMESTAMP;
-
         """, (
 
-            item.get("itemId"),
+    item.get("itemId"),
+    item.get("title"),
+    price,
+    seller,
+    item.get("itemWebUrl"),
+    listing_type,
+    condition,
+    shipping_cost,
+    seller_feedback_percentage,
+    seller_feedback_score,
+    image_url,
+    category_id,
+    item_end_date,
+    currency,
 
-            item.get("title"),
-
-            price,
-
-            seller,
-
-            item.get("itemWebUrl"),
-
-            listing_type,
 
         ))
 
