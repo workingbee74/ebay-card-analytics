@@ -670,11 +670,6 @@ def deals():
                                 / NULLIF(c.median_price, 0)
                             ) * 100 AS discount_percentage
                             FROM ebay_listings e
-                            AS numeric
-                        ),
-                        1
-                    ) AS discount_percentage
-                FROM ebay_listings e
                 JOIN comparable_stats c
                     ON e.player_name = c.player_name
                     AND e.card_year IS NOT DISTINCT FROM c.card_year
