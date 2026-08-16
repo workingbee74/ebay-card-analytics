@@ -836,8 +836,9 @@ def deals_dashboard_v2():
             100,
             55 + (comparable_count - 3) * 8
             )
+        scoring_discount = min(discount, 60)
         quality = round(
-            (discount * 0.60) +
+            (scoring_discount * 0.60) +
             (confidence * 0.40),
             1
         )
