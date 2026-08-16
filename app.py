@@ -730,7 +730,10 @@ def deals():
     "discount_percentage": discount_percentage,
     "deal_rating": deal_rating,
 })
-
+    results.sort(
+        key=lambda x: x["deal_quality_score"],
+        reverse=True
+    )
     return jsonify({
         "success": True,
         "deal_count": len(results),
