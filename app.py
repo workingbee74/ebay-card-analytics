@@ -852,26 +852,26 @@ def deals_dashboard_v2():
             float(row[8]) +
             (float(row[9]) if row[9] is not None else 0)
         )
-    deals.append({
-        "title": row[0],
-        "player_name": row[1],
-        "card_year": row[2],
-        "product": row[3],
-        "parallel": row[4],
-        "card_number": row[5],
-        "grade_company": row[6],
-        "grade": row[7],
-        "asking_price": float(row[8]),
-        "shipping_cost": float(row[9]) if row[9] is not None else 0,
-        "total_cost": total_cost,
-        "listing_url": row[10],
-        "comparable_count": comparable_count,
-        "median_price": float(row[12]),
-        "discount_percentage": discount,
-        "confidence_score": confidence,
-        "deal_quality_score": quality,
-        "deal_rating": rating,
-    })
+        deals.append({
+            "title": row[0],
+            "player_name": row[1],
+            "card_year": row[2],
+            "product": row[3],
+            "parallel": row[4],
+            "card_number": row[5],
+            "grade_company": row[6],
+            "grade": row[7],
+            "asking_price": float(row[8]),
+            "shipping_cost": float(row[9]) if row[9] is not None else 0,
+            "total_cost": total_cost,
+            "listing_url": row[10],
+            "comparable_count": comparable_count,
+            "median_price": float(row[12]),
+            "discount_percentage": discount,
+            "confidence_score": confidence,
+            "deal_quality_score": quality,
+            "deal_rating": rating,
+        })
     if player_filter:
         deals = [
             deal for deal in deals
