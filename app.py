@@ -746,6 +746,9 @@ def deals():
 def deals_dashboard_V2():
     player_filter = request.args.get("player", "").strip()
     rating_filter = request.args.get("rating", "").strip().upper()
+    min_confidence = request.args.get("min_confidence", "").strip()
+    min_comps = request.args.get("min_comps", "").strip()
+    min_discount = request.args.get("min_discount", "").strip()
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
@@ -870,6 +873,21 @@ def deals_dashboard_V2():
             deal for deal in deals
             if deal["deal_rating"] == rating_filter
         ]
+    if min_confidence:
+        deals = [
+            deal for deal in deals
+            if deal["confidence_score"] >= int(min_confidence)
+        ]
+    if min_comps:
+        deals = [
+            deal for deal in deals
+            if deal["comparable_count"] >= int(min_comps)
+        ]
+    if min_discount:
+        deals = [
+            deal for deal in deals
+            if deal["discount_percentage"] >= float(min_discount)
+        ]
     deals.sort(
         key=lambda x: x["deal_quality_score"],
         reverse=True
@@ -951,12 +969,39 @@ def deals_dashboard_V2():
         <option value="FAIR">FAIR</option>
         <option value="HIGH">HIGH</option>
     </select>
-
-    <button
-        type="submit"
-        style="padding: 8px 14px;"
-    >
-        Apply
+<input
+    type="number"
+    name="min_confidence"
+    placeholder="Min confidence"
+    value="{min_confidence}"
+    min="0"
+    max="100"
+    style="padding: 8px; margin-right: 10px;"
+>
+    
+<input
+    type="number"
+    name="min_comps"
+    placeholder="Min comps"
+    value="{min_comps}"
+    min="3"
+    style="padding: 8px; margin-right: 10px;"
+>
+<input
+    type="number"
+    name="min_discount"
+    placeholder="Min discount %"
+    value="{min_discount}"
+    min="0"
+    max="100"
+    step="0.1"
+    style="padding: 8px; margin-right: 10px;"
+>
+<button
+    type="submit"
+    style="padding: 8px 14px;"
+>
+    Apply
     </button>
 </form>
         <table>
