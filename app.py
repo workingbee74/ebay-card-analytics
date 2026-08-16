@@ -760,6 +760,8 @@ def deals_dashboard_v2():
                         parallel,
                         card_number,
                         autograph,
+                        grade_company,
+                        grade
                         COUNT(*) AS listing_count,
                         PERCENTILE_CONT(0.5)
                             WITHIN GROUP (
@@ -777,7 +779,9 @@ def deals_dashboard_v2():
                         product,
                         parallel,
                         card_number,
-                        autograph
+                        autograph,
+                        grade_company,
+                        grade
                     HAVING COUNT(*) >= 3
                 )
                 SELECT
