@@ -742,8 +742,8 @@ def deals():
         "deals": results
     }), 200
 
-@app.route("/deals-dashboard-V2", methods=["GET"])
-def deals_dashboard_V2():
+@app.route("/deals-dashboard-v2", methods=["GET"])
+def deals_dashboard_v2():
     player_filter = request.args.get("player", "").strip()
     rating_filter = request.args.get("rating", "").strip().upper()
     min_confidence = request.args.get("min_confidence", "").strip()
