@@ -961,14 +961,14 @@ def deals_dashboard_v2():
     >
 
     <select
-        name="rating"
-        style="padding: 8px; margin-right: 10px;"
-    >
-        <option value="">All Ratings</option>
-        <option value="BUY">BUY</option>
-        <option value="FAIR">FAIR</option>
-        <option value="HIGH">HIGH</option>
-    </select>
+    name="rating"
+    style="padding: 8px; margin-right: 10px;"
+>
+    <option value="" {"selected" if rating_filter == "" else ""}>All Ratings</option>
+    <option value="BUY" {"selected" if rating_filter == "BUY" else ""}>BUY</option>
+    <option value="FAIR" {"selected" if rating_filter == "FAIR" else ""}>FAIR</option>
+    <option value="HIGH" {"selected" if rating_filter == "HIGH" else ""}>HIGH</option>
+</select>
 <label style="margin-right: 10px;">
     Min Confidence
     <input
