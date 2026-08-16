@@ -659,7 +659,7 @@ def deals():
                     c.listing_count,
                     c.median_price,
                     ROUND(
-                        (
+                        CAST(
                             (
                                 (
                                     c.median_price -
@@ -667,7 +667,8 @@ def deals():
                                 )
                                 / NULLIF(c.median_price, 0)
                             ) * 100
-                        )::numeric,
+                            AS numeric
+                        ),
                         1
                     ) AS discount_percentage
                 FROM ebay_listings e
