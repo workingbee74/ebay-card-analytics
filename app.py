@@ -623,6 +623,7 @@ def deals():
                         card_year,
                         product,
                         parallel,
+                        card_number,
                         autograph,
                         COUNT(*) AS listing_count,
                         PERCENTILE_CONT(0.5)
@@ -639,6 +640,7 @@ def deals():
                         card_year,
                         product,
                         parallel,
+                        card_number,
                         autograph
                     HAVING COUNT(*) >= 3
                 )
@@ -669,6 +671,7 @@ def deals():
                     AND e.card_year IS NOT DISTINCT FROM c.card_year
                     AND e.product IS NOT DISTINCT FROM c.product
                     AND e.parallel IS NOT DISTINCT FROM c.parallel
+                    AND e.card_number IS NOT DISTINCT FROM c.card_number
                     AND e.autograph IS NOT DISTINCT FROM c.autograph
                 WHERE
                     e.is_single_card = TRUE
