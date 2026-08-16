@@ -698,7 +698,12 @@ def deals():
             deal_rating = "FAIR"
         else:
             deal_rating = "HIGH"
+        comparable_count = row[10]
 
+        confidence_score = min(
+            100,
+            55 + max(0, comparable_count - 3) * 8
+        )
         results.append({
     "title": row[0],
     "player_name": row[1],
@@ -714,6 +719,7 @@ def deals():
     "listing_url": row[8],
     "seller_name": row[9],
     "comparable_count": row[10],
+    "confidence_score": confidence_score,
     "median_price": float(row[11]) if row[11] is not None else None,
     "discount_percentage": discount_percentage,
     "deal_rating": deal_rating,
