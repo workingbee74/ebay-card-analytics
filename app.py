@@ -981,7 +981,7 @@ def deals_dashboard_V2():
     """
 
     return html
-    @app.route("/deals-dashboard", methods=["GET"])
+@app.route("/deals-dashboard", methods=["GET"])
 def deals_dashboard():
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
