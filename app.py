@@ -1010,6 +1010,20 @@ def deals_dashboard_v2():
 >
     Apply
     </button>
+<a
+    href="/deals-dashboard-v2"
+    style="
+        display: inline-block;
+        padding: 8px 14px;
+        margin-left: 8px;
+        border: 1px solid #999;
+        text-decoration: none;
+        color: #222;
+        background: white;
+    "
+>
+    Reset Filters
+</a>
 </form>
         <table>
             <tr>
