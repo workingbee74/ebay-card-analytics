@@ -661,7 +661,10 @@ def deals():
                     ROUND(
                         (
                             (
-                                (c.median_price - (e.asking_price + COALESCE(e.shipping_cost, 0)))
+                                (
+                                    c.median_price -
+                                    (e.asking_price + COALESCE(e.shipping_cost, 0))
+                                )
                                 / NULLIF(c.median_price, 0)
                             ) * 100
                         )::numeric,
