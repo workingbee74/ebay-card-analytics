@@ -448,7 +448,7 @@ def ebay_search():
             %s, %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s, %s, %s, %s,
-            %s, %s, %s, %S,
+            %s, %s, %s, %s,
             CURRENT_TIMESTAMP
         )
                 
