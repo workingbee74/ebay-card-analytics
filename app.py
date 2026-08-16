@@ -781,7 +781,7 @@ def deals_dashboard_v2():
                         card_number,
                         autograph,
                         grade_company,
-                        grade,
+                        grade
                     HAVING COUNT(*) >= 3
                 )
                 SELECT
