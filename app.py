@@ -960,8 +960,9 @@ def deals_dashboard_v2():
         style="padding: 8px; margin-right: 10px;"
     >
 
-    <select
+   <select
     name="rating"
+    onchange="this.form.submit()"
     style="padding: 8px; margin-right: 10px;"
 >
     <option value="" {"selected" if rating_filter == "" else ""}>All Ratings</option>
