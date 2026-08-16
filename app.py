@@ -1077,33 +1077,26 @@ def deals_dashboard():
                     AND (e.asking_price + COALESCE(e.shipping_cost, 0)) < c.median_price
                 LIMIT 50;
             """)
-
             rows = cur.fetchall()
-
     deals = []
-
     for row in rows:
         discount = float(row[11])
         comparable_count = row[9]
-
         confidence = min(
             100,
             55 + max(0, comparable_count - 3) * 8
         )
-
         quality = round(
             (discount * 0.60) +
             (confidence * 0.40),
             1
         )
-
         if discount >= 20:
             rating = "BUY"
         elif discount >= 10:
             rating = "FAIR"
         else:
             rating = "HIGH"
-
         total_cost = (
             float(row[6]) +
             (float(row[7]) if row[7] is not None else 0)
