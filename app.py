@@ -1078,8 +1078,8 @@ def deals_dashboard():
                 LIMIT 50;
             """)
             rows = cur.fetchall()
-    deals = []
-    for row in rows:
+deals = []
+for row in rows:
         discount = float(row[11])
         comparable_count = row[9]
         confidence = min(
