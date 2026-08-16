@@ -117,7 +117,16 @@ def parse_card_title(title):
         if pattern in title_upper:
             parallel = name
             break
+    # Card number, e.g. #BCP-164, #BD-76, #BST-1
+    card_number = None
 
+    card_number_match = re.search(
+        r"#([A-Z]{1,5}-?\d{1,4})\b",
+        title_upper
+    )
+
+    if card_number_match:
+        card_number = card_number_match.group(1)
     # Serial numbering, e.g. /50, /25, /5, 1/1
     serial_numbered_to = None
 
@@ -190,6 +199,7 @@ def parse_card_title(title):
         "manufacturer": manufacturer,
         "product": product,
         "parallel": parallel,
+        "card_number": card_number,
         "serial_numbered_to": serial_numbered_to,
         "autograph": autograph,
         "rookie_card": rookie_card,
@@ -425,6 +435,7 @@ def ebay_search():
                         manufacturer,
                         product,
                         parallel,
+                        card_number,
                         serial_numbered_to,
                         autograph,
                         rookie_card,
@@ -437,7 +448,7 @@ def ebay_search():
             %s, %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s, %s, %s, %s,
-            %s, %s, %s,
+            %s, %s, %s, %S,
             CURRENT_TIMESTAMP
         )
                 
@@ -461,6 +472,7 @@ def ebay_search():
                                 manufacturer = EXCLUDED.manufacturer,
                                 product = EXCLUDED.product,
                                 parallel = EXCLUDED.parallel,
+                                card_number = EXCLUDED.card_number,
                                 serial_numbered_to = EXCLUDED.serial_numbered_to,
                                 autograph = EXCLUDED.autograph,
                                 rookie_card = EXCLUDED.rookie_card,
@@ -489,6 +501,7 @@ def ebay_search():
                     card_data["manufacturer"],
                     card_data["product"],
                     card_data["parallel"],
+                    card_data["card_number"],
                     card_data["serial_numbered_to"],
                     card_data["autograph"],
                     card_data["rookie_card"],
