@@ -969,34 +969,41 @@ def deals_dashboard_v2():
         <option value="FAIR">FAIR</option>
         <option value="HIGH">HIGH</option>
     </select>
-<input
-    type="number"
-    name="min_confidence"
-    placeholder="Min confidence"
-    value="{min_confidence}"
-    min="0"
-    max="100"
-    style="padding: 8px; margin-right: 10px;"
->
-    
-<input
-    type="number"
-    name="min_comps"
-    placeholder="Min comps"
-    value="{min_comps}"
-    min="3"
-    style="padding: 8px; margin-right: 10px;"
->
-<input
-    type="number"
-    name="min_discount"
-    placeholder="Min discount %"
-    value="{min_discount}"
-    min="0"
-    max="100"
-    step="0.1"
-    style="padding: 8px; margin-right: 10px;"
->
+<label style="margin-right: 10px;">
+    Min Confidence
+    <input
+        type="number"
+        name="min_confidence"
+        value="{min_confidence}"
+        min="0"
+        max="100"
+        style="padding: 8px; width: 80px;"
+    >
+</label>
+
+<label style="margin-right: 10px;">
+    Min Comps
+    <input
+        type="number"
+        name="min_comps"
+        value="{min_comps}"
+        min="3"
+        style="padding: 8px; width: 70px;"
+    >
+</label>
+
+<label style="margin-right: 10px;">
+    Min Discount %
+    <input
+        type="number"
+        name="min_discount"
+        value="{min_discount}"
+        min="0"
+        max="100"
+        step="0.1"
+        style="padding: 8px; width: 80px;"
+    >
+</label>
 <button
     type="submit"
     style="padding: 8px 14px;"
