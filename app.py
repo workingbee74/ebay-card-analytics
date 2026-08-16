@@ -744,6 +744,8 @@ def deals():
 
 @app.route("/deals-dashboard-V2", methods=["GET"])
 def deals_dashboard_V2():
+    player_filter = request.args.get("player", "").strip()
+    rating_filter = request.args.get("rating", "").strip().upper()
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
@@ -858,71 +860,72 @@ def deals_dashboard_V2():
             "deal_quality_score": quality,
             "deal_rating": rating,
         })
+    if player_filter:
+        deals = [
+            deal for deal in deals
+            if player_filter.lower() in deal["player_name"].lower()
+        ]
 
+    if rating_filter:
+        deals = [
+            deal for deal in deals
+            if deal["deal_rating"] == rating_filter
+        ]
     deals.sort(
         key=lambda x: x["deal_quality_score"],
         reverse=True
     )
 
-    html = """
+    html = f"""
     <html>
     <head>
         <title>Baseball Card Deals</title>
         <style>
-            body {
+            body {{
                 font-family: Arial, sans-serif;
                 margin: 30px;
                 background: #f5f6f8;
-            }
-
-            h1 {
+            }}
+            h1 {{
                 margin-bottom: 5px;
-            }
-
-            .subtitle {
+            }}
+            .subtitle {{
                 color: #666;
                 margin-bottom: 25px;
-            }
-
-            table {
+            }}
+            table {{
                 width: 100%;
                 border-collapse: collapse;
                 background: white;
-            }
-
-            th, td {
+            }}
+            th, td {{
                 padding: 10px;
                 border-bottom: 1px solid #ddd;
                 text-align: left;
                 font-size: 14px;
-            }
-
-            th {
+            }}
+            th {{
                 background: #222;
                 color: white;
                 position: sticky;
                 top: 0;
-            }
-
-            .buy {
+            }}
+            .buy {{
                 font-weight: bold;
                 color: #087a2f;
-            }
-
-            .fair {
+            }}
+            .fair {{
                 font-weight: bold;
                 color: #b36b00;
-            }
-
-            .high {
+            }}
+            .high {{
                 font-weight: bold;
                 color: #b42318;
-            }
-
-            a {
+            }}
+            a {{
                 text-decoration: none;
                 font-weight: bold;
-            }
+            }}
         </style>
     </head>
 
@@ -932,7 +935,32 @@ def deals_dashboard_V2():
         <div class="subtitle">
             Ranked by Deal Quality Score
         </div>
+<form method="GET" action="/deals-dashboard-v2" style="margin-bottom: 20px;">
+    <input
+        type="text"
+        name="player"
+        placeholder="Search player"
+        value="{player_filter}"
+        style="padding: 8px; margin-right: 10px;"
+    >
 
+    <select
+        name="rating"
+        style="padding: 8px; margin-right: 10px;"
+    >
+        <option value="">All Ratings</option>
+        <option value="BUY">BUY</option>
+        <option value="FAIR">FAIR</option>
+        <option value="HIGH">HIGH</option>
+    </select>
+
+    <button
+        type="submit"
+        style="padding: 8px 14px;"
+    >
+        Apply
+    </button>
+</form>
         <table>
             <tr>
                 <th>Player</th>
@@ -981,9 +1009,11 @@ def deals_dashboard_V2():
     """
 
     return html
+
+
 @app.route("/deals-dashboard", methods=["GET"])
 def deals_dashboard():
-    with psycopg.connect(DATABASE_URL) as conn:
+   with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
                 WITH comparable_stats AS (
