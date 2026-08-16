@@ -865,7 +865,6 @@ def deals_dashboard_V2():
             deal for deal in deals
             if player_filter.lower() in deal["player_name"].lower()
         ]
-
     if rating_filter:
         deals = [
             deal for deal in deals
@@ -875,7 +874,6 @@ def deals_dashboard_V2():
         key=lambda x: x["deal_quality_score"],
         reverse=True
     )
-
     html = f"""
     <html>
     <head>
