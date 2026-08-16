@@ -791,10 +791,12 @@ def deals_dashboard_v2():
                     e.product,
                     e.parallel,
                     e.card_number,
+                    e.grade_company,
+                    e.grade,
                     e.asking_price,
                     e.shipping_cost,
                     e.listing_url,
-                   c.listing_count,
+                    c.listing_count,
                     c.median_price,
                     (
                         (
@@ -811,6 +813,8 @@ def deals_dashboard_v2():
                        AND e.parallel IS NOT DISTINCT FROM c.parallel
                        AND e.card_number IS NOT DISTINCT FROM c.card_number
                        AND e.autograph IS NOT DISTINCT FROM c.autograph
+                       AND e.grade_company IS NOT DISTINCT FROM c.grade_company
+                        AND e.grade IS NOT DISTINCT FROM c.grade
                    WHERE
                     e.is_single_card = TRUE
                     AND e.asking_price IS NOT NULL
@@ -823,20 +827,18 @@ def deals_dashboard_v2():
     deals = []
 
     for row in rows:
-        discount = float(row[11])
-        comparable_count = row[9]
+        discount = float(row[13])
+        comparable_count = row[11]
 
         confidence = min(
             100,
             55 + max(0, comparable_count - 3) * 8
         )
-
         quality = round(
             (discount * 0.60) +
             (confidence * 0.40),
             1
         )
-
         if discount >= 20:
             rating = "BUY"
         elif discount >= 10:
@@ -845,28 +847,29 @@ def deals_dashboard_v2():
             rating = "HIGH"
 
         total_cost = (
-            float(row[6]) +
-            (float(row[7]) if row[7] is not None else 0)
+            float(row[8]) +
+            (float(row[9]) if row[9] is not None else 0)
         )
-
-        deals.append({
-            "title": row[0],
-            "player_name": row[1],
-            "card_year": row[2],
-            "product": row[3],
-            "parallel": row[4],
-            "card_number": row[5],
-            "asking_price": float(row[6]),
-            "shipping_cost": float(row[7]) if row[7] is not None else 0,
-            "total_cost": total_cost,
-            "listing_url": row[8],
-            "comparable_count": comparable_count,
-            "median_price": float(row[10]),
-            "discount_percentage": discount,
-            "confidence_score": confidence,
-            "deal_quality_score": quality,
-            "deal_rating": rating,
-        })
+    deals.append({
+        "title": row[0],
+        "player_name": row[1],
+        "card_year": row[2],
+        "product": row[3],
+        "parallel": row[4],
+        "card_number": row[5],
+        "grade_company": row[6],
+        "grade": row[7],
+        "asking_price": float(row[8]),
+        "shipping_cost": float(row[9]) if row[9] is not None else 0,
+        "total_cost": total_cost,
+        "listing_url": row[10],
+        "comparable_count": comparable_count,
+        "median_price": float(row[12]),
+        "discount_percentage": discount,
+        "confidence_score": confidence,
+        "deal_quality_score": quality,
+        "deal_rating": rating,
+    })
     if player_filter:
         deals = [
             deal for deal in deals
@@ -1036,6 +1039,7 @@ def deals_dashboard_v2():
                 <th>Card</th>
                 <th>Product</th>
                 <th>Parallel</th>
+                <th>Grade</th>
                 <th>Total Cost</th>
                 <th>Median</th>
                 <th>Discount</th>
@@ -1056,6 +1060,7 @@ def deals_dashboard_v2():
                 <td>{deal["card_year"]} #{deal["card_number"]}</td>
                 <td>{deal["product"] or ""}</td>
                 <td>{deal["parallel"] or "Base"}</td>
+                <td>{(deal["grade_company"] + " " + str(deal["grade"])) if deal["grade_company"] and deal["grade"] is not None else "Raw"}</td>
                 <td>${deal["total_cost"]:.2f}</td>
                 <td>${deal["median_price"]:.2f}</td>
                 <td>{deal["discount_percentage"]:.1f}%</td>
