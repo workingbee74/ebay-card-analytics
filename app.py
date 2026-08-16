@@ -794,14 +794,15 @@ def deals_dashboard():
                         )
                         / NULLIF(c.median_price, 0)
                     ) * 100 AS discount_percentage
-                    FROM ebay_listings e
-                    ON e.player_name = c.player_name
-                    AND e.card_year IS NOT DISTINCT FROM c.card_year
-                    AND e.product IS NOT DISTINCT FROM c.product
-                    AND e.parallel IS NOT DISTINCT FROM c.parallel
-                    AND e.card_number IS NOT DISTINCT FROM c.card_number
-                    AND e.autograph IS NOT DISTINCT FROM c.autograph
-                WHERE
+                   FROM ebay_listings e
+                   JOIN comparable_stats c
+                       ON e.player_name = c.player_name
+                       AND e.card_year IS NOT DISTINCT FROM c.card_year
+                       AND e.product IS NOT DISTINCT FROM c.product
+                       AND e.parallel IS NOT DISTINCT FROM c.parallel
+                       AND e.card_number IS NOT DISTINCT FROM c.card_number
+                       AND e.autograph IS NOT DISTINCT FROM c.autograph
+                   WHERE
                     e.is_single_card = TRUE
                     AND e.asking_price IS NOT NULL
                     AND (e.asking_price + COALESCE(e.shipping_cost, 0)) < c.median_price
