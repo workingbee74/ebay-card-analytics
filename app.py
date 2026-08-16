@@ -328,7 +328,6 @@ def ebay_search():
                 },
                 timeout=20,
             )
-
             if search_response.status_code != 200:
                 return jsonify({
                     "success": False,
