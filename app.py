@@ -704,6 +704,11 @@ def deals():
             100,
             55 + max(0, comparable_count - 3) * 8
         )
+        deal_quality_score = round(
+    (discount_percentage * 0.60) +
+    (confidence_score * 0.40),
+    1
+)
         results.append({
     "title": row[0],
     "player_name": row[1],
@@ -720,6 +725,7 @@ def deals():
     "seller_name": row[9],
     "comparable_count": row[10],
     "confidence_score": confidence_score,
+    "deal_quality_score": deal_quality_score,
     "median_price": float(row[11]) if row[11] is not None else None,
     "discount_percentage": discount_percentage,
     "deal_rating": deal_rating,
