@@ -1118,12 +1118,10 @@ for row in rows:
             "deal_quality_score": quality,
             "deal_rating": rating,
         })
-
     deals.sort(
         key=lambda x: x["deal_quality_score"],
         reverse=True
     )
-
     html = """
     <html>
     <head>
