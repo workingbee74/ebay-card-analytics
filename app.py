@@ -660,13 +660,16 @@ def deals():
                     c.median_price,
                     ROUND(
                         CAST(
+                            c.listing_count,
+                            c.median_price,
                             (
                                 (
                                     c.median_price -
                                     (e.asking_price + COALESCE(e.shipping_cost, 0))
                                 )
                                 / NULLIF(c.median_price, 0)
-                            ) * 100
+                            ) * 100 AS discount_percentage
+                            FROM ebay_listings e
                             AS numeric
                         ),
                         1
