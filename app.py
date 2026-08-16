@@ -650,6 +650,7 @@ def deals():
                     e.card_year,
                     e.product,
                     e.parallel,
+                    e.card_number,
                     e.asking_price,
                     e.shipping_cost,
                     e.listing_url,
@@ -688,7 +689,7 @@ def deals():
     results = []
 
     for row in rows:
-        discount_percentage = float(row[11])
+        discount_percentage = float(row[12])
 
         if discount_percentage >= 20:
             deal_rating = "BUY"
@@ -698,23 +699,24 @@ def deals():
             deal_rating = "HIGH"
 
         results.append({
-            "title": row[0],
-            "player_name": row[1],
-            "card_year": row[2],
-            "product": row[3],
-            "parallel": row[4],
-            "asking_price": float(row[5]) if row[5] is not None else None,
-            "shipping_cost": float(row[6]) if row[6] is not None else None,
-            "total_cost": (
-                float(row[5]) + (float(row[6]) if row[6] is not None else 0)
-            ),
-            "listing_url": row[7],
-            "seller_name": row[8],
-            "comparable_count": row[9],
-            "median_price": float(row[10]) if row[10] is not None else None,
-            "discount_percentage": discount_percentage,
-            "deal_rating": deal_rating,
-        })
+    "title": row[0],
+    "player_name": row[1],
+    "card_year": row[2],
+    "product": row[3],
+    "parallel": row[4],
+    "card_number": row[5],
+    "asking_price": float(row[6]) if row[6] is not None else None,
+    "shipping_cost": float(row[7]) if row[7] is not None else None,
+    "total_cost": (
+        float(row[6]) + (float(row[7]) if row[7] is not None else 0)
+    ),
+    "listing_url": row[8],
+    "seller_name": row[9],
+    "comparable_count": row[10],
+    "median_price": float(row[11]) if row[11] is not None else None,
+    "discount_percentage": discount_percentage,
+    "deal_rating": deal_rating,
+})
 
     return jsonify({
         "success": True,
