@@ -643,7 +643,7 @@ def deals():
                         parallel,
                         card_number,
                         autograph
-                    HAVING COUNT(*) >= 3
+                    HAVING COUNT(*) >= 2
                 )
                 SELECT
                     e.title,
@@ -781,7 +781,7 @@ def deals_dashboard_v2():
                         autograph,
                         grade_company,
                         grade
-                    HAVING COUNT(*) >= 3
+                    HAVING COUNT(*) >= 2
                 )
                 SELECT
                     e.title,
@@ -829,10 +829,13 @@ def deals_dashboard_v2():
         discount = float(row[13])
         comparable_count = row[11]
 
-        confidence = min(
+        if comparable_count == 2:
+            confidence = 40
+        else:
+            confidence = min(
             100,
-            55 + max(0, comparable_count - 3) * 8
-        )
+            55 + (comparable_count - 3) * 8
+            )
         quality = round(
             (discount * 0.60) +
             (confidence * 0.40),
@@ -994,7 +997,7 @@ def deals_dashboard_v2():
         type="number"
         name="min_comps"
         value="{min_comps}"
-        min="3"
+        min="2"
         style="padding: 8px; width: 70px;"
     >
 </label>
