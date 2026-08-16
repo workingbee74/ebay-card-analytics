@@ -749,6 +749,8 @@ def deals_dashboard_v2():
     min_confidence = request.args.get("min_confidence", "").strip()
     min_comps = request.args.get("min_comps", "").strip()
     min_discount = request.args.get("min_discount", "").strip()
+    parallel_filter = request.args.get("parallel", "").strip()
+    grade_filter = request.args.get("grade", "").strip()
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
@@ -873,6 +875,18 @@ def deals_dashboard_v2():
             "deal_quality_score": quality,
             "deal_rating": rating,
         })
+    parallel_options = sorted(set(
+        deal["parallel"] or "Base"
+        for deal in deals
+    ))
+    grade_options = sorted(set(
+    (
+        deal["grade_company"] + " " + str(deal["grade"])
+        if deal["grade_company"] and deal["grade"] is not None
+        else "Raw"
+    )
+    for deal in deals
+))
     if player_filter:
         deals = [
             deal for deal in deals
@@ -883,6 +897,23 @@ def deals_dashboard_v2():
             deal for deal in deals
             if deal["deal_rating"] == rating_filter
         ]
+    if parallel_filter:
+        deals = [
+            deal for deal in deals
+            if (deal["parallel"] or "Base") == parallel_filter
+        ]
+    if grade_filter:
+        deals = [
+            deal for deal in deals
+            if (
+                (
+                    deal["grade_company"] + " " + str(deal["grade"])
+                    if deal["grade_company"] and deal["grade"] is not None
+                    else "Raw"
+                )
+                == grade_filter
+            )
+    ]
     if min_confidence:
         deals = [
             deal for deal in deals
@@ -980,6 +1011,34 @@ def deals_dashboard_v2():
     <option value="FAIR" {"selected" if rating_filter == "FAIR" else ""}>FAIR</option>
     <option value="HIGH" {"selected" if rating_filter == "HIGH" else ""}>HIGH</option>
 </select>
+<label style="margin-right: 10px;">
+    Parallel
+    <select
+        name="parallel"
+        onchange="this.form.submit()"
+        style="padding: 8px;"
+    >
+        <option value="">All Parallels</option>
+        {''.join(
+            f'<option value="{p}" {"selected" if p == parallel_filter else ""}>{p}</option>'
+            for p in parallel_options
+        )}
+    </select>
+</label>
+<label style="margin-right: 10px;">
+    Grade
+    <select
+        name="grade"
+        onchange="this.form.submit()"
+        style="padding: 8px;"
+    >
+        <option value="">All Grades</option>
+        {''.join(
+            f'<option value="{g}" {"selected" if g == grade_filter else ""}>{g}</option>'
+            for g in grade_options
+        )}
+    </select>
+</label>
 <label style="margin-right: 10px;">
     Min Confidence
     <input
