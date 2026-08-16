@@ -634,6 +634,7 @@ def deals():
                     WHERE
                         is_single_card = TRUE
                         AND player_name IS NOT NULL
+                        AND card_number IS NOT NULL
                         AND asking_price IS NOT NULL
                     GROUP BY
                         player_name,
