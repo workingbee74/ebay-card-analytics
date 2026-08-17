@@ -790,6 +790,87 @@ def ebay_auction_snapshot():
         "snapshots_saved": snapshots_saved
     }), 200
 
+@app.route("/inventory/enrich", methods=["GET"])
+def inventory_enrich():
+
+    updated = 0
+    skipped = 0
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+
+            cur.execute("""
+                SELECT
+                    inventory_id,
+                    original_title
+                FROM inventory
+                WHERE manufacturer = 'Bowman'
+                ORDER BY inventory_id
+            """)
+
+            inventory_rows = cur.fetchall()
+
+            for inventory_id, title in inventory_rows:
+
+                card_data = parse_card_title(title)
+
+                # Use our known-player table just like ebay_search()
+                cur.execute("""
+                    SELECT player_name
+                    FROM players
+                    WHERE %s ILIKE '%%' || player_name || '%%'
+                    ORDER BY LENGTH(player_name) DESC
+                    LIMIT 1
+                """, (title,))
+
+                player_row = cur.fetchone()
+
+                if player_row:
+                    card_data["player_name"] = player_row[0]
+
+                if card_data["manufacturer"] != "Bowman":
+                    skipped += 1
+                    continue
+
+                cur.execute("""
+                    UPDATE inventory
+                    SET
+                        player_name = %s,
+                        manufacturer = %s,
+                        product = %s,
+                        card_number = %s,
+                        parallel = %s,
+                        serial_numbered_to = %s,
+                        autograph = %s,
+                        rookie_card = %s,
+                        grade_company = %s,
+                        grade = %s,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE inventory_id = %s
+                """, (
+                    card_data["player_name"],
+                    card_data["manufacturer"],
+                    card_data["product"],
+                    card_data["card_number"],
+                    card_data["parallel"],
+                    card_data["serial_numbered_to"],
+                    card_data["autograph"],
+                    card_data["rookie_card"],
+                    card_data["grade_company"],
+                    card_data["grade"],
+                    inventory_id,
+                ))
+
+                updated += 1
+
+        conn.commit()
+
+    return jsonify({
+        "success": True,
+        "bowman_cards_updated": updated,
+        "cards_skipped": skipped
+    }), 200
+
 @app.route("/valuation", methods=["GET"])
 def valuation():
     player = request.args.get("player", "").strip()
