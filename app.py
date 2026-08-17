@@ -918,6 +918,203 @@ def inventory_enrich():
         "cards_skipped": skipped
     }), 200
 
+@app.route("/inventory-dashboard", methods=["GET"])
+def inventory_dashboard():
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT
+                    inventory_id,
+                    player_name,
+                    card_year,
+                    product,
+                    card_number,
+                    parallel,
+                    serial_number,
+                    serial_numbered_to,
+                    grade_company,
+                    grade,
+                    autograph,
+                    first_bowman,
+                    purchase_price
+                FROM inventory
+                WHERE manufacturer = 'Bowman'
+                ORDER BY purchase_price DESC NULLS LAST
+            """)
+
+            rows = cur.fetchall()
+
+    total_cards = len(rows)
+
+    total_cost = sum(
+        float(row[12])
+        for row in rows
+        if row[12] is not None
+    )
+
+    html = f"""
+    <html>
+    <head>
+        <title>Bowman Inventory</title>
+
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background: #f4f5f7;
+                margin: 0;
+                padding: 20px;
+            }}
+
+            h1 {{
+                margin-bottom: 5px;
+            }}
+
+            .summary {{
+                margin: 20px 0;
+                font-size: 18px;
+            }}
+
+            table {{
+                width: 100%;
+                border-collapse: collapse;
+                background: white;
+            }}
+
+            th {{
+                background: #222;
+                color: white;
+                text-align: left;
+                padding: 12px;
+            }}
+
+            td {{
+                padding: 11px 12px;
+                border-bottom: 1px solid #ddd;
+            }}
+
+            tr:hover {{
+                background: #f2f2f2;
+            }}
+
+            .yes {{
+                color: green;
+                font-weight: bold;
+            }}
+
+            .no {{
+                color: #777;
+            }}
+        </style>
+    </head>
+
+    <body>
+
+        <h1>Bowman Inventory</h1>
+
+        <div class="summary">
+            <strong>{total_cards}</strong> Bowman cards
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            Cost Basis:
+            <strong>${total_cost:,.2f}</strong>
+        </div>
+
+        <table>
+            <tr>
+                <th>Player</th>
+                <th>Card</th>
+                <th>Product</th>
+                <th>Parallel</th>
+                <th>Serial</th>
+                <th>Grade</th>
+                <th>Auto</th>
+                <th>1st Bowman</th>
+                <th>Cost Basis</th>
+            </tr>
+    """
+
+    for row in rows:
+
+        (
+            inventory_id,
+            player_name,
+            card_year,
+            product,
+            card_number,
+            parallel,
+            serial_number,
+            serial_numbered_to,
+            grade_company,
+            grade,
+            autograph,
+            first_bowman,
+            purchase_price
+        ) = row
+
+        if card_number:
+            card_display = f"{card_year} #{card_number}"
+        else:
+            card_display = str(card_year or "")
+
+        if serial_number is not None and serial_numbered_to is not None:
+            serial_display = f"{serial_number}/{serial_numbered_to}"
+        elif serial_numbered_to is not None:
+            serial_display = f"/{serial_numbered_to}"
+        else:
+            serial_display = ""
+
+        if grade_company and grade is not None:
+            grade_number = (
+                str(int(grade))
+                if float(grade).is_integer()
+                else str(grade)
+            )
+            grade_display = f"{grade_company} {grade_number}"
+        else:
+            grade_display = "Raw"
+
+        auto_display = (
+            '<span class="yes">YES</span>'
+            if autograph
+            else '<span class="no">—</span>'
+        )
+
+        first_display = (
+            '<span class="yes">YES</span>'
+            if first_bowman
+            else '<span class="no">—</span>'
+        )
+
+        cost_display = (
+            f"${float(purchase_price):,.2f}"
+            if purchase_price is not None
+            else ""
+        )
+
+        html += f"""
+            <tr>
+                <td>{player_name or ""}</td>
+                <td>{card_display}</td>
+                <td>{product or ""}</td>
+                <td>{parallel or "Base"}</td>
+                <td>{serial_display}</td>
+                <td>{grade_display}</td>
+                <td>{auto_display}</td>
+                <td>{first_display}</td>
+                <td>{cost_display}</td>
+            </tr>
+        """
+
+    html += """
+        </table>
+
+    </body>
+    </html>
+    """
+
+    return html
+
+
 @app.route("/valuation", methods=["GET"])
 def valuation():
     player = request.args.get("player", "").strip()
