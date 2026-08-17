@@ -155,9 +155,21 @@ def parse_card_title(title):
     serial_numbered_to = None
 
     serial_match = re.search(
-        r"\b(\d{1,4})\s*/\s*(\d{1,4})\b",
+        r"(?<![\d.])(\d{1,4})\s*/\s*(\d{1,4})(?![\d.])",
         title_upper
     )
+    
+    if serial_match:
+        possible_serial = serial_match.group(0)
+    
+        # Don't mistake grading notation such as BGS 9.5/10
+        grade_context = title_upper[
+            max(0, serial_match.start() - 12):
+            serial_match.end()
+        ]
+    
+        if any(company in grade_context for company in ["BGS", "PSA", "SGC", "CGC", "BCCG"]):
+            serial_match = None
 
     if serial_match:
         serial_number = int(serial_match.group(1))
@@ -193,7 +205,7 @@ def parse_card_title(title):
 
     if grade_company:
         grade_match = re.search(
-            rf"\b{grade_company}\s*(\d+(?:\.\d+)?)\b",
+            rf"\b{grade_company}\s+(?:GEM\s+MINT\s+|GEM\s+|MINT\s+)?(\d+(?:\.\d+)?)\b",
             title_upper
         )
 
