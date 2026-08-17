@@ -586,6 +586,12 @@ def ebay_auction_check():
         sample_items = []
 
         for item in data.get("itemSummaries", []):
+            if len(sample_items) == 0:
+                sample_items.append({
+                    "RAW_FIRST_ITEM": item
+                })
+                continue
+            
             sample_items.append({
                 "title": item.get("title"),
                 "price": item.get("price", {}).get("value"),
