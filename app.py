@@ -281,6 +281,25 @@ def db_test():
             "success": False,
             "error": str(e)
         }), 500
+
+@app.route("/parser-test", methods=["GET"])
+def parser_test():
+    title = request.args.get("title", "").strip()
+
+    if not title:
+        return jsonify({
+            "success": False,
+            "error": "Missing title parameter"
+        }), 400
+
+    card_data = parse_card_title(title)
+
+    return jsonify({
+        "success": True,
+        "title": title,
+        "parsed": card_data
+    }), 200
+
 @app.route("/ebay/account-deletion", methods=["GET", "POST"])
 def ebay_account_deletion():
     if request.method == "GET":
