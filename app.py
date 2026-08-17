@@ -14,6 +14,9 @@ EBAY_CLIENT_SECRET = os.environ.get("EBAY_CLIENT_SECRET", "")
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
 def parse_card_title(title):
     title_upper = title.upper()
+    first_bowman = bool(
+        re.search(r"\b1ST\b.*\bBOWMAN\b|\bBOWMAN\b.*\b1ST\b", title_upper)
+    )
 
     # Year
     year_match = re.search(r"\b(19|20)\d{2}\b", title)
@@ -50,14 +53,20 @@ def parse_card_title(title):
 
     # Remove obvious non-name phrases first
     cleaned_title = re.sub(
-        r"\b(?:BOWMAN|TOPPS|CHROME|DRAFT|BASEBALL|CARD|CARDS|"
-        r"ROOKIE|RC|PROSPECT|1ST|AUTO|AUTOGRAPH|REFRACTOR|MOJO|"
-        r"SILVER|GOLD|ORANGE|RED|BLUE|GREEN|PURPLE|AQUA|LIGHTNING|"
-        r"MEGA|HOBBY|BOX|INSERT|PARALLEL|PARALLELS|SIGNED|RARE|HOT)\b",
+        r"\b(?:"
+        r"BOWMAN|TOPPS|CHROME|DRAFT|BASEBALL|CARD|CARDS|"
+        r"ROOKIE|RC|PROSPECT|1ST|AUTO|AUTOGRAPH|AUTOGRAPHED|"
+        r"PSA|BGS|SGC|CGC|BCCG|GEM|MINT|GRADED|"
+        r"REFRACTOR|MOJO|SAPPHIRE|SPECKLE|LAVA|SHIMMER|"
+        r"X-FRACTOR|X\s+FRACTOR|RAYWAVE|RAY\s+WAVE|"
+        r"SILVER|GOLD|ROSE|ORANGE|RED|BLUE|GREEN|PURPLE|AQUA|"
+        r"FUCHSIA|LIGHTNING|MEGA|HOBBY|BOX|INSERT|PARALLEL|"
+        r"PARALLELS|SIGNED|RARE|HOT"
+        r")\b",
         " ",
         title,
         flags=re.IGNORECASE
-    )
+)
 
     # Remove years, card numbers, serial-like fragments, prices, and punctuation noise
     cleaned_title = re.sub(r"\b(?:19|20)\d{2}\b", " ", cleaned_title)
@@ -77,9 +86,13 @@ def parse_card_title(title):
         candidate = name_match.group(1).strip()
 
         bad_name_words = {
-            "PICK", "YOUR", "COMPLETE", "SET", "FREE", "SHIPPING",
-            "MINIMUM", "PRESALE", "INVESTMENT", "MINT", "GEM",
-            "SINGLES", "SEALED", "NEW", "QTY"
+        "PICK", "YOUR", "COMPLETE", "SET", "FREE", "SHIPPING",
+        "MINIMUM", "PRESALE", "INVESTMENT", "MINT", "GEM",
+        "SINGLES", "SEALED", "NEW", "QTY",
+        "PSA", "BGS", "SGC", "CGC", "BCCG",
+        "SAPPHIRE", "SPECKLE", "REFRACTOR", "MOJO",
+        "LAVA", "GOLD", "ROSE", "AQUA", "ORANGE",
+        "GREEN", "BLUE", "RED", "PURPLE"
         }
 
         candidate_words = set(candidate.upper().split())
@@ -89,7 +102,17 @@ def parse_card_title(title):
     # Parallel
     parallel = None
 
-    parallel_patterns = [
+     parallel_patterns = [
+        # Most specific patterns first
+        ("ORANGE SAPPHIRE", "Orange Sapphire"),
+        ("AQUA X-FRACTOR", "Aqua X-Fractor"),
+        ("AQUA X FRACTOR", "Aqua X-Fractor"),
+        ("ROSE GOLD REFRACTOR", "Rose Gold Refractor"),
+        ("ROSE GOLD", "Rose Gold"),
+        ("LAVA REFRACTOR", "Lava Refractor"),
+        ("MOJO REFRACTOR", "Mojo Refractor"),
+        ("SPECKLE REFRACTOR", "Speckle Refractor"),
+    
         ("SUPERFRACTOR", "Superfractor"),
         ("RED REFRACTOR", "Red Refractor"),
         ("ORANGE REFRACTOR", "Orange Refractor"),
@@ -99,7 +122,9 @@ def parse_card_title(title):
         ("PURPLE REFRACTOR", "Purple Refractor"),
         ("AQUA REFRACTOR", "Aqua Refractor"),
         ("SILVER REFRACTOR", "Silver Refractor"),
-        ("MOJO REFRACTOR", "Mojo Refractor"),
+    
+        ("X-FRACTOR", "X-Fractor"),
+        ("X FRACTOR", "X-Fractor"),
         ("MOJO", "Mojo Refractor"),
         ("ROSE GOLD", "Rose Gold"),
         ("FUCHSIA", "Fuchsia"),
@@ -108,7 +133,6 @@ def parse_card_title(title):
         ("RAY WAVE", "RayWave"),
         ("REFRACTOR", "Refractor"),
         ("SHIMMER", "Shimmer"),
-        ("WAVE", "Wave"),
         ("SAPPHIRE", "Sapphire"),
         ("SPECKLE", "Speckle"),
     ]
@@ -117,25 +141,37 @@ def parse_card_title(title):
         if pattern in title_upper:
             parallel = name
             break
-    # Card number, e.g. #BCP-164, #BD-76, #BST-1
+    # Card number, e.g. #BCP-164, BDC-22, CPA-KC, BST-1
     card_number = None
-
+    
     card_number_match = re.search(
-        r"#([A-Z]{1,5}-?\d{1,4})\b",
+        r"(?:#\s*)?\b([A-Z]{2,5}-[A-Z0-9]{1,6})\b",
+        title_upper
+    )
+    
+    if card_number_match:
+        card_number = card_number_match.group(1)
+    
+    # Serial numbering, e.g. /50, 110/399, 06/10, #/50, 1/1
+    serial_number = None
+    serial_numbered_to = None
+    
+    serial_match = re.search(
+        r"\b(\d{1,4})\s*/\s*(\d{1,4})\b",
+        title_upper
+)
+
+if serial_match:
+    serial_number = int(serial_match.group(1))
+    serial_numbered_to = int(serial_match.group(2))
+else:
+    denominator_match = re.search(
+        r"(?:#\s*)?/\s*(\d{1,4})\b",
         title_upper
     )
 
-    if card_number_match:
-        card_number = card_number_match.group(1)
-    # Serial numbering, e.g. /50, /25, /5, 1/1
-    serial_numbered_to = None
-
-    serial_match = re.search(r"(?<!\d)/(\d{1,4})\b", title_upper)
-    if serial_match:
-        serial_numbered_to = int(serial_match.group(1))
-
-    if re.search(r"\b1\s*/\s*1\b", title_upper):
-        serial_numbered_to = 1
+    if denominator_match:
+        serial_numbered_to = int(denominator_match.group(1))
     # Autograph
     autograph = bool(
         re.search(r"\b(AUTO|AUTOGRAPH|AUTOGRAPHED)\b", title_upper)
@@ -200,6 +236,8 @@ def parse_card_title(title):
         "product": product,
         "parallel": parallel,
         "card_number": card_number,
+        "serial_number": serial_number,
+        "first_bowman": first_bowman,
         "serial_numbered_to": serial_numbered_to,
         "autograph": autograph,
         "rookie_card": rookie_card,
@@ -840,9 +878,11 @@ def inventory_enrich():
                         product = %s,
                         card_number = %s,
                         parallel = %s,
+                        serial_number = %s,
                         serial_numbered_to = %s,
                         autograph = %s,
                         rookie_card = %s,
+                        first_bowman = %s,
                         grade_company = %s,
                         grade = %s,
                         updated_at = CURRENT_TIMESTAMP
@@ -853,9 +893,11 @@ def inventory_enrich():
                     card_data["product"],
                     card_data["card_number"],
                     card_data["parallel"],
+                    card_data["serial_number"],
                     card_data["serial_numbered_to"],
                     card_data["autograph"],
                     card_data["rookie_card"],
+                    card_data["first_bowman"],
                     card_data["grade_company"],
                     card_data["grade"],
                     inventory_id,
