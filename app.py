@@ -198,54 +198,54 @@ else:
         if grade_match:
             grade = float(grade_match.group(1))
 
-    # Identify listings that are NOT individual cards
-    exclusion_terms = [
-    "YOU PICK",
-    "PICK YOUR CARD",
-    "CHOOSE YOUR CARD",
-    "HOBBY BOX",
-    "HOBBY CASE",
-    "BLASTER BOX",
-    "MEGA BOX",
-    "SEALED BOX",
-    "2 CARD MIN",
-    "2 CARD MINIMUM",
-    "CARD MIN",
-    "MINIMUM ORDER",
-    "CARD LOT",
-    "LOT OF",
-]
-
-    is_single_card = not any(
-        term in title_upper for term in exclusion_terms
-    )
-
-    # Catch variable minimum-order wording
-    if re.search(r"\b\d+\s*CARD(?:S)?\s+(?:OR\s+\$?\d+(?:\.\d+)?\s+)?MINIMUM\b", title_upper):
-        is_single_card = False
-
-    if re.search(r"\$\d+(?:\.\d+)?\s+MINIMUM\b", title_upper):
-        is_single_card = False
-
-    if not is_single_card:
-        player_name = None
-
-    return {
-        "card_year": card_year,
-        "player_name": player_name,
-        "manufacturer": manufacturer,
-        "product": product,
-        "parallel": parallel,
-        "card_number": card_number,
-        "serial_number": serial_number,
-        "first_bowman": first_bowman,
-        "serial_numbered_to": serial_numbered_to,
-        "autograph": autograph,
-        "rookie_card": rookie_card,
-        "grade_company": grade_company,
-        "grade": grade,
-        "is_single_card": is_single_card,
-    }
+        # Identify listings that are NOT individual cards
+        exclusion_terms = [
+        "YOU PICK",
+        "PICK YOUR CARD",
+        "CHOOSE YOUR CARD",
+        "HOBBY BOX",
+        "HOBBY CASE",
+        "BLASTER BOX",
+        "MEGA BOX",
+        "SEALED BOX",
+        "2 CARD MIN",
+        "2 CARD MINIMUM",
+        "CARD MIN",
+        "MINIMUM ORDER",
+        "CARD LOT",
+        "LOT OF",
+    ]
+    
+        is_single_card = not any(
+            term in title_upper for term in exclusion_terms
+        )
+    
+        # Catch variable minimum-order wording
+        if re.search(r"\b\d+\s*CARD(?:S)?\s+(?:OR\s+\$?\d+(?:\.\d+)?\s+)?MINIMUM\b", title_upper):
+            is_single_card = False
+    
+        if re.search(r"\$\d+(?:\.\d+)?\s+MINIMUM\b", title_upper):
+            is_single_card = False
+    
+        if not is_single_card:
+            player_name = None
+    
+        return {
+            "card_year": card_year,
+            "player_name": player_name,
+            "manufacturer": manufacturer,
+            "product": product,
+            "parallel": parallel,
+            "card_number": card_number,
+            "serial_number": serial_number,
+            "first_bowman": first_bowman,
+            "serial_numbered_to": serial_numbered_to,
+            "autograph": autograph,
+            "rookie_card": rookie_card,
+            "grade_company": grade_company,
+            "grade": grade,
+            "is_single_card": is_single_card,
+        }
 
 @app.route("/", methods=["GET"])
 def home():
