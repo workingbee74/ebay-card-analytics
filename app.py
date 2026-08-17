@@ -14,13 +14,19 @@ EBAY_CLIENT_SECRET = os.environ.get("EBAY_CLIENT_SECRET", "")
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
 def parse_card_title(title):
     title_upper = title.upper()
+
+    # First Bowman
     first_bowman = bool(
-        re.search(r"\b1ST\b.*\bBOWMAN\b|\bBOWMAN\b.*\b1ST\b", title_upper)
+        re.search(
+            r"\b1ST\b.*\bBOWMAN\b|\bBOWMAN\b.*\b1ST\b",
+            title_upper
+        )
     )
 
     # Year
     year_match = re.search(r"\b(19|20)\d{2}\b", title)
     card_year = int(year_match.group()) if year_match else None
+
     # Manufacturer
     manufacturer = None
     if "BOWMAN" in title_upper:
@@ -29,29 +35,25 @@ def parse_card_title(title):
         manufacturer = "Topps"
     elif "PANINI" in title_upper:
         manufacturer = "Panini"
+
     # Product
     product = None
     if "BOWMAN STERLING" in title_upper:
-     product = "Bowman Sterling"
+        product = "Bowman Sterling"
     elif "BOWMAN CHROME" in title_upper:
-     product = "Bowman Chrome"
+        product = "Bowman Chrome"
     elif "BOWMAN DRAFT" in title_upper:
-     product = "Bowman Draft"
+        product = "Bowman Draft"
     elif "TOPPS CHROME" in title_upper:
-     product = "Topps Chrome"
+        product = "Topps Chrome"
     elif "BOWMAN" in title_upper:
-     product = "Bowman"
+        product = "Bowman"
     elif "TOPPS" in title_upper:
-     product = "Topps"
-       # Player name
+        product = "Topps"
+
+    # Player name
     player_name = None
 
-    # Common pattern:
-    # "2026 Bowman Chrome Kevin McGonigle Rookie..."
-      # Player name
-    player_name = None
-
-    # Remove obvious non-name phrases first
     cleaned_title = re.sub(
         r"\b(?:"
         r"BOWMAN|TOPPS|CHROME|DRAFT|BASEBALL|CARD|CARDS|"
@@ -66,19 +68,17 @@ def parse_card_title(title):
         " ",
         title,
         flags=re.IGNORECASE
-)
+    )
 
-    # Remove years, card numbers, serial-like fragments, prices, and punctuation noise
-    cleaned_title = re.sub(r"\b(?:19|20)\d{2}\b", " ", cleaned_title)
-    cleaned_title = re.sub(r"#[A-Za-z0-9-]+", " ", cleaned_title)
+    cleaned_title = re.sub(r"\b(19|20)\d{2}\b", " ", cleaned_title)
+    cleaned_title = re.sub(r"#?[A-Z]{2,5}-[A-Z0-9]{1,6}", " ", cleaned_title)
     cleaned_title = re.sub(r"\b\d+\s*/\s*\d+\b", " ", cleaned_title)
     cleaned_title = re.sub(r"\$\d+(?:\.\d+)?", " ", cleaned_title)
     cleaned_title = re.sub(r"[^A-Za-z.' -]", " ", cleaned_title)
     cleaned_title = re.sub(r"\s+", " ", cleaned_title).strip()
 
-    # Look for plausible 2- or 3-word person names
     name_match = re.search(
-        r"\b([A-Za-z][A-Za-z.'-]+(?:\s+[A-Za-z][A-Za-z.'-]+){1,2})\b",
+        r"\b([A-Z][a-z.'-]+(?:\s+[A-Z][A-Za-z.'-]+){1,2})\b",
         cleaned_title
     )
 
@@ -86,24 +86,24 @@ def parse_card_title(title):
         candidate = name_match.group(1).strip()
 
         bad_name_words = {
-        "PICK", "YOUR", "COMPLETE", "SET", "FREE", "SHIPPING",
-        "MINIMUM", "PRESALE", "INVESTMENT", "MINT", "GEM",
-        "SINGLES", "SEALED", "NEW", "QTY",
-        "PSA", "BGS", "SGC", "CGC", "BCCG",
-        "SAPPHIRE", "SPECKLE", "REFRACTOR", "MOJO",
-        "LAVA", "GOLD", "ROSE", "AQUA", "ORANGE",
-        "GREEN", "BLUE", "RED", "PURPLE"
+            "PICK", "YOUR", "COMPLETE", "SET", "FREE", "SHIPPING",
+            "MINIMUM", "PRESALE", "INVESTMENT", "MINT", "GEM",
+            "SINGLES", "SEALED", "NEW", "QTY",
+            "PSA", "BGS", "SGC", "CGC", "BCCG",
+            "SAPPHIRE", "SPECKLE", "REFRACTOR", "MOJO",
+            "LAVA", "GOLD", "ROSE", "AQUA", "ORANGE",
+            "GREEN", "BLUE", "RED", "PURPLE"
         }
 
         candidate_words = set(candidate.upper().split())
 
         if not candidate_words.intersection(bad_name_words):
             player_name = candidate.title()
+
     # Parallel
     parallel = None
 
     parallel_patterns = [
-        # Most specific patterns first
         ("ORANGE SAPPHIRE", "Orange Sapphire"),
         ("AQUA X-FRACTOR", "Aqua X-Fractor"),
         ("AQUA X FRACTOR", "Aqua X-Fractor"),
@@ -112,7 +112,6 @@ def parse_card_title(title):
         ("LAVA REFRACTOR", "Lava Refractor"),
         ("MOJO REFRACTOR", "Mojo Refractor"),
         ("SPECKLE REFRACTOR", "Speckle Refractor"),
-        
         ("SUPERFRACTOR", "Superfractor"),
         ("RED REFRACTOR", "Red Refractor"),
         ("ORANGE REFRACTOR", "Orange Refractor"),
@@ -122,7 +121,6 @@ def parse_card_title(title):
         ("PURPLE REFRACTOR", "Purple Refractor"),
         ("AQUA REFRACTOR", "Aqua Refractor"),
         ("SILVER REFRACTOR", "Silver Refractor"),
-        
         ("X-FRACTOR", "X-Fractor"),
         ("X FRACTOR", "X-Fractor"),
         ("MOJO", "Mojo Refractor"),
@@ -135,42 +133,44 @@ def parse_card_title(title):
         ("SAPPHIRE", "Sapphire"),
         ("SPECKLE", "Speckle"),
     ]
-    
+
     for pattern, name in parallel_patterns:
         if pattern in title_upper:
             parallel = name
             break
-    # Card number, e.g. #BCP-164, BDC-22, CPA-KC, BST-1
+
+    # Card number
     card_number = None
-    
+
     card_number_match = re.search(
         r"(?:#\s*)?\b([A-Z]{2,5}-[A-Z0-9]{1,6})\b",
         title_upper
     )
-    
+
     if card_number_match:
         card_number = card_number_match.group(1)
-    
-    # Serial numbering, e.g. /50, 110/399, 06/10, #/50, 1/1
+
+    # Serial numbering
     serial_number = None
     serial_numbered_to = None
-    
+
     serial_match = re.search(
         r"\b(\d{1,4})\s*/\s*(\d{1,4})\b",
         title_upper
-)
-
-if serial_match:
-    serial_number = int(serial_match.group(1))
-    serial_numbered_to = int(serial_match.group(2))
-else:
-    denominator_match = re.search(
-        r"(?:#\s*)?/\s*(\d{1,4})\b",
-        title_upper
     )
 
-    if denominator_match:
-        serial_numbered_to = int(denominator_match.group(1))
+    if serial_match:
+        serial_number = int(serial_match.group(1))
+        serial_numbered_to = int(serial_match.group(2))
+    else:
+        denominator_match = re.search(
+            r"(?:#\s*)?/\s*(\d{1,4})\b",
+            title_upper
+        )
+
+        if denominator_match:
+            serial_numbered_to = int(denominator_match.group(1))
+
     # Autograph
     autograph = bool(
         re.search(r"\b(AUTO|AUTOGRAPH|AUTOGRAPHED)\b", title_upper)
@@ -183,23 +183,25 @@ else:
 
     # Grading company
     grade_company = None
-    for company in ["PSA", "BGS", "SGC", "CGC"]:
+    for company in ["PSA", "BGS", "SGC", "CGC", "BCCG"]:
         if re.search(rf"\b{company}\b", title_upper):
             grade_company = company
             break
 
     # Grade
     grade = None
+
     if grade_company:
         grade_match = re.search(
             rf"\b{grade_company}\s*(\d+(?:\.\d+)?)\b",
             title_upper
         )
+
         if grade_match:
             grade = float(grade_match.group(1))
 
-        # Identify listings that are NOT individual cards
-        exclusion_terms = [
+    # Identify listings that are not individual cards
+    exclusion_terms = [
         "YOU PICK",
         "PICK YOUR CARD",
         "CHOOSE YOUR CARD",
@@ -215,37 +217,39 @@ else:
         "CARD LOT",
         "LOT OF",
     ]
-    
-        is_single_card = not any(
-            term in title_upper for term in exclusion_terms
-        )
-    
-        # Catch variable minimum-order wording
-        if re.search(r"\b\d+\s*CARD(?:S)?\s+(?:OR\s+\$?\d+(?:\.\d+)?\s+)?MINIMUM\b", title_upper):
-            is_single_card = False
-    
-        if re.search(r"\$\d+(?:\.\d+)?\s+MINIMUM\b", title_upper):
-            is_single_card = False
-    
-        if not is_single_card:
-            player_name = None
-    
-        return {
-            "card_year": card_year,
-            "player_name": player_name,
-            "manufacturer": manufacturer,
-            "product": product,
-            "parallel": parallel,
-            "card_number": card_number,
-            "serial_number": serial_number,
-            "first_bowman": first_bowman,
-            "serial_numbered_to": serial_numbered_to,
-            "autograph": autograph,
-            "rookie_card": rookie_card,
-            "grade_company": grade_company,
-            "grade": grade,
-            "is_single_card": is_single_card,
-        }
+
+    is_single_card = not any(
+        term in title_upper for term in exclusion_terms
+    )
+
+    if re.search(
+        r"\b\d+\s*CARD(?:S)?\s+(?:OR\s+\$?\d+(?:\.\d+)?\s+)?MINIMUM\b",
+        title_upper
+    ):
+        is_single_card = False
+
+    if re.search(r"\$\d+(?:\.\d+)?\s+MINIMUM\b", title_upper):
+        is_single_card = False
+
+    if not is_single_card:
+        player_name = None
+
+    return {
+        "card_year": card_year,
+        "player_name": player_name,
+        "manufacturer": manufacturer,
+        "product": product,
+        "parallel": parallel,
+        "card_number": card_number,
+        "serial_number": serial_number,
+        "serial_numbered_to": serial_numbered_to,
+        "autograph": autograph,
+        "rookie_card": rookie_card,
+        "first_bowman": first_bowman,
+        "grade_company": grade_company,
+        "grade": grade,
+        "is_single_card": is_single_card,
+    }
 
 @app.route("/", methods=["GET"])
 def home():
