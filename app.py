@@ -610,6 +610,186 @@ def ebay_auction_check():
         "success": True,
         "results": results
     }), 200
+
+@app.route("/ebay/auction-snapshot", methods=["GET"])
+def ebay_auction_snapshot():
+
+    credentials = f"{EBAY_CLIENT_ID}:{EBAY_CLIENT_SECRET}"
+    encoded_credentials = base64.b64encode(
+        credentials.encode("utf-8")
+    ).decode("utf-8")
+
+    token_response = requests.post(
+        "https://api.ebay.com/identity/v1/oauth2/token",
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": f"Basic {encoded_credentials}",
+        },
+        data={
+            "grant_type": "client_credentials",
+            "scope": "https://api.ebay.com/oauth/api_scope",
+        },
+        timeout=20,
+    )
+
+    if token_response.status_code != 200:
+        return jsonify({
+            "success": False,
+            "error": token_response.text
+        }), token_response.status_code
+
+    access_token = token_response.json()["access_token"]
+
+    queries = [
+        "Bowman Chrome baseball card",
+        "Bowman Draft baseball card",
+        "Bowman Sterling baseball card",
+    ]
+
+    items = []
+
+    for query in queries:
+        search_response = requests.get(
+            "https://api.ebay.com/buy/browse/v1/item_summary/search",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "X-EBAY-C-MARKETPLACE-ID": "EBAY_US",
+            },
+            params={
+                "q": query,
+                "limit": 50,
+                "filter": "buyingOptions:{AUCTION}",
+            },
+            timeout=20,
+        )
+
+        if search_response.status_code != 200:
+            continue
+
+        data = search_response.json()
+        items.extend(data.get("itemSummaries", []))
+
+    # Prevent the same auction from being inserted twice
+    # if it appears in more than one Bowman query.
+    unique_items = {}
+
+    for item in items:
+        ebay_item_id = (
+            item.get("legacyItemId")
+            or item.get("itemId")
+        )
+
+        if ebay_item_id:
+            unique_items[ebay_item_id] = item
+
+    snapshots_saved = 0
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+
+            for ebay_item_id, item in unique_items.items():
+
+                title = item.get("title", "")
+                card_data = parse_card_title(title)
+
+                # Only keep true single-card Bowman listings
+                if not card_data["is_single_card"]:
+                    continue
+
+                if card_data["manufacturer"] != "Bowman":
+                    continue
+
+                # Match player using the same players table logic
+                cur.execute("""
+                    SELECT player_name
+                    FROM players
+                    WHERE %s ILIKE '%%' || player_name || '%%'
+                    ORDER BY LENGTH(player_name) DESC
+                    LIMIT 1
+                """, (title,))
+
+                player_row = cur.fetchone()
+
+                if player_row:
+                    card_data["player_name"] = player_row[0]
+
+                current_bid = (
+                    item.get("currentBidPrice", {})
+                    .get("value")
+                )
+
+                bid_count = item.get("bidCount")
+
+                shipping_options = item.get(
+                    "shippingOptions", []
+                )
+
+                shipping_cost = None
+
+                if shipping_options:
+                    shipping_cost = (
+                        shipping_options[0]
+                        .get("shippingCost", {})
+                        .get("value")
+                    )
+
+                seller_info = item.get("seller", {})
+
+                cur.execute("""
+                    INSERT INTO auction_history (
+                        ebay_item_id,
+                        title,
+                        player_name,
+                        card_year,
+                        product,
+                        card_number,
+                        parallel,
+                        serial_numbered_to,
+                        autograph,
+                        grade_company,
+                        grade,
+                        current_bid,
+                        bid_count,
+                        shipping_cost,
+                        item_end_date,
+                        listing_url,
+                        seller_name
+                    )
+                    VALUES (
+                        %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s
+                    )
+                """, (
+                    ebay_item_id,
+                    title,
+                    card_data["player_name"],
+                    card_data["card_year"],
+                    card_data["product"],
+                    card_data["card_number"],
+                    card_data["parallel"],
+                    card_data["serial_numbered_to"],
+                    card_data["autograph"],
+                    card_data["grade_company"],
+                    card_data["grade"],
+                    current_bid,
+                    bid_count,
+                    shipping_cost,
+                    item.get("itemEndDate"),
+                    item.get("itemWebUrl"),
+                    seller_info.get("username"),
+                ))
+
+                snapshots_saved += 1
+
+        conn.commit()
+
+    return jsonify({
+        "success": True,
+        "auctions_received": len(items),
+        "unique_auctions": len(unique_items),
+        "snapshots_saved": snapshots_saved
+    }), 200
+
 @app.route("/valuation", methods=["GET"])
 def valuation():
     player = request.args.get("player", "").strip()
