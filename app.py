@@ -102,7 +102,7 @@ def parse_card_title(title):
     # Parallel
     parallel = None
 
-     parallel_patterns = [
+    parallel_patterns = [
         # Most specific patterns first
         ("ORANGE SAPPHIRE", "Orange Sapphire"),
         ("AQUA X-FRACTOR", "Aqua X-Fractor"),
@@ -112,7 +112,7 @@ def parse_card_title(title):
         ("LAVA REFRACTOR", "Lava Refractor"),
         ("MOJO REFRACTOR", "Mojo Refractor"),
         ("SPECKLE REFRACTOR", "Speckle Refractor"),
-    
+        
         ("SUPERFRACTOR", "Superfractor"),
         ("RED REFRACTOR", "Red Refractor"),
         ("ORANGE REFRACTOR", "Orange Refractor"),
@@ -122,11 +122,10 @@ def parse_card_title(title):
         ("PURPLE REFRACTOR", "Purple Refractor"),
         ("AQUA REFRACTOR", "Aqua Refractor"),
         ("SILVER REFRACTOR", "Silver Refractor"),
-    
+        
         ("X-FRACTOR", "X-Fractor"),
         ("X FRACTOR", "X-Fractor"),
         ("MOJO", "Mojo Refractor"),
-        ("ROSE GOLD", "Rose Gold"),
         ("FUCHSIA", "Fuchsia"),
         ("LUNAR GLOW", "Lunar Glow"),
         ("RAYWAVE", "RayWave"),
@@ -136,7 +135,7 @@ def parse_card_title(title):
         ("SAPPHIRE", "Sapphire"),
         ("SPECKLE", "Speckle"),
     ]
-
+    
     for pattern, name in parallel_patterns:
         if pattern in title_upper:
             parallel = name
