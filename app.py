@@ -309,6 +309,13 @@ def ebay_exact_comp_search():
     year = request.args.get("year", "").strip()
     card_number = request.args.get("card_number", "").strip()
     product = request.args.get("product", "").strip()
+    current_bid_raw = request.args.get("current_bid", "").strip()
+
+try:
+    current_bid = float(current_bid_raw) if current_bid_raw else None
+except ValueError:
+    current_bid = None
+    
 
     if not player:
         return jsonify({
@@ -570,6 +577,28 @@ def ebay_exact_comp_search():
         # Later we'll subtract buyer-side friction and adjust
         # for liquidity, prospect risk, and sold-comp evidence.
         recommended_max_bid = conservative_value
+
+        action = "NO BID"
+        bid_headroom = None
+    
+        if recommended_max_bid is not None and current_bid is not None:
+    
+            bid_headroom = round(
+                recommended_max_bid - current_bid,
+                2
+            )
+    
+            if evidence_confidence < 50:
+                action = "NO BID"
+    
+            elif current_bid >= recommended_max_bid:
+                action = "PASS"
+    
+            elif current_bid >= recommended_max_bid * 0.90:
+                action = "WAIT"
+    
+            else:
+                action = "BID"
     
     return jsonify({
         "success": True,
@@ -584,6 +613,9 @@ def ebay_exact_comp_search():
         "evidence_confidence": evidence_confidence,
         "conservative_value": conservative_value,
         "recommended_max_bid": recommended_max_bid,
+        "current_bid": current_bid,
+        "bid_headroom": bid_headroom,
+        "action": action,
         "results": results
     }), 200
     
