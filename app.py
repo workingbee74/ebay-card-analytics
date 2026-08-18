@@ -1535,6 +1535,16 @@ def auction_value_refresh():
                     exact_prices = []
 
                     for item in data.get("itemSummaries", []):
+                    
+                        buying_options = item.get("buyingOptions", [])
+                    
+                        if "AUCTION" not in buying_options:
+                            continue
+                    
+                        ebay_item_id = (
+                            item.get("legacyItemId")
+                            or item.get("itemId")
+                        )
 
                         title = item.get("title", "")
                         card_data = parse_card_title(title)
