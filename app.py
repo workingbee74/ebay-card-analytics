@@ -484,10 +484,9 @@ def get_exact_sold_prices(
         card_data = parse_card_title(title)
 
         player_match = (
-            card_data.get("player_name", "").casefold().strip()
+            (card_data.get("player_name") or "").casefold().strip()
             == (player_name or "").casefold().strip()
         )
-
         year_match = card_data.get("card_year") == card_year
         product_match = card_data.get("product") == product
         card_number_match = card_data.get("card_number") == card_number
