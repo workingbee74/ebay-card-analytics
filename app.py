@@ -311,18 +311,17 @@ def ebay_exact_comp_search():
     product = request.args.get("product", "").strip()
     current_bid_raw = request.args.get("current_bid", "").strip()
 
-try:
-    current_bid = float(current_bid_raw) if current_bid_raw else None
-except ValueError:
-    current_bid = None
-    
+    try:
+        current_bid = float(current_bid_raw) if current_bid_raw else None
+    except ValueError:
+        current_bid = None
 
     if not player:
         return jsonify({
             "success": False,
             "error": "Missing player"
         }), 400
-
+        
     # Build a focused eBay query
     query_parts = []
 
