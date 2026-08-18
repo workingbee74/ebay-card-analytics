@@ -1871,9 +1871,17 @@ def auction_value_refresh():
                     )
 
                     exact_prices = price_tiers["exact_prices"]
-                    
+
                     if not exact_prices:
                         exact_prices = price_tiers["same_parallel_prices"]
+                    
+                    if not exact_prices:
+                        exact_prices = [
+                            comp["price"]
+                            for comp in price_tiers["same_card_prices"]
+                            if comp.get("price") is not None
+                        ]
+                        
                     decision = calculate_auction_decision(
                         exact_prices,
                         float(current_bid)
