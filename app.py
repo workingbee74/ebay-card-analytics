@@ -406,8 +406,8 @@ def ebay_exact_comp_search():
 
                 if player_row:
                     card_data["player_name"] = player_row[0]
-            # Classify how closely this listing matches the requested card
-            
+
+        # Classify how closely this listing matches the requested card
         requested_year = int(year) if year.isdigit() else None
 
         def normalize_text(value):
@@ -440,10 +440,9 @@ def ebay_exact_comp_search():
             or card_data["card_number"] == card_number.upper()
         )
 
-        # For V1, the requested auction is assumed Base
-        # when no specific parallel was supplied.
+        # V1 assumes Base when no requested parallel is supplied
         parallel_match = card_data["parallel"] is None
-            
+
         if (
             player_match
             and year_match
@@ -452,7 +451,7 @@ def ebay_exact_comp_search():
             and parallel_match
         ):
             match_level = "EXACT"
-        
+
         elif (
             player_match
             and year_match
@@ -460,56 +459,54 @@ def ebay_exact_comp_search():
             and card_number_match
         ):
             match_level = "RELATED"
-        
+
         elif (
             player_match
             and year_match
             and product_match
         ):
             match_level = "RELATED"
-        
+
         else:
             match_level = "REJECT"
-            
-            price = item.get("price", {}).get("value")
-    
-            shipping_options = item.get("shippingOptions", [])
-    
-            shipping_cost = None
-    
-            if shipping_options:
-                shipping_cost = (
-                    shipping_options[0]
-                    .get("shippingCost", {})
-                    .get("value")
-                )
-    
-            total_price = None
-    
-            if price is not None:
-                total_price = float(price)
-    
-                if shipping_cost is not None:
-                    total_price += float(shipping_cost)
-    
-            results.append({
-                "match_level": match_level,
-                "title": title,
-                "player_name": card_data["player_name"],
-                "card_year": card_data["card_year"],
-                "product": card_data["product"],
-                "card_number": card_data["card_number"],
-                "parallel": card_data["parallel"],
-                "serial_numbered_to": card_data["serial_numbered_to"],
-                "autograph": card_data["autograph"],
-                "grade_company": card_data["grade_company"],
-                "grade": card_data["grade"],
-                "price": price,
-                "shipping_cost": shipping_cost,
-                "total_price": total_price,
-                "url": item.get("itemWebUrl"),
-            })
 
+        price = item.get("price", {}).get("value")
+
+        shipping_options = item.get("shippingOptions", [])
+        shipping_cost = None
+
+        if shipping_options:
+            shipping_cost = (
+                shipping_options[0]
+                .get("shippingCost", {})
+                .get("value")
+            )
+
+        total_price = None
+
+        if price is not None:
+            total_price = float(price)
+
+            if shipping_cost is not None:
+                total_price += float(shipping_cost)
+
+        results.append({
+            "match_level": match_level,
+            "title": title,
+            "player_name": card_data["player_name"],
+            "card_year": card_data["card_year"],
+            "product": card_data["product"],
+            "card_number": card_data["card_number"],
+            "parallel": card_data["parallel"],
+            "serial_numbered_to": card_data["serial_numbered_to"],
+            "autograph": card_data["autograph"],
+            "grade_company": card_data["grade_company"],
+            "grade": card_data["grade"],
+            "price": price,
+            "shipping_cost": shipping_cost,
+            "total_price": total_price,
+            "url": item.get("itemWebUrl"),
+        })
     return jsonify({
         "success": True,
         "query": query,
