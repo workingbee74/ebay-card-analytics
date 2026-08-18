@@ -541,18 +541,17 @@ def ebay_exact_comp_search():
         exact_highest_ask = round(exact_highest_ask, 2)
     
      return jsonify({
-        "success": True,
-        "query": query,
-
-        "ebay_total_matches": data.get("total", 0),
-        "results_returned": len(results),
-
-        "exact_comp_count": exact_comp_count,
-        "exact_active_median": exact_active_median,
-        "exact_lowest_ask": exact_lowest_ask,
-        "exact_highest_ask": exact_highest_ask,
-
-        "valuation_basis": "ACTIVE_ASKING_PRICES",
+         "success": True,
+         "query": query,
+    
+         "ebay_total_matches": data.get("total", 0),
+         "results_returned": len(results),
+         "exact_comp_count": exact_comp_count,
+         "exact_active_median": exact_active_median,
+         "exact_lowest_ask": exact_lowest_ask,
+         "exact_highest_ask": exact_highest_ask,
+    
+         "valuation_basis": "ACTIVE_ASKING_PRICES",
 
         "results": results
     }), 200
