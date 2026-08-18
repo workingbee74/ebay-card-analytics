@@ -1870,17 +1870,17 @@ def auction_watch():
                 )
 
                 SELECT
-                    ebay_item_id,
-                    player_name,
-                    card_year,
-                    product,
-                    card_number,
-                    parallel,
-                    serial_numbered_to,
-                    grade_company,
-                    grade,
-                    current_bid,
-                    current_bid_count,
+                   m.ebay_item_id,
+                    m.player_name,
+                    m.card_year,
+                    m.product,
+                    m.card_number,
+                    m.parallel,
+                    m.serial_numbered_to,
+                    m.grade_company,
+                    m.grade,
+                    m.current_bid,
+                    m.current_bid_count,
 
                     -- Demand: 0-100
                     LEAST(
@@ -1924,9 +1924,21 @@ def auction_watch():
                     END AS urgency_score,
 
                     observations,
-                    listing_url
+                    listing_url,
+                
+                    av.identity_verified,
+                    av.evidence_confidence,
+                    av.exact_comp_count,
+                    av.exact_active_median,
+                    av.recommended_max_bid,
+                    av.bid_headroom,
+                    av.action,
+                    av.valued_at
+            
+            FROM metrics m
 
-                FROM metrics
+                LEFT JOIN auction_valuations av
+                    ON av.ebay_item_id = m.ebay_item_id
 
                 ORDER BY
                     urgency_score DESC,
@@ -2024,6 +2036,9 @@ def auction_watch():
                 <th>Serial</th>
                 <th>Grade</th>
                 <th>Current Bid</th>
+                <th>Max Bid</th>
+                <th>Headroom</th>
+                <th>Action</th>
                 <th>Bids</th>
                 <th>Demand</th>
                 <th>Momentum</th>
@@ -2054,6 +2069,15 @@ def auction_watch():
             urgency_score,
             observations,
             listing_url
+              
+            identity_verified,
+            evidence_confidence,
+            exact_comp_count,
+            exact_active_median,
+            recommended_max_bid,
+            bid_headroom,
+            action,
+            valued_at
         ) = row
 
         if card_number:
@@ -2083,6 +2107,41 @@ def auction_watch():
             else ""
         )
 
+        if action == "REVIEW":
+            max_bid_display = "—"
+            headroom_display = "—"
+        
+        elif recommended_max_bid is not None:
+            max_bid_display = f"${float(recommended_max_bid):,.2f}"
+        
+            headroom_display = (
+                f"${float(bid_headroom):,.2f}"
+                if bid_headroom is not None
+                else "—"
+            )
+        
+        else:
+            max_bid_display = "—"
+            headroom_display = "—"
+
+        if action == "BID":
+            action_display = '<span class="high">BID</span>'
+        
+        elif action == "PASS":
+            action_display = '<span class="urgent">PASS</span>'
+        
+        elif action == "WAIT":
+            action_display = '<span class="medium">WAIT</span>'
+        
+        elif action == "REVIEW":
+            action_display = '<span class="medium">REVIEW</span>'
+        
+        elif action == "NO BID":
+            action_display = '<span class="low">NO BID</span>'
+
+        else:
+            action_display = '<span class="low">NOT VALUED</span>'
+        
         demand = float(demand_score or 0)
         momentum = float(momentum_score or 0)
         urgency = float(urgency_score or 0)
@@ -2117,6 +2176,9 @@ def auction_watch():
                 <td>{serial_display}</td>
                 <td>{grade_display}</td>
                 <td>{current_bid_display}</td>
+                <td>{max_bid_display}</td>
+                <td>{headroom_display}</td>
+                <td>{action_display}</td>
                 <td>{current_bid_count or 0}</td>
 
                 <td class="{score_class(demand)}">
