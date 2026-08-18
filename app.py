@@ -405,7 +405,61 @@ def ebay_exact_comp_search():
 
                 if player_row:
                     card_data["player_name"] = player_row[0]
-
+    # Classify how closely this listing matches the requested card
+    
+    requested_year = int(year) if year.isdigit() else None
+    
+    player_match = (
+        card_data["player_name"]
+        and card_data["player_name"].lower() == player.lower()
+    )
+    
+    year_match = (
+        requested_year is None
+        or card_data["card_year"] == requested_year
+    )
+    
+    product_match = (
+        not product
+        or card_data["product"] == product
+    )
+    
+    card_number_match = (
+        not card_number
+        or card_data["card_number"] == card_number.upper()
+    )
+    
+    # For V1, the requested auction is assumed Base when no
+    # specific parallel was supplied.
+    parallel_match = card_data["parallel"] is None
+    
+    if (
+        player_match
+        and year_match
+        and product_match
+        and card_number_match
+        and parallel_match
+    ):
+        match_level = "EXACT"
+    
+    elif (
+        player_match
+        and year_match
+        and product_match
+        and card_number_match
+    ):
+        match_level = "RELATED"
+    
+    elif (
+        player_match
+        and year_match
+        and product_match
+    ):
+        match_level = "RELATED"
+    
+    else:
+        match_level = "REJECT"
+        
         price = item.get("price", {}).get("value")
 
         shipping_options = item.get("shippingOptions", [])
@@ -428,6 +482,7 @@ def ebay_exact_comp_search():
                 total_price += float(shipping_cost)
 
         results.append({
+            "match_level": match_level,
             "title": title,
             "player_name": card_data["player_name"],
             "card_year": card_data["card_year"],
