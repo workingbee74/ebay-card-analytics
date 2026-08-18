@@ -13,6 +13,7 @@ ENDPOINT_URL = os.environ.get("EBAY_ENDPOINT_URL", "")
 EBAY_CLIENT_ID = os.environ.get("EBAY_CLIENT_ID", "")
 EBAY_CLIENT_SECRET = os.environ.get("EBAY_CLIENT_SECRET", "")
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
+SOLDCOMPS_API_KEY = os.environ.get("SOLDCOMPS_API_KEY", "")
 def parse_card_title(title):
     title_upper = title.upper()
 
@@ -1744,6 +1745,43 @@ def auction_value_refresh():
         "skipped": skipped,
         "errors": errors
     }), 200
+
+@app.route("/soldcomps-test", methods=["GET"])
+def soldcomps_test():
+    query = request.args.get(
+        "q",
+        "2024 Bowman Chrome Gold Refractor Auto PSA 10"
+    )
+
+    response = requests.get(
+        "https://api.sold-comps.com/v1/scrape",
+        headers={
+            "Authorization": f"Bearer {SOLDCOMPS_API_KEY}"
+        },
+        params={
+            "keyword": query,
+            "count": 10,
+            "daysToScrape": 90,
+        },
+        timeout=30,
+    )
+
+    if response.status_code != 200:
+        return jsonify({
+            "success": False,
+            "status_code": response.status_code,
+            "error": response.text
+        }), response.status_code
+
+    data = response.json()
+
+    return jsonify({
+        "success": True,
+        "query": query,
+        "results_found": data.get("totalItems", 0),
+        "items": data.get("items", [])
+    }), 200
+
 
 @app.route("/auction-watch", methods=["GET"])
 def auction_watch():
