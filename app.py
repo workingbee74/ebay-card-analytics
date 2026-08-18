@@ -507,11 +507,53 @@ def ebay_exact_comp_search():
             "total_price": total_price,
             "url": item.get("itemWebUrl"),
         })
-    return jsonify({
+
+    # Aggregate EXACT comparable listings
+    exact_prices = sorted(
+        result["total_price"]
+        for result in results
+        if result["match_level"] == "EXACT"
+        and result["total_price"] is not None
+    )
+
+    exact_comp_count = len(exact_prices)
+
+    exact_active_median = None
+    exact_lowest_ask = None
+    exact_highest_ask = None
+
+    if exact_prices:
+        exact_lowest_ask = exact_prices[0]
+        exact_highest_ask = exact_prices[-1]
+
+        middle = exact_comp_count // 2
+
+        if exact_comp_count % 2 == 1:
+            exact_active_median = exact_prices[middle]
+        else:
+            exact_active_median = (
+                exact_prices[middle - 1]
+                + exact_prices[middle]
+            ) / 2
+
+        exact_active_median = round(exact_active_median, 2)
+        exact_lowest_ask = round(exact_lowest_ask, 2)
+        exact_highest_ask = round(exact_highest_ask, 2)
+    
+     return jsonify({
         "success": True,
         "query": query,
+
         "ebay_total_matches": data.get("total", 0),
         "results_returned": len(results),
+
+        "exact_comp_count": exact_comp_count,
+        "exact_active_median": exact_active_median,
+        "exact_lowest_ask": exact_lowest_ask,
+        "exact_highest_ask": exact_highest_ask,
+
+        "valuation_basis": "ACTIVE_ASKING_PRICES",
+
         "results": results
     }), 200
 
