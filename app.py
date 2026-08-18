@@ -1871,57 +1871,57 @@ def auction_value_refresh():
                     )
 
                     exact_prices = price_tiers["exact_prices"]
-
+                
                     if not exact_prices:
                         exact_prices = price_tiers["same_parallel_prices"]
                     
-                 if not exact_prices:
-                    broad_query_parts = [
-                        str(card_year or ""),
-                        str(player_name or ""),
-                        str(product or ""),
-                        str(card_number or ""),
-                    ]
-                
-                    broad_query = " ".join(
-                        part.strip()
-                        for part in broad_query_parts
-                        if part and part.strip()
-                    )
-                
-                    broad_search_key = search_key + "|ALL_PARALLELS"
-                
-                    broad_sales = get_cached_soldcomps_sales(
-                        search_key=broad_search_key,
-                        query=broad_query,
-                        count=100,
-                        days=90,
-                        cache_hours=24,
-                    )
-                
-                    broad_tiers = get_sold_price_tiers(
-                        broad_sales,
-                        player_name=player_name,
-                        card_year=card_year,
-                        product=product,
-                        card_number=card_number,
-                        parallel=parallel,
-                        grade_company=grade_company,
-                        grade=grade,
-                    )
-                
-                    exact_prices = [
-                        comp["price"]
-                        for comp in broad_tiers["same_card_prices"]
-                        if comp.get("price") is not None
-                    ]
-                        
-                    decision = calculate_auction_decision(
-                        exact_prices,
-                        float(current_bid)
-                        if current_bid is not None
-                        else None
-                    )
+                    if not exact_prices:
+                        broad_query_parts = [
+                            str(card_year or ""),
+                            str(player_name or ""),
+                            str(product or ""),
+                            str(card_number or ""),
+                        ]
+                    
+                        broad_query = " ".join(
+                            part.strip()
+                            for part in broad_query_parts
+                            if part and part.strip()
+                        )
+                    
+                        broad_search_key = search_key + "|ALL_PARALLELS"
+                    
+                        broad_sales = get_cached_soldcomps_sales(
+                            search_key=broad_search_key,
+                            query=broad_query,
+                            count=100,
+                            days=90,
+                            cache_hours=24,
+                        )
+                    
+                        broad_tiers = get_sold_price_tiers(
+                            broad_sales,
+                            player_name=player_name,
+                            card_year=card_year,
+                            product=product,
+                            card_number=card_number,
+                            parallel=parallel,
+                            grade_company=grade_company,
+                            grade=grade,
+                        )
+                    
+                        exact_prices = [
+                            comp["price"]
+                            for comp in broad_tiers["same_card_prices"]
+                            if comp.get("price") is not None
+                        ]
+                            
+                        decision = calculate_auction_decision(
+                            exact_prices,
+                            float(current_bid)
+                            if current_bid is not None
+                            else None
+                        )
 
                     # Never issue an automated BID on uncertain identity
                     if not identity_verified:
