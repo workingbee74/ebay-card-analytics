@@ -873,7 +873,7 @@ def ebay_search():
                     ADD COLUMN IF NOT EXISTS currency TEXT;
             """)
                     
-            cur.execute("""
+                    cur.execute("""
                 CREATE TABLE IF NOT EXISTS sold_comps (
                     id BIGSERIAL PRIMARY KEY,
                     sold_item_id TEXT UNIQUE,
