@@ -462,7 +462,7 @@ def get_cached_soldcomps_sales(
         for row in rows
     ]
 
-def get_exact_sold_prices(
+def get_sold_price_tiers(
     sales,
     player_name,
     card_year,
@@ -473,6 +473,9 @@ def get_exact_sold_prices(
     grade=None,
 ):
     exact_prices = []
+    same_parallel_prices = []
+
+    target_player = (player_name or "").casefold().strip()
 
     for sale in sales:
         title = sale.get("title", "")
@@ -483,14 +486,19 @@ def get_exact_sold_prices(
 
         card_data = parse_card_title(title)
 
-        player_match = (
-            (card_data.get("player_name") or "").casefold().strip()
-            == (player_name or "").casefold().strip()
-        )
+        sale_player = (
+            card_data.get("player_name") or ""
+        ).casefold().strip()
+
+        player_match = sale_player == target_player
         year_match = card_data.get("card_year") == card_year
         product_match = card_data.get("product") == product
-        card_number_match = card_data.get("card_number") == card_number
-        parallel_match = card_data.get("parallel") == parallel
+        card_number_match = (
+            card_data.get("card_number") == card_number
+        )
+        parallel_match = (
+            card_data.get("parallel") == parallel
+        )
 
         if not (
             player_match
@@ -501,21 +509,39 @@ def get_exact_sold_prices(
         ):
             continue
 
-        if grade_company:
-            if card_data.get("grade_company") != grade_company:
-                continue
-
-        if grade is not None:
-            if card_data.get("grade") != grade:
-                continue
-
         try:
-            exact_prices.append(float(sold_price))
+            price = float(sold_price)
         except (TypeError, ValueError):
             continue
 
-    return exact_prices
+        # Tier 2:
+        # Same exact Bowman card and parallel,
+        # regardless of grade.
+        same_parallel_prices.append(price)
 
+        grade_company_match = True
+        grade_match = True
+
+        if grade_company:
+            grade_company_match = (
+                card_data.get("grade_company")
+                == grade_company
+            )
+
+        if grade is not None:
+            grade_match = (
+                card_data.get("grade") == grade
+            )
+
+        # Tier 1:
+        # Same card + same parallel + same grade.
+        if grade_company_match and grade_match:
+            exact_prices.append(price)
+
+    return {
+        "exact_prices": exact_prices,
+        "same_parallel_prices": same_parallel_prices,
+    }
 def calculate_auction_decision(
     exact_prices,
     current_bid=None
@@ -1817,7 +1843,7 @@ def auction_value_refresh():
                     )
                     
                     # Strictly filter SoldComps results to the same Bowman identity
-                    exact_prices = get_exact_sold_prices(
+                    price_tiers = get_sold_price_tiers(
                         sold_sales,
                         player_name=player_name,
                         card_year=card_year,
@@ -1827,6 +1853,11 @@ def auction_value_refresh():
                         grade_company=grade_company,
                         grade=grade,
                     )
+
+                    exact_prices = price_tiers["exact_prices"]
+                    
+                    if not exact_prices:
+                        exact_prices = price_tiers["same_parallel_prices"]
                     decision = calculate_auction_decision(
                         exact_prices,
                         float(current_bid)
