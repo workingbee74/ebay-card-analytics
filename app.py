@@ -540,6 +540,37 @@ def ebay_exact_comp_search():
         exact_lowest_ask = round(exact_lowest_ask, 2)
         exact_highest_ask = round(exact_highest_ask, 2)
 
+    # Evidence confidence based on exact comp count
+    if exact_comp_count >= 8:
+        evidence_confidence = 80
+        valuation_haircut = 0.78
+    elif exact_comp_count >= 5:
+        evidence_confidence = 70
+        valuation_haircut = 0.75
+    elif exact_comp_count >= 3:
+        evidence_confidence = 55
+        valuation_haircut = 0.70
+    elif exact_comp_count >= 1:
+        evidence_confidence = 35
+        valuation_haircut = 0.60
+    else:
+        evidence_confidence = 0
+        valuation_haircut = 0.0
+
+    conservative_value = None
+    recommended_max_bid = None
+
+    if exact_active_median is not None:
+        conservative_value = round(
+            exact_active_median * valuation_haircut,
+            2
+        )
+
+        # V1 max bid uses the conservative value directly.
+        # Later we'll subtract buyer-side friction and adjust
+        # for liquidity, prospect risk, and sold-comp evidence.
+        recommended_max_bid = conservative_value
+    
     return jsonify({
         "success": True,
         "query": query,
@@ -550,6 +581,9 @@ def ebay_exact_comp_search():
         "exact_lowest_ask": exact_lowest_ask,
         "exact_highest_ask": exact_highest_ask,
         "valuation_basis": "ACTIVE_ASKING_PRICES",
+        "evidence_confidence": evidence_confidence,
+        "conservative_value": conservative_value,
+        "recommended_max_bid": recommended_max_bid,
         "results": results
     }), 200
     
