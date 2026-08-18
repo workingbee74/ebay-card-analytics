@@ -1385,6 +1385,327 @@ def ebay_re_enrich():
     }), 200
 
 
+@app.route("/auction-value-refresh", methods=["GET"])
+def auction_value_refresh():
+
+    valuations_saved = 0
+    skipped = 0
+    errors = []
+
+    # Get eBay access token once for the whole refresh
+    credentials = f"{EBAY_CLIENT_ID}:{EBAY_CLIENT_SECRET}"
+
+    encoded_credentials = base64.b64encode(
+        credentials.encode("utf-8")
+    ).decode("utf-8")
+
+    token_response = requests.post(
+        "https://api.ebay.com/identity/v1/oauth2/token",
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": f"Basic {encoded_credentials}",
+        },
+        data={
+            "grant_type": "client_credentials",
+            "scope": "https://api.ebay.com/oauth/api_scope",
+        },
+        timeout=20,
+    )
+
+    if token_response.status_code != 200:
+        return jsonify({
+            "success": False,
+            "error": token_response.text
+        }), token_response.status_code
+
+    access_token = token_response.json()["access_token"]
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+
+            # Pull latest observation for active auctions.
+            # Require enough identity information for useful comp searching.
+            cur.execute("""
+                WITH latest AS (
+                    SELECT DISTINCT ON (ebay_item_id)
+                        ebay_item_id,
+                        player_name,
+                        card_year,
+                        product,
+                        card_number,
+                        parallel,
+                        current_bid,
+                        bid_count,
+                        item_end_date
+                    FROM auction_history
+                    WHERE item_end_date > CURRENT_TIMESTAMP
+                    ORDER BY ebay_item_id, observed_at DESC
+                )
+
+                SELECT
+                    ebay_item_id,
+                    player_name,
+                    card_year,
+                    product,
+                    card_number,
+                    parallel,
+                    current_bid,
+                    bid_count,
+                    item_end_date
+
+                FROM latest
+
+                WHERE
+                    player_name IS NOT NULL
+                    AND card_year IS NOT NULL
+                    AND product IS NOT NULL
+                    AND card_number IS NOT NULL
+
+                ORDER BY item_end_date ASC
+
+                LIMIT 10;
+            """)
+
+            auctions = cur.fetchall()
+
+            for auction in auctions:
+
+                (
+                    ebay_item_id,
+                    player_name,
+                    card_year,
+                    product,
+                    card_number,
+                    parallel,
+                    current_bid,
+                    bid_count,
+                    item_end_date
+                ) = auction
+
+                try:
+                    query = (
+                        f"{card_year} "
+                        f"{product} "
+                        f"{player_name} "
+                        f"{card_number}"
+                    )
+
+                    search_response = requests.get(
+                        "https://api.ebay.com/buy/browse/v1/item_summary/search",
+                        headers={
+                            "Authorization": f"Bearer {access_token}",
+                            "X-EBAY-C-MARKETPLACE-ID": "EBAY_US",
+                        },
+                        params={
+                            "q": query,
+                            "limit": 100,
+                            "filter": "buyingOptions:{FIXED_PRICE}",
+                        },
+                        timeout=20,
+                    )
+
+                    if search_response.status_code != 200:
+                        skipped += 1
+                        errors.append({
+                            "ebay_item_id": ebay_item_id,
+                            "error": search_response.text
+                        })
+                        continue
+
+                    data = search_response.json()
+
+                    exact_prices = []
+
+                    for item in data.get("itemSummaries", []):
+
+                        title = item.get("title", "")
+                        card_data = parse_card_title(title)
+
+                        # Authoritative player matching
+                        cur.execute("""
+                            SELECT player_name
+                            FROM players
+                            WHERE %s ILIKE '%%' || player_name || '%%'
+                            ORDER BY LENGTH(player_name) DESC
+                            LIMIT 1
+                        """, (title,))
+
+                        player_row = cur.fetchone()
+
+                        if player_row:
+                            card_data["player_name"] = player_row[0]
+
+                        def normalize_text(value):
+                            if not value:
+                                return ""
+
+                            return "".join(
+                                c
+                                for c in unicodedata.normalize(
+                                    "NFKD",
+                                    value
+                                )
+                                if not unicodedata.combining(c)
+                            ).casefold().strip()
+
+                        player_match = (
+                            normalize_text(card_data["player_name"])
+                            == normalize_text(player_name)
+                        )
+
+                        year_match = (
+                            card_data["card_year"] == card_year
+                        )
+
+                        product_match = (
+                            card_data["product"] == product
+                        )
+
+                        card_number_match = (
+                            card_data["card_number"]
+                            == card_number
+                        )
+
+                        # For now require same parsed parallel.
+                        parallel_match = (
+                            card_data["parallel"] == parallel
+                        )
+
+                        exact_match = (
+                            player_match
+                            and year_match
+                            and product_match
+                            and card_number_match
+                            and parallel_match
+                        )
+
+                        if not exact_match:
+                            continue
+
+                        price = item.get(
+                            "price",
+                            {}
+                        ).get("value")
+
+                        if price is None:
+                            continue
+
+                        total_price = float(price)
+
+                        shipping_options = item.get(
+                            "shippingOptions",
+                            []
+                        )
+
+                        if shipping_options:
+                            shipping_cost = (
+                                shipping_options[0]
+                                .get("shippingCost", {})
+                                .get("value")
+                            )
+
+                            if shipping_cost is not None:
+                                total_price += float(
+                                    shipping_cost
+                                )
+
+                        exact_prices.append(total_price)
+
+                    decision = calculate_auction_decision(
+                        exact_prices,
+                        float(current_bid)
+                        if current_bid is not None
+                        else None
+                    )
+
+                    cur.execute("""
+                        INSERT INTO auction_valuations (
+                            ebay_item_id,
+                            player_name,
+                            card_year,
+                            product,
+                            card_number,
+                            parallel,
+                            current_bid,
+                            exact_comp_count,
+                            exact_active_median,
+                            exact_lowest_ask,
+                            exact_highest_ask,
+                            evidence_confidence,
+                            conservative_value,
+                            recommended_max_bid,
+                            bid_headroom,
+                            action,
+                            valuation_basis,
+                            valued_at
+                        )
+
+                        VALUES (
+                            %s, %s, %s, %s, %s, %s,
+                            %s, %s, %s, %s, %s, %s,
+                            %s, %s, %s, %s, %s,
+                            CURRENT_TIMESTAMP
+                        )
+
+                        ON CONFLICT (ebay_item_id)
+                        DO UPDATE SET
+                            player_name = EXCLUDED.player_name,
+                            card_year = EXCLUDED.card_year,
+                            product = EXCLUDED.product,
+                            card_number = EXCLUDED.card_number,
+                            parallel = EXCLUDED.parallel,
+                            current_bid = EXCLUDED.current_bid,
+                            exact_comp_count = EXCLUDED.exact_comp_count,
+                            exact_active_median = EXCLUDED.exact_active_median,
+                            exact_lowest_ask = EXCLUDED.exact_lowest_ask,
+                            exact_highest_ask = EXCLUDED.exact_highest_ask,
+                            evidence_confidence = EXCLUDED.evidence_confidence,
+                            conservative_value = EXCLUDED.conservative_value,
+                            recommended_max_bid =
+                                EXCLUDED.recommended_max_bid,
+                            bid_headroom = EXCLUDED.bid_headroom,
+                            action = EXCLUDED.action,
+                            valuation_basis = EXCLUDED.valuation_basis,
+                            valued_at = CURRENT_TIMESTAMP
+                    """, (
+                        ebay_item_id,
+                        player_name,
+                        card_year,
+                        product,
+                        card_number,
+                        parallel,
+                        current_bid,
+                        decision["exact_comp_count"],
+                        decision["exact_active_median"],
+                        decision["exact_lowest_ask"],
+                        decision["exact_highest_ask"],
+                        decision["evidence_confidence"],
+                        decision["conservative_value"],
+                        decision["recommended_max_bid"],
+                        decision["bid_headroom"],
+                        decision["action"],
+                        decision["valuation_basis"],
+                    ))
+
+                    valuations_saved += 1
+
+                except Exception as e:
+                    skipped += 1
+                    errors.append({
+                        "ebay_item_id": ebay_item_id,
+                        "error": str(e)
+                    })
+
+            conn.commit()
+
+    return jsonify({
+        "success": True,
+        "auctions_considered": len(auctions),
+        "valuations_saved": valuations_saved,
+        "skipped": skipped,
+        "errors": errors
+    }), 200
+
 @app.route("/auction-watch", methods=["GET"])
 def auction_watch():
 
