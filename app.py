@@ -2068,7 +2068,7 @@ def auction_watch():
             hours_remaining,
             urgency_score,
             observations,
-            listing_url
+            listing_url,
               
             identity_verified,
             evidence_confidence,
