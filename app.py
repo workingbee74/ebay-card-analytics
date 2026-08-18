@@ -4,6 +4,7 @@ import base64
 import requests
 import psycopg
 import re
+import unicodedata
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
@@ -408,10 +409,18 @@ def ebay_exact_comp_search():
         # Classify how closely this listing matches the requested card
         
         requested_year = int(year) if year.isdigit() else None
+
+        def normalize_text(value):
+            if not value:
+                return ""
+            return "".join(
+                c for c in unicodedata.normalize("NFKD", value)
+                if not unicodedata.combining(c)
+            ).casefold().strip()
         
-        player_match = (
-            card_data["player_name"]
-            and card_data["player_name"].lower() == player.lower()
+           player_match = (
+            normalize_text(card_data["player_name"])
+            == normalize_text(player)
         )
         
         year_match = (
