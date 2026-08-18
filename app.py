@@ -947,6 +947,425 @@ def inventory_enrich():
         "cards_skipped": skipped
     }), 200
 
+@app.route("/auction-watch", methods=["GET"])
+def auction_watch():
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+
+            cur.execute("""
+                WITH ranked AS (
+                    SELECT
+                        ebay_item_id,
+                        player_name,
+                        card_year,
+                        product,
+                        card_number,
+                        parallel,
+                        serial_numbered_to,
+                        grade_company,
+                        grade,
+                        current_bid,
+                        bid_count,
+                        item_end_date,
+                        listing_url,
+                        observed_at,
+
+                        ROW_NUMBER() OVER (
+                            PARTITION BY ebay_item_id
+                            ORDER BY observed_at ASC
+                        ) AS first_rn,
+
+                        ROW_NUMBER() OVER (
+                            PARTITION BY ebay_item_id
+                            ORDER BY observed_at DESC
+                        ) AS last_rn,
+
+                        COUNT(*) OVER (
+                            PARTITION BY ebay_item_id
+                        ) AS observations
+
+                    FROM auction_history
+                ),
+
+                movement AS (
+                    SELECT
+                        ebay_item_id,
+
+                        MAX(player_name) FILTER (WHERE last_rn = 1)
+                            AS player_name,
+
+                        MAX(card_year) FILTER (WHERE last_rn = 1)
+                            AS card_year,
+
+                        MAX(product) FILTER (WHERE last_rn = 1)
+                            AS product,
+
+                        MAX(card_number) FILTER (WHERE last_rn = 1)
+                            AS card_number,
+
+                        MAX(parallel) FILTER (WHERE last_rn = 1)
+                            AS parallel,
+
+                        MAX(serial_numbered_to) FILTER (WHERE last_rn = 1)
+                            AS serial_numbered_to,
+
+                        MAX(grade_company) FILTER (WHERE last_rn = 1)
+                            AS grade_company,
+
+                        MAX(grade) FILTER (WHERE last_rn = 1)
+                            AS grade,
+
+                        MAX(current_bid) FILTER (WHERE first_rn = 1)
+                            AS first_bid,
+
+                        MAX(current_bid) FILTER (WHERE last_rn = 1)
+                            AS current_bid,
+
+                        MAX(bid_count) FILTER (WHERE first_rn = 1)
+                            AS first_bid_count,
+
+                        MAX(bid_count) FILTER (WHERE last_rn = 1)
+                            AS current_bid_count,
+
+                        MAX(observed_at) FILTER (WHERE first_rn = 1)
+                            AS first_observed,
+
+                        MAX(observed_at) FILTER (WHERE last_rn = 1)
+                            AS last_observed,
+
+                        MAX(item_end_date) FILTER (WHERE last_rn = 1)
+                            AS item_end_date,
+
+                        MAX(listing_url) FILTER (WHERE last_rn = 1)
+                            AS listing_url,
+
+                        MAX(observations) AS observations
+
+                    FROM ranked
+                    GROUP BY ebay_item_id
+                ),
+
+                metrics AS (
+                    SELECT
+                        *,
+
+                        GREATEST(
+                            EXTRACT(
+                                EPOCH FROM (
+                                    last_observed - first_observed
+                                )
+                            ) / 3600.0,
+                            0.25
+                        ) AS hours_observed,
+
+                        GREATEST(
+                            EXTRACT(
+                                EPOCH FROM (
+                                    item_end_date - CURRENT_TIMESTAMP
+                                )
+                            ) / 3600.0,
+                            0
+                        ) AS hours_remaining,
+
+                        current_bid_count - first_bid_count
+                            AS new_bids,
+
+                        current_bid - first_bid
+                            AS price_change
+
+                    FROM movement
+
+                    WHERE
+                        observations >= 2
+                        AND item_end_date > CURRENT_TIMESTAMP
+                )
+
+                SELECT
+                    ebay_item_id,
+                    player_name,
+                    card_year,
+                    product,
+                    card_number,
+                    parallel,
+                    serial_numbered_to,
+                    grade_company,
+                    grade,
+                    current_bid,
+                    current_bid_count,
+
+                    -- Demand: 0-100
+                    LEAST(
+                        100,
+                        current_bid_count * 4
+                    ) AS demand_score,
+
+                    -- Recent Momentum: 0-100
+                    LEAST(
+                        100,
+                        GREATEST(
+                            0,
+                            (
+                                (new_bids / hours_observed) * 20
+                            )
+                            +
+                            CASE
+                                WHEN first_bid > 0
+                                THEN
+                                    (
+                                        (price_change / first_bid) * 100
+                                        / hours_observed
+                                    )
+                                ELSE 0
+                            END
+                        )
+                    ) AS momentum_score,
+
+                    hours_remaining,
+
+                    -- Urgency: 0-100
+                    CASE
+                        WHEN hours_remaining <= 1 THEN 100
+                        WHEN hours_remaining <= 3 THEN 90
+                        WHEN hours_remaining <= 6 THEN 80
+                        WHEN hours_remaining <= 12 THEN 65
+                        WHEN hours_remaining <= 24 THEN 50
+                        WHEN hours_remaining <= 48 THEN 30
+                        WHEN hours_remaining <= 72 THEN 15
+                        ELSE 5
+                    END AS urgency_score,
+
+                    observations,
+                    listing_url
+
+                FROM metrics
+
+                ORDER BY
+                    urgency_score DESC,
+                    momentum_score DESC,
+                    demand_score DESC
+
+                LIMIT 100;
+            """)
+
+            rows = cur.fetchall()
+
+    html = """
+    <html>
+    <head>
+        <title>Bowman Auction Watch</title>
+
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background: #f4f5f7;
+                margin: 0;
+                padding: 20px;
+            }
+
+            h1 {
+                margin-bottom: 5px;
+            }
+
+            .subtitle {
+                color: #555;
+                margin-bottom: 25px;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                background: white;
+            }
+
+            th {
+                background: #222;
+                color: white;
+                text-align: left;
+                padding: 11px;
+            }
+
+            td {
+                padding: 10px 11px;
+                border-bottom: 1px solid #ddd;
+            }
+
+            tr:hover {
+                background: #f2f2f2;
+            }
+
+            .high {
+                color: green;
+                font-weight: bold;
+            }
+
+            .medium {
+                color: #b36b00;
+                font-weight: bold;
+            }
+
+            .low {
+                color: #777;
+            }
+
+            .urgent {
+                color: #c00000;
+                font-weight: bold;
+            }
+
+            a {
+                font-weight: bold;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <h1>Bowman Auction Watch</h1>
+
+        <div class="subtitle">
+            Live auction behavior — Demand, Momentum and Urgency
+        </div>
+
+        <table>
+            <tr>
+                <th>Player</th>
+                <th>Card</th>
+                <th>Product</th>
+                <th>Parallel</th>
+                <th>Serial</th>
+                <th>Grade</th>
+                <th>Current Bid</th>
+                <th>Bids</th>
+                <th>Demand</th>
+                <th>Momentum</th>
+                <th>Time Left</th>
+                <th>Urgency</th>
+                <th>Obs.</th>
+                <th>eBay</th>
+            </tr>
+    """
+
+    for row in rows:
+
+        (
+            ebay_item_id,
+            player_name,
+            card_year,
+            product,
+            card_number,
+            parallel,
+            serial_numbered_to,
+            grade_company,
+            grade,
+            current_bid,
+            current_bid_count,
+            demand_score,
+            momentum_score,
+            hours_remaining,
+            urgency_score,
+            observations,
+            listing_url
+        ) = row
+
+        if card_number:
+            card_display = f"{card_year or ''} #{card_number}"
+        else:
+            card_display = str(card_year or "")
+
+        serial_display = (
+            f"/{serial_numbered_to}"
+            if serial_numbered_to is not None
+            else ""
+        )
+
+        if grade_company and grade is not None:
+            grade_number = (
+                str(int(grade))
+                if float(grade).is_integer()
+                else str(grade)
+            )
+            grade_display = f"{grade_company} {grade_number}"
+        else:
+            grade_display = "Raw"
+
+        current_bid_display = (
+            f"${float(current_bid):,.2f}"
+            if current_bid is not None
+            else ""
+        )
+
+        demand = float(demand_score or 0)
+        momentum = float(momentum_score or 0)
+        urgency = float(urgency_score or 0)
+        hours = float(hours_remaining or 0)
+
+        def score_class(score):
+            if score >= 70:
+                return "high"
+            elif score >= 35:
+                return "medium"
+            return "low"
+
+        if hours < 1:
+            time_display = f"{hours * 60:.0f} min"
+        elif hours < 24:
+            time_display = f"{hours:.1f} hr"
+        else:
+            time_display = f"{hours / 24:.1f} days"
+
+        urgency_class = (
+            "urgent"
+            if urgency >= 80
+            else score_class(urgency)
+        )
+
+        html += f"""
+            <tr>
+                <td>{player_name or ""}</td>
+                <td>{card_display}</td>
+                <td>{product or ""}</td>
+                <td>{parallel or "Base"}</td>
+                <td>{serial_display}</td>
+                <td>{grade_display}</td>
+                <td>{current_bid_display}</td>
+                <td>{current_bid_count or 0}</td>
+
+                <td class="{score_class(demand)}">
+                    {demand:.0f}
+                </td>
+
+                <td class="{score_class(momentum)}">
+                    {momentum:.0f}
+                </td>
+
+                <td class="{urgency_class}">
+                    {time_display}
+                </td>
+
+                <td class="{urgency_class}">
+                    {urgency:.0f}
+                </td>
+
+                <td>{observations}</td>
+
+                <td>
+                    <a href="{listing_url}" target="_blank">
+                        View
+                    </a>
+                </td>
+            </tr>
+        """
+
+    html += """
+        </table>
+
+    </body>
+    </html>
+    """
+
+    return html
+
 @app.route("/inventory-dashboard", methods=["GET"])
 def inventory_dashboard():
 
