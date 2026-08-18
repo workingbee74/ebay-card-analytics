@@ -175,7 +175,7 @@ def parse_card_title(title):
     else:
         denominator_match = re.search(
             r"(?:#\s*)?/\s*(\d{1,4})\b",
-            title_upper
+            serial_upper
         )
 
         if denominator_match:
