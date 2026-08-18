@@ -322,6 +322,146 @@ def get_soldcomps_sales(query, count=100, days=90):
     data = response.json()
     return data.get("items", [])
 
+def get_cached_soldcomps_sales(
+    search_key,
+    query,
+    count=100,
+    days=90,
+    cache_hours=24,
+):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+
+            # Check whether this exact card was refreshed recently
+            cur.execute("""
+                SELECT last_refreshed
+                FROM sold_comp_cache
+                WHERE search_key = %s
+                  AND last_refreshed >
+                      CURRENT_TIMESTAMP - (%s * INTERVAL '1 hour')
+            """, (search_key, cache_hours))
+
+            cache_is_fresh = cur.fetchone() is not None
+
+            if not cache_is_fresh:
+                # Call SoldComps only when cache is stale/missing
+                sales = get_soldcomps_sales(
+                    query,
+                    count=count,
+                    days=days,
+                )
+
+                for sale in sales:
+                    sold_item_id = str(
+                        sale.get("itemId")
+                        or sale.get("epid")
+                        or sale.get("url")
+                        or ""
+                    )
+
+                    if not sold_item_id:
+                        continue
+
+                    cur.execute("""
+                        INSERT INTO sold_comps (
+                            sold_item_id,
+                            search_key,
+                            title,
+                            sold_price,
+                            shipping_price,
+                            total_price,
+                            sold_date,
+                            buying_format,
+                            bid_count,
+                            best_offer_accepted,
+                            listing_url,
+                            collected_at
+                        )
+                        VALUES (
+                            %s, %s, %s, %s, %s, %s,
+                            %s, %s, %s, %s, %s,
+                            CURRENT_TIMESTAMP
+                        )
+                        ON CONFLICT (sold_item_id)
+                        DO UPDATE SET
+                            title = EXCLUDED.title,
+                            sold_price = EXCLUDED.sold_price,
+                            shipping_price = EXCLUDED.shipping_price,
+                            total_price = EXCLUDED.total_price,
+                            sold_date = EXCLUDED.sold_date,
+                            buying_format = EXCLUDED.buying_format,
+                            bid_count = EXCLUDED.bid_count,
+                            best_offer_accepted =
+                                EXCLUDED.best_offer_accepted,
+                            listing_url = EXCLUDED.listing_url,
+                            collected_at = CURRENT_TIMESTAMP
+                    """, (
+                        sold_item_id,
+                        search_key,
+                        sale.get("title"),
+                        sale.get("soldPrice"),
+                        sale.get("shippingPrice"),
+                        sale.get("totalPrice"),
+                        sale.get("endedAt"),
+                        sale.get("buyingFormat"),
+                        sale.get("bidCount"),
+                        sale.get("bestOfferAccepted"),
+                        sale.get("url"),
+                    ))
+
+                cur.execute("""
+                    INSERT INTO sold_comp_cache (
+                        search_key,
+                        last_refreshed,
+                        results_received
+                    )
+                    VALUES (%s, CURRENT_TIMESTAMP, %s)
+                    ON CONFLICT (search_key)
+                    DO UPDATE SET
+                        last_refreshed = CURRENT_TIMESTAMP,
+                        results_received = EXCLUDED.results_received
+                """, (
+                    search_key,
+                    len(sales),
+                ))
+
+                conn.commit()
+
+            # Return everything we've permanently accumulated
+            # for this exact Bowman identity
+            cur.execute("""
+                SELECT
+                    title,
+                    sold_price,
+                    shipping_price,
+                    total_price,
+                    sold_date,
+                    buying_format,
+                    bid_count,
+                    best_offer_accepted,
+                    listing_url
+                FROM sold_comps
+                WHERE search_key = %s
+                ORDER BY sold_date DESC NULLS LAST
+            """, (search_key,))
+
+            rows = cur.fetchall()
+
+    return [
+        {
+            "title": row[0],
+            "soldPrice": float(row[1]) if row[1] is not None else None,
+            "shippingPrice": float(row[2]) if row[2] is not None else None,
+            "totalPrice": float(row[3]) if row[3] is not None else None,
+            "endedAt": row[4].isoformat() if row[4] else None,
+            "buyingFormat": row[5],
+            "bidCount": row[6],
+            "bestOfferAccepted": row[7],
+            "url": row[8],
+        }
+        for row in rows
+    ]
+
 def get_exact_sold_prices(
     sales,
     player_name,
