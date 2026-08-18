@@ -1916,11 +1916,11 @@ def auction_value_refresh():
                             if comp.get("price") is not None
                         ]
                             
-                decision = calculate_auction_decision(
-                    exact_prices,
-                    float(current_bid)
-                    if current_bid is not None
-                    else None
+                    decision = calculate_auction_decision(
+                        exact_prices,
+                        float(current_bid)
+                        if current_bid is not None
+                        else None
                 )
 
                     # Never issue an automated BID on uncertain identity
