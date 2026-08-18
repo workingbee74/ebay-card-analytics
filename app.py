@@ -1774,115 +1774,54 @@ def auction_value_refresh():
                         })
                         continue
 
-                    data = search_response.json()
-
-                    exact_prices = []
-
-                    for item in data.get("itemSummaries", []):
+                    # Build a stable cache key for this exact Bowman card
+                    search_key = "|".join([
+                        str(player_name or "").casefold().strip(),
+                        str(card_year or ""),
+                        str(product or "").casefold().strip(),
+                        str(card_number or "").casefold().strip(),
+                        str(parallel or "").casefold().strip(),
+                        str(grade_company or "").casefold().strip(),
+                        str(grade or ""),
+                    ])
                     
-                        buying_options = item.get("buyingOptions", [])
+                    # Build a SoldComps search query
+                    sold_query_parts = [
+                        str(card_year or ""),
+                        str(player_name or ""),
+                        str(product or ""),
+                        str(card_number or ""),
+                        str(parallel or ""),
+                        str(grade_company or ""),
+                        str(grade or ""),
+                    ]
                     
-                        if "AUCTION" not in buying_options:
-                            continue
+                    sold_query = " ".join(
+                        part.strip()
+                        for part in sold_query_parts
+                        if part and part.strip()
+                    )
                     
-                        ebay_item_id = (
-                            item.get("legacyItemId")
-                            or item.get("itemId")
-                        )
-
-                        title = item.get("title", "")
-                        card_data = parse_card_title(title)
-
-                        # Authoritative player matching
-                        cur.execute("""
-                            SELECT player_name
-                            FROM players
-                            WHERE %s ILIKE '%%' || player_name || '%%'
-                            ORDER BY LENGTH(player_name) DESC
-                            LIMIT 1
-                        """, (title,))
-
-                        player_row = cur.fetchone()
-
-                        if player_row:
-                            card_data["player_name"] = player_row[0]
-
-                        def normalize_text(value):
-                            if not value:
-                                return ""
-
-                            return "".join(
-                                c
-                                for c in unicodedata.normalize(
-                                    "NFKD",
-                                    value
-                                )
-                                if not unicodedata.combining(c)
-                            ).casefold().strip()
-
-                        player_match = (
-                            normalize_text(card_data["player_name"])
-                            == normalize_text(player_name)
-                        )
-
-                        year_match = (
-                            card_data["card_year"] == card_year
-                        )
-
-                        product_match = (
-                            card_data["product"] == product
-                        )
-
-                        card_number_match = (
-                            card_data["card_number"]
-                            == card_number
-                        )
-
-                        # For now require same parsed parallel.
-                        parallel_match = (
-                            card_data["parallel"] == parallel
-                        )
-
-                        exact_match = (
-                            player_match
-                            and year_match
-                            and product_match
-                            and card_number_match
-                            and parallel_match
-                        )
-
-                        if not exact_match:
-                            continue
-
-                        price = item.get(
-                            "price",
-                            {}
-                        ).get("value")
-
-                        if price is None:
-                            continue
-
-                        total_price = float(price)
-
-                        shipping_options = item.get(
-                            "shippingOptions",
-                            []
-                        )
-
-                        if shipping_options:
-                            shipping_cost = (
-                                shipping_options[0]
-                                .get("shippingCost", {})
-                                .get("value")
-                            )
-
-                            if shipping_cost is not None:
-                                total_price += float(
-                                    shipping_cost
-                                )
-
-                        exact_prices.append(total_price)
-
+                    # Use cached SoldComps results when refreshed within 24 hours
+                    sold_sales = get_cached_soldcomps_sales(
+                        search_key=search_key,
+                        query=sold_query,
+                        count=100,
+                        days=90,
+                        cache_hours=24,
+                    )
+                    
+                    # Strictly filter SoldComps results to the same Bowman identity
+                    exact_prices = get_exact_sold_prices(
+                        sold_sales,
+                        player_name=player_name,
+                        card_year=card_year,
+                        product=product,
+                        card_number=card_number,
+                        parallel=parallel,
+                        grade_company=grade_company,
+                        grade=grade,
+                    )
                     decision = calculate_auction_decision(
                         exact_prices,
                         float(current_bid)
