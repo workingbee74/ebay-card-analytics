@@ -301,6 +301,157 @@ def parser_test():
     }), 200
 
 
+@app.route("/ebay/exact-comp-search", methods=["GET"])
+def ebay_exact_comp_search():
+
+    player = request.args.get("player", "").strip()
+    year = request.args.get("year", "").strip()
+    card_number = request.args.get("card_number", "").strip()
+    product = request.args.get("product", "").strip()
+
+    if not player:
+        return jsonify({
+            "success": False,
+            "error": "Missing player"
+        }), 400
+
+    # Build a focused eBay query
+    query_parts = []
+
+    if year:
+        query_parts.append(year)
+
+    if product:
+        query_parts.append(product)
+
+    query_parts.append(player)
+
+    if card_number:
+        query_parts.append(card_number)
+
+    query = " ".join(query_parts)
+
+    # Get eBay access token
+    credentials = f"{EBAY_CLIENT_ID}:{EBAY_CLIENT_SECRET}"
+
+    encoded_credentials = base64.b64encode(
+        credentials.encode("utf-8")
+    ).decode("utf-8")
+
+    token_response = requests.post(
+        "https://api.ebay.com/identity/v1/oauth2/token",
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": f"Basic {encoded_credentials}",
+        },
+        data={
+            "grant_type": "client_credentials",
+            "scope": "https://api.ebay.com/oauth/api_scope",
+        },
+        timeout=20,
+    )
+
+    if token_response.status_code != 200:
+        return jsonify({
+            "success": False,
+            "error": token_response.text
+        }), token_response.status_code
+
+    access_token = token_response.json()["access_token"]
+
+    # Search active fixed-price listings only
+    search_response = requests.get(
+        "https://api.ebay.com/buy/browse/v1/item_summary/search",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "X-EBAY-C-MARKETPLACE-ID": "EBAY_US",
+        },
+        params={
+            "q": query,
+            "limit": 100,
+            "filter": "buyingOptions:{FIXED_PRICE}",
+        },
+        timeout=20,
+    )
+
+    if search_response.status_code != 200:
+        return jsonify({
+            "success": False,
+            "error": search_response.text
+        }), search_response.status_code
+
+    data = search_response.json()
+
+    results = []
+
+    for item in data.get("itemSummaries", []):
+
+        title = item.get("title", "")
+        card_data = parse_card_title(title)
+
+        # Authoritative player matching
+        with psycopg.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+
+                cur.execute("""
+                    SELECT player_name
+                    FROM players
+                    WHERE %s ILIKE '%%' || player_name || '%%'
+                    ORDER BY LENGTH(player_name) DESC
+                    LIMIT 1
+                """, (title,))
+
+                player_row = cur.fetchone()
+
+                if player_row:
+                    card_data["player_name"] = player_row[0]
+
+        price = item.get("price", {}).get("value")
+
+        shipping_options = item.get("shippingOptions", [])
+
+        shipping_cost = None
+
+        if shipping_options:
+            shipping_cost = (
+                shipping_options[0]
+                .get("shippingCost", {})
+                .get("value")
+            )
+
+        total_price = None
+
+        if price is not None:
+            total_price = float(price)
+
+            if shipping_cost is not None:
+                total_price += float(shipping_cost)
+
+        results.append({
+            "title": title,
+            "player_name": card_data["player_name"],
+            "card_year": card_data["card_year"],
+            "product": card_data["product"],
+            "card_number": card_data["card_number"],
+            "parallel": card_data["parallel"],
+            "serial_numbered_to": card_data["serial_numbered_to"],
+            "autograph": card_data["autograph"],
+            "grade_company": card_data["grade_company"],
+            "grade": card_data["grade"],
+            "price": price,
+            "shipping_cost": shipping_cost,
+            "total_price": total_price,
+            "url": item.get("itemWebUrl"),
+        })
+
+    return jsonify({
+        "success": True,
+        "query": query,
+        "ebay_total_matches": data.get("total", 0),
+        "results_returned": len(results),
+        "results": results
+    }), 200
+
 @app.route("/ebay/account-deletion", methods=["GET", "POST"])
 def ebay_account_deletion():
     if request.method == "GET":
