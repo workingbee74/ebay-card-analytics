@@ -1693,6 +1693,8 @@ def auction_value_refresh():
                     product,
                     card_number,
                     parallel,
+                    grade_company,
+                    grade,
                     current_bid,
                     bid_count,
                     item_end_date
@@ -1721,6 +1723,8 @@ def auction_value_refresh():
                     product,
                     card_number,
                     parallel,
+                    grade_company,
+                    grade,
                     current_bid,
                     bid_count,
                     item_end_date
