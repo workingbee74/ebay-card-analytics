@@ -302,6 +302,81 @@ def parser_test():
         "parsed": card_data
     }), 200
 
+def get_soldcomps_sales(query, count=100, days=90):
+    response = requests.get(
+        "https://api.sold-comps.com/v1/scrape",
+        headers={
+            "Authorization": f"Bearer {SOLDCOMPS_API_KEY}"
+        },
+        params={
+            "keyword": query,
+            "count": count,
+            "daysToScrape": days,
+        },
+        timeout=30,
+    )
+
+    if response.status_code != 200:
+        return []
+
+    data = response.json()
+    return data.get("items", [])
+
+def get_exact_sold_prices(
+    sales,
+    player_name,
+    card_year,
+    product,
+    card_number,
+    parallel,
+    grade_company=None,
+    grade=None,
+):
+    exact_prices = []
+
+    for sale in sales:
+        title = sale.get("title", "")
+        sold_price = sale.get("totalPrice") or sale.get("soldPrice")
+
+        if sold_price is None:
+            continue
+
+        card_data = parse_card_title(title)
+
+        player_match = (
+            card_data.get("player_name", "").casefold().strip()
+            == (player_name or "").casefold().strip()
+        )
+
+        year_match = card_data.get("card_year") == card_year
+        product_match = card_data.get("product") == product
+        card_number_match = card_data.get("card_number") == card_number
+        parallel_match = card_data.get("parallel") == parallel
+
+        if not (
+            player_match
+            and year_match
+            and product_match
+            and card_number_match
+            and parallel_match
+        ):
+            continue
+
+        if grade_company:
+            if card_data.get("grade_company") != grade_company:
+                continue
+
+        if grade is not None:
+            if card_data.get("grade") != grade:
+                continue
+
+        try:
+            exact_prices.append(float(sold_price))
+        except (TypeError, ValueError):
+            continue
+
+    return exact_prices
+
 def calculate_auction_decision(
     exact_prices,
     current_bid=None
@@ -797,7 +872,35 @@ def ebay_search():
                     ADD COLUMN IF NOT EXISTS item_end_date TIMESTAMP,
                     ADD COLUMN IF NOT EXISTS currency TEXT;
             """)
+                    
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS sold_comps (
+                    id BIGSERIAL PRIMARY KEY,
+                    sold_item_id TEXT UNIQUE,
+                    search_key TEXT NOT NULL,
+                    title TEXT,
+                    sold_price NUMERIC(12,2),
+                    shipping_price NUMERIC(12,2),
+                    total_price NUMERIC(12,2),
+                    sold_date TIMESTAMP,
+                    buying_format TEXT,
+                    bid_count INTEGER,
+                    best_offer_accepted BOOLEAN,
+                    listing_url TEXT,
+                    collected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
             
+                CREATE INDEX IF NOT EXISTS idx_sold_comps_search_key
+                ON sold_comps(search_key);
+            
+                CREATE TABLE IF NOT EXISTS sold_comp_cache (
+                    search_key TEXT PRIMARY KEY,
+                    last_refreshed TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    results_received INTEGER DEFAULT 0
+                );
+            """)
+
+                    
                     for item in items:
                         title = item.get("title", "")
                         card_data = parse_card_title(title)
