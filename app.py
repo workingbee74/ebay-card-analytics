@@ -1483,6 +1483,24 @@ def auction_value_refresh():
                 ) = auction
 
                 try:
+                    # Verify player identity against authoritative players table
+                    cur.execute("""
+                        SELECT player_name
+                        FROM players
+                        WHERE LOWER(player_name) = LOWER(%s)
+                        LIMIT 1
+                    """, (player_name,))
+        
+                    verified_player = cur.fetchone()
+        
+                    identity_verified = verified_player is not None
+        
+                    if identity_verified:
+                        identity_confidence = 100
+                    else:
+                        identity_confidence = 25
+
+                    
                     query = (
                         f"{card_year} "
                         f"{product} "
@@ -1618,6 +1636,10 @@ def auction_value_refresh():
                         else None
                     )
 
+                    # Never issue an automated BID on uncertain identity
+                    if not identity_verified:
+                        decision["action"] = "REVIEW"
+                    
                     cur.execute("""
                         INSERT INTO auction_valuations (
                             ebay_item_id,
@@ -1635,15 +1657,18 @@ def auction_value_refresh():
                             conservative_value,
                             recommended_max_bid,
                             bid_headroom,
+                            identity_confidence,
+                            identity_verified,
                             action,
                             valuation_basis,
                             valued_at
                         )
 
                         VALUES (
-                            %s, %s, %s, %s, %s, %s,
-                            %s, %s, %s, %s, %s, %s,
                             %s, %s, %s, %s, %s,
+                            %s, %s, %s, %s, %s,
+                            %s, %s, %s, %s, %s,
+                            %s, %s, %s, %s,
                             CURRENT_TIMESTAMP
                         )
 
@@ -1664,6 +1689,8 @@ def auction_value_refresh():
                             recommended_max_bid =
                                 EXCLUDED.recommended_max_bid,
                             bid_headroom = EXCLUDED.bid_headroom,
+                            identity_confidence = EXCLUDED.identity_confidence,
+                            identity_verified = EXCLUDED.identity_verified,
                             action = EXCLUDED.action,
                             valuation_basis = EXCLUDED.valuation_basis,
                             valued_at = CURRENT_TIMESTAMP
@@ -1683,6 +1710,8 @@ def auction_value_refresh():
                         decision["conservative_value"],
                         decision["recommended_max_bid"],
                         decision["bid_headroom"],
+                        identity_confidence,
+                        identity_verified,
                         decision["action"],
                         decision["valuation_basis"],
                     ))
