@@ -474,7 +474,9 @@ def get_sold_price_tiers(
 ):
     exact_prices = []
     same_parallel_prices = []
+    same_card_prices = []
 
+    
     target_player = (player_name or "").casefold().strip()
 
     for sale in sales:
@@ -505,7 +507,6 @@ def get_sold_price_tiers(
             and year_match
             and product_match
             and card_number_match
-            and parallel_match
         ):
             continue
 
@@ -514,6 +515,19 @@ def get_sold_price_tiers(
         except (TypeError, ValueError):
             continue
 
+        # Tier 3:
+        # Same exact Bowman card number, regardless of parallel.
+        same_card_prices.append({
+            "price": price,
+            "parallel": card_data.get("parallel"),
+            "serial_numbered_to": card_data.get("serial_numbered_to"),
+            "grade_company": card_data.get("grade_company"),
+            "grade": card_data.get("grade"),
+        })
+
+        if not parallel_match:
+            continue
+    
         # Tier 2:
         # Same exact Bowman card and parallel,
         # regardless of grade.
@@ -539,9 +553,11 @@ def get_sold_price_tiers(
             exact_prices.append(price)
 
     return {
-        "exact_prices": exact_prices,
-        "same_parallel_prices": same_parallel_prices,
-    }
+    "exact_prices": exact_prices,
+    "same_parallel_prices": same_parallel_prices,
+    "same_card_prices": same_card_prices,
+}
+    
 def calculate_auction_decision(
     exact_prices,
     current_bid=None
