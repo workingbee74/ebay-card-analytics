@@ -300,6 +300,7 @@ def parser_test():
         "parsed": card_data
     }), 200
 
+
 @app.route("/ebay/account-deletion", methods=["GET", "POST"])
 def ebay_account_deletion():
     if request.method == "GET":
@@ -946,6 +947,86 @@ def inventory_enrich():
         "bowman_cards_updated": updated,
         "cards_skipped": skipped
     }), 200
+
+@app.route("/ebay/re-enrich", methods=["GET"])
+def ebay_re_enrich():
+
+    updated = 0
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+
+            cur.execute("""
+                SELECT
+                    id,
+                    title
+                FROM ebay_listings
+                WHERE is_single_card = TRUE
+                  AND title IS NOT NULL
+                ORDER BY id
+            """)
+
+            rows = cur.fetchall()
+
+            for listing_id, title in rows:
+
+                card_data = parse_card_title(title)
+
+                # Use authoritative player table when possible
+                cur.execute("""
+                    SELECT player_name
+                    FROM players
+                    WHERE %s ILIKE '%%' || player_name || '%%'
+                    ORDER BY LENGTH(player_name) DESC
+                    LIMIT 1
+                """, (title,))
+
+                player_row = cur.fetchone()
+
+                if player_row:
+                    card_data["player_name"] = player_row[0]
+
+                cur.execute("""
+                    UPDATE ebay_listings
+                    SET
+                        player_name = %s,
+                        card_year = %s,
+                        manufacturer = %s,
+                        product = %s,
+                        card_number = %s,
+                        parallel = %s,
+                        serial_numbered_to = %s,
+                        autograph = %s,
+                        rookie_card = %s,
+                        grade_company = %s,
+                        grade = %s,
+                        is_single_card = %s
+                    WHERE id = %s
+                """, (
+                    card_data["player_name"],
+                    card_data["card_year"],
+                    card_data["manufacturer"],
+                    card_data["product"],
+                    card_data["card_number"],
+                    card_data["parallel"],
+                    card_data["serial_numbered_to"],
+                    card_data["autograph"],
+                    card_data["rookie_card"],
+                    card_data["grade_company"],
+                    card_data["grade"],
+                    card_data["is_single_card"],
+                    listing_id,
+                ))
+
+                updated += 1
+
+        conn.commit()
+
+    return jsonify({
+        "success": True,
+        "listings_re_enriched": updated
+    }), 200
+
 
 @app.route("/auction-watch", methods=["GET"])
 def auction_watch():
