@@ -301,6 +301,108 @@ def parser_test():
         "parsed": card_data
     }), 200
 
+def calculate_auction_decision(
+    exact_prices,
+    current_bid=None
+):
+    exact_prices = sorted(
+        price for price in exact_prices
+        if price is not None
+    )
+
+    exact_comp_count = len(exact_prices)
+
+    exact_active_median = None
+    exact_lowest_ask = None
+    exact_highest_ask = None
+
+    if exact_prices:
+        exact_lowest_ask = round(exact_prices[0], 2)
+        exact_highest_ask = round(exact_prices[-1], 2)
+
+        middle = exact_comp_count // 2
+
+        if exact_comp_count % 2 == 1:
+            exact_active_median = exact_prices[middle]
+        else:
+            exact_active_median = (
+                exact_prices[middle - 1]
+                + exact_prices[middle]
+            ) / 2
+
+        exact_active_median = round(
+            exact_active_median,
+            2
+        )
+
+    # Evidence confidence / active-ask haircut
+    if exact_comp_count >= 8:
+        evidence_confidence = 80
+        valuation_haircut = 0.78
+
+    elif exact_comp_count >= 5:
+        evidence_confidence = 70
+        valuation_haircut = 0.75
+
+    elif exact_comp_count >= 3:
+        evidence_confidence = 55
+        valuation_haircut = 0.70
+
+    elif exact_comp_count >= 1:
+        evidence_confidence = 35
+        valuation_haircut = 0.60
+
+    else:
+        evidence_confidence = 0
+        valuation_haircut = 0.0
+
+    conservative_value = None
+    recommended_max_bid = None
+
+    if exact_active_median is not None:
+        conservative_value = round(
+            exact_active_median * valuation_haircut,
+            2
+        )
+
+        recommended_max_bid = conservative_value
+
+    action = "NO BID"
+    bid_headroom = None
+
+    if (
+        recommended_max_bid is not None
+        and current_bid is not None
+    ):
+        bid_headroom = round(
+            recommended_max_bid - current_bid,
+            2
+        )
+
+        if evidence_confidence < 50:
+            action = "NO BID"
+
+        elif current_bid >= recommended_max_bid:
+            action = "PASS"
+
+        elif current_bid >= recommended_max_bid * 0.90:
+            action = "WAIT"
+
+        else:
+            action = "BID"
+
+    return {
+        "exact_comp_count": exact_comp_count,
+        "exact_active_median": exact_active_median,
+        "exact_lowest_ask": exact_lowest_ask,
+        "exact_highest_ask": exact_highest_ask,
+        "evidence_confidence": evidence_confidence,
+        "conservative_value": conservative_value,
+        "recommended_max_bid": recommended_max_bid,
+        "bid_headroom": bid_headroom,
+        "action": action,
+        "valuation_basis": "ACTIVE_ASKING_PRICES",
+    }
 
 @app.route("/ebay/exact-comp-search", methods=["GET"])
 def ebay_exact_comp_search():
@@ -522,82 +624,20 @@ def ebay_exact_comp_search():
         and result["total_price"] is not None
     )
 
-    exact_comp_count = len(exact_prices)
+    decision = calculate_auction_decision(
+        exact_prices,
+        current_bid
+    )
 
-    exact_active_median = None
-    exact_lowest_ask = None
-    exact_highest_ask = None
-
-    if exact_prices:
-        exact_lowest_ask = exact_prices[0]
-        exact_highest_ask = exact_prices[-1]
-
-        middle = exact_comp_count // 2
-
-        if exact_comp_count % 2 == 1:
-            exact_active_median = exact_prices[middle]
-        else:
-            exact_active_median = (
-                exact_prices[middle - 1]
-                + exact_prices[middle]
-            ) / 2
-
-        exact_active_median = round(exact_active_median, 2)
-        exact_lowest_ask = round(exact_lowest_ask, 2)
-        exact_highest_ask = round(exact_highest_ask, 2)
-
-    # Evidence confidence based on exact comp count
-    if exact_comp_count >= 8:
-        evidence_confidence = 80
-        valuation_haircut = 0.78
-    elif exact_comp_count >= 5:
-        evidence_confidence = 70
-        valuation_haircut = 0.75
-    elif exact_comp_count >= 3:
-        evidence_confidence = 55
-        valuation_haircut = 0.70
-    elif exact_comp_count >= 1:
-        evidence_confidence = 35
-        valuation_haircut = 0.60
-    else:
-        evidence_confidence = 0
-        valuation_haircut = 0.0
-
-    conservative_value = None
-    recommended_max_bid = None
-
-    if exact_active_median is not None:
-        conservative_value = round(
-            exact_active_median * valuation_haircut,
-            2
-        )
-
-        # V1 max bid uses the conservative value directly.
-        # Later we'll subtract buyer-side friction and adjust
-        # for liquidity, prospect risk, and sold-comp evidence.
-        recommended_max_bid = conservative_value
-
-        action = "NO BID"
-        bid_headroom = None
-    
-        if recommended_max_bid is not None and current_bid is not None:
-    
-            bid_headroom = round(
-                recommended_max_bid - current_bid,
-                2
-            )
-    
-            if evidence_confidence < 50:
-                action = "NO BID"
-    
-            elif current_bid >= recommended_max_bid:
-                action = "PASS"
-    
-            elif current_bid >= recommended_max_bid * 0.90:
-                action = "WAIT"
-    
-            else:
-                action = "BID"
+    exact_comp_count = decision["exact_comp_count"]
+    exact_active_median = decision["exact_active_median"]
+    exact_lowest_ask = decision["exact_lowest_ask"]
+    exact_highest_ask = decision["exact_highest_ask"]
+    evidence_confidence = decision["evidence_confidence"]
+    conservative_value = decision["conservative_value"]
+    recommended_max_bid = decision["recommended_max_bid"]
+    bid_headroom = decision["bid_headroom"]
+    action = decision["action"]
     
     return jsonify({
         "success": True,
