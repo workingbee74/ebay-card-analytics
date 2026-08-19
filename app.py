@@ -5,6 +5,7 @@ import requests
 import psycopg
 import re
 import unicodedata
+import base64
 from flask import Flask, request, jsonify
 from cardsightai import CardSightAI
 
@@ -3055,6 +3056,72 @@ def scan_card():
         "card_number": getattr(card, "card_number", None),
         "numbered_to": getattr(detection, "numbered_to", None),
     })
+
+@app.route("/ximilar-test", methods=["GET", "POST"])
+def ximilar_test():
+    if request.method == "GET":
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Ximilar Bowman Test</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+        </head>
+        <body style="font-family:Arial;max-width:600px;margin:40px auto;padding:20px;">
+            <h1>Ximilar Bowman Test</h1>
+
+            <form method="POST" enctype="multipart/form-data">
+                <input
+                    type="file"
+                    name="card_image"
+                    accept="image/*"
+                    capture="environment"
+                    required
+                >
+                <br><br>
+                <button type="submit" style="font-size:18px;padding:14px;">
+                    Identify Card
+                </button>
+            </form>
+        </body>
+        </html>
+        """
+
+    image = request.files.get("card_image")
+
+    if not image:
+        return jsonify({
+            "success": False,
+            "error": "No image uploaded"
+        }), 400
+
+    image_bytes = image.read()
+    image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+
+    response = requests.post(
+        "https://api.ximilar.com/collectibles/v2/sport_id",
+        headers={
+            "Authorization": f"Token {XIMILAR_API_TOKEN}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "records": [
+                {
+                    "_base64": image_base64
+                }
+            ],
+            "magic_ai": True,
+            "slab_id": True,
+            "slab_grade": True,
+            "price_stats": False,
+        },
+        timeout=60,
+    )
+
+    return jsonify({
+        "http_status": response.status_code,
+        "ximilar": response.json()
+    }), response.status_code
 
 @app.route("/deals-dashboard-v2", methods=["GET"])
 def deals_dashboard_v2():
