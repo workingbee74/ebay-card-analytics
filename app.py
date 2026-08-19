@@ -14,6 +14,7 @@ EBAY_CLIENT_ID = os.environ.get("EBAY_CLIENT_ID", "")
 EBAY_CLIENT_SECRET = os.environ.get("EBAY_CLIENT_SECRET", "")
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
 SOLDCOMPS_API_KEY = os.environ.get("SOLDCOMPS_API_KEY", "")
+CARDSIGHT_API_KEY = os.environ.get("CARDSIGHT_API_KEY", "")
 def parse_card_title(title):
     title_upper = title.upper()
 
