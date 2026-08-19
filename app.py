@@ -3670,6 +3670,10 @@ def scan_card():
         sport_data = {
             "error": sport_response.text
         }
+
+    normalized_evidence = normalize_ximilar_sport_result(
+        sport_data
+    )
     
     try:
         ocr_data = ocr_response.json()
@@ -3685,6 +3689,7 @@ def scan_card():
     
     return jsonify({
         "success": overall_success,
+        "normalized_evidence": normalized_evidence,
         "sport_id": {
             "http_status": sport_response.status_code,
             "data": sport_data,
@@ -3694,7 +3699,6 @@ def scan_card():
             "data": ocr_data,
         },
     }), 200 if overall_success else 502
-
     
 @app.route("/ximilar-test", methods=["GET", "POST"])
 def ximilar_test():
