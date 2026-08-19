@@ -4066,14 +4066,17 @@ def scan_card():
     <body>
     
     <div class="card">
+
     
         <h1>Card Identified</h1>
-    
+        
         <div class="confidence">
             Resolver Confidence: {confidence_label}
             ({resolver_score})
         </div>
-    
+        
+        <form method="POST" action="/inventory-add">
+        
         <div class="field">
             <div class="label">Player</div>
             {player}
@@ -4146,6 +4149,9 @@ def scan_card():
     </body>
     </html>
     """
+
+@app.route("/inventory-add", methods=["POST"])
+def inventory_add():
     
 @app.route("/ximilar-test", methods=["GET", "POST"])
 def ximilar_test():
