@@ -2568,19 +2568,6 @@ def ebay_auction_snapshot():
         "snapshots_saved": snapshots_saved
     }), 200
 
-@app.route("/inventory/actions", methods=["GET"])
-def inventory_actions_page():
-    return """
-    <h1>Action Queue</h1>
-    <p>Action dashboard coming next.</p>
-    """
-
-@app.route("/inventory/actions", methods=["GET"])
-def inventory_actions():
-    return """
-    <h1>Action Queue</h1>
-    <p>Action dashboard coming next.</p>
-    """
 
 @app.route("/inventory/enrich", methods=["GET"])
 def inventory_enrich():
@@ -4866,6 +4853,717 @@ def inventory_add():
     """
 
 @app.route("/inventory", methods=["GET"])
+def inventory_cards_dashboard():
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT
+                    id,
+                    player_name,
+                    card_year,
+                    product,
+                    card_number,
+                    first_bowman,
+                    prospect_card,
+                    parallel,
+                    serial_number,
+                    serial_numbered_to,
+                    autograph,
+                    rookie_card,
+                    grade_company,
+                    grade,
+                    purchase_price,
+                    purchase_date,
+                    purchase_source,
+                    external_card_id
+                FROM inventory_cards
+                WHERE player_name IS NOT NULL
+                ORDER BY created_at DESC
+            """)
+
+            rows = cur.fetchall()
+
+    inventory_items = []
+
+    for row in rows:
+        (
+            inventory_id,
+            player_name,
+            card_year,
+            product,
+            card_number,
+            first_bowman,
+            prospect_card,
+            parallel,
+            serial_number,
+            serial_numbered_to,
+            autograph,
+            rookie_card,
+            grade_company,
+            grade,
+            purchase_price,
+            purchase_date,
+            purchase_source,
+            cardhedge_id,
+        ) = row
+
+        market = get_inventory_market_data(
+            cardhedge_id,
+            grade_company,
+            grade
+        )
+
+        trend_data = get_cardhedge_price_trend(
+            cardhedge_id,
+            grade_company,
+            grade
+        )
+
+        
+        price_trend = trend_data["trend"]
+        price_trend_pct = trend_data["trend_pct"]
+        price_trend_confidence = trend_data["trend_confidence"]
+        history_points = trend_data["history_points"]
+        
+        market_value = market["market_value"]
+        sales_7day = market["sales_7day"]
+        sales_30day = market["sales_30day"]
+        market_gain = market["market_gain"]
+        
+        gain_loss = None
+        gain_loss_pct = None
+        
+        if (
+            market_value is not None
+            and purchase_price is not None
+        ):
+            gain_loss = (
+                market_value - float(purchase_price)
+            )
+        
+            if float(purchase_price) > 0:
+                gain_loss_pct = (
+                    gain_loss
+                    / float(purchase_price)
+                    * 100
+                )
+        
+        market_value_display = (
+            f"${market_value:,.2f}"
+            if market_value is not None
+            else "—"
+        )
+        
+        gain_loss_display = "—"
+        
+        if gain_loss is not None:
+            gain_loss_display = (
+                f"${gain_loss:+,.2f}"
+            )
+        
+            if gain_loss_pct is not None:
+                gain_loss_display += (
+                    f" ({gain_loss_pct:+.1f}%)"
+                )
+
+        disposition = calculate_disposition(
+            market_value,
+            purchase_price,
+            sales_7day,
+            sales_30day,
+            prospect_card,
+            first_bowman,
+            autograph,
+            grade_company,
+            grade,
+            serial_numbered_to
+        )
+        
+        disposition_action = disposition["action"]
+        disposition_score = disposition["score"]
+        disposition_liquidity = disposition["liquidity"]
+        disposition_reasons = disposition["reasons"]
+
+        # Action priority determines dashboard sorting.
+        # Higher number = card deserves attention sooner.
+        
+        action_priority = 0
+        
+        if disposition_action == "SELL — AUCTION":
+            action_priority += 90
+        
+        elif disposition_action == "SELL — BIN + BEST OFFER":
+            action_priority += 80
+        
+        elif disposition_action == "REVIEW":
+            action_priority += 70
+        
+        elif disposition_action == "HOLD":
+            action_priority += 30
+        
+        # Strong liquidity makes an action more executable.
+        if disposition_liquidity == "HIGH":
+            action_priority += 15
+        
+        elif disposition_liquidity == "MODERATE":
+            action_priority += 8
+        
+        # Large market movement versus cost deserves attention.
+        if gain_loss_pct is not None:
+            if gain_loss_pct >= 25:
+                action_priority += 15
+        
+            elif gain_loss_pct >= 10:
+                action_priority += 8
+        
+            elif gain_loss_pct <= -25:
+                action_priority += 10
+        
+        # Cap at 100 for display.
+        action_priority = min(action_priority, 100)
+
+        if price_trend == "FALLING":
+            if price_trend_confidence == "HIGH":
+                action_priority += 20
+            elif price_trend_confidence == "MEDIUM":
+                action_priority += 12
+            else:
+                action_priority += 6
+        
+        elif price_trend == "RISING":
+            if price_trend_confidence == "HIGH":
+                action_priority += 15
+            elif price_trend_confidence == "MEDIUM":
+                action_priority += 10
+            else:
+                action_priority += 5
+
+        action_priority = min(action_priority, 100)
+        
+        reasons_html = "".join(
+            f"<li>{reason}</li>"
+            for reason in disposition_reasons
+        )
+
+        trend_display = price_trend
+        
+        if price_trend_pct is not None:
+            trend_display += f" ({price_trend_pct:+.1f}%)"
+        
+        trend_display += (
+            f" · {price_trend_confidence} confidence"
+        )
+        
+        serial_display = ""
+
+        if serial_numbered_to:
+            if serial_number is not None:
+                serial_display = (
+                    f"{serial_number:03d}/{serial_numbered_to}"
+                )
+            else:
+                serial_display = f"/{serial_numbered_to}"
+
+        grade_display = "Raw"
+
+        if grade_company:
+            grade_display = (
+                f"{grade_company} {grade}"
+                if grade is not None
+                else grade_company
+            )
+
+        price_display = (
+            f"${float(purchase_price):,.2f}"
+            if purchase_price is not None
+            else "—"
+        )
+
+        date_display = (
+            purchase_date.strftime("%b %d, %Y")
+            if purchase_date
+            else "—"
+        )
+
+        badges = []
+
+        if first_bowman:
+            badges.append("1st Bowman")
+
+        if prospect_card:
+            badges.append("Prospect")
+
+        if autograph:
+            badges.append("Auto")
+
+        if rookie_card:
+            badges.append("RC")
+
+        badges_html = " ".join(
+            f'<span class="badge">{badge}</span>'
+            for badge in badges
+        )
+
+        inventory_items.append({
+            "priority": action_priority,
+            "action": disposition_action,
+            "trend": price_trend,
+            "html": f"""
+                
+            <div class="inventory-card">
+    
+                <div class="player">
+                    {player_name}
+                </div>
+    
+                <div class="identity">
+                    {card_year or ""} {product or ""}
+                </div>
+    
+                <div class="identity">
+                    #{card_number or ""}
+                </div>
+    
+                <div class="parallel">
+                    {parallel or "Base"}
+                    {serial_display}
+                </div>
+    
+                <div class="badges">
+                    {badges_html}
+                </div>
+    
+                <div class="details">
+                    <div>
+                        <span>Grade</span>
+                        <strong>{grade_display}</strong>
+                    </div>
+    
+                    <div>
+                        <span>Cost</span>
+                        <strong>{price_display}</strong>
+                    </div>
+    
+                    <div>
+                        <span>Purchased</span>
+                        <strong>{date_display}</strong>
+                    </div>
+    
+                    <div>
+                        <span>Source</span>
+                        <strong>{purchase_source or "—"}</strong>
+                    </div>
+                </div>
+    
+                <div class="market-placeholder">
+                <div>
+                    <span>Market Value</span>
+                    <strong>{market_value_display}</strong>
+                </div>
+            
+                <div>
+                    <span>Gain / Loss</span>
+                    <strong>{gain_loss_display}</strong>
+                </div>
+            </div>
+            
+            <div class="market-placeholder">
+                <div>
+                    <span>7-Day Sales</span>
+                    <strong>{sales_7day}</strong>
+                </div>
+            
+                <div>
+                    <span>30-Day Sales</span>
+                    <strong>{sales_30day}</strong>
+                </div>
+            </div>
+    
+            <div class="market-placeholder">
+                <div>
+                    <span>30-Day Price Trend</span>
+                    <strong>{trend_display}</strong>
+                </div>
+            
+                <div>
+                    <span>History Points</span>
+                    <strong>{history_points}</strong>
+                </div>
+            </div>
+    
+                <div class="decision-placeholder">
+                <div style="
+                    font-size:20px;
+                    font-weight:bold;
+                    margin-bottom:8px;
+                ">
+                    {disposition_action}
+                </div>
+    
+        <div style="
+            font-size:13px;
+            color:#666;
+            margin-bottom:8px;
+        ">
+            Liquidity: {disposition_liquidity}
+        </div>
+    
+        <ul style="
+            text-align:left;
+            margin:0;
+            padding-left:20px;
+            font-weight:normal;
+        ">
+            {reasons_html}
+        </ul>
+    </div>
+    
+            </div>
+            """,
+    
+            "compact_html": f"""
+            <div class="inventory-card compact-card">
+    
+                <div class="compact-top">
+                    <div>
+                        <div class="player">
+                            {player_name}
+                        </div>
+    
+                        <div class="compact-identity">
+                            {card_year or ""} · #{card_number or ""}
+                            · {parallel or "Base"}
+                            {serial_display}
+                        </div>
+    
+                        <div class="compact-identity">
+                            {grade_display}
+                        </div>
+                    </div>
+    
+                    <div class="compact-action">
+                        {disposition_action}
+                    </div>
+                </div>
+    
+                <div class="compact-metrics">
+                    <span>
+                        Cost <strong>{price_display}</strong>
+                    </span>
+    
+                    <span>
+                        Market <strong>{market_value_display}</strong>
+                    </span>
+    
+                    <span>
+                        P/L <strong>{gain_loss_display}</strong>
+                    </span>
+    
+                    <span>
+                        Trend <strong>{trend_display}</strong>
+                    </span>
+                </div>
+    
+            </div>
+            """
+        })
+    inventory_items.sort(
+        key=lambda item: item["priority"],
+        reverse=True
+    )
+
+    action_items = [
+        item
+        for item in inventory_items
+        if item["priority"] >= 35
+    ]
+    
+    action_queue_html = "".join(
+        item["html"]
+        for item in action_items
+    )
+
+    if not action_queue_html:
+        action_queue_html = """
+        <div class="empty">
+            No cards currently require attention.
+        </div>
+        """
+    
+    cards_html = "".join(
+        item["compact_html"]
+        for item in inventory_items
+    )
+    if not cards_html:
+        cards_html = """
+        <div class="empty">
+            No inventory cards yet.
+        </div>
+        """
+
+    return f"""
+    <!DOCTYPE html>
+    <html>
+
+    <head>
+        <title>Bowman Inventory</title>
+
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        >
+
+        <style>
+            body {{
+                margin: 0;
+                background: #f3f4f6;
+                font-family: Arial, sans-serif;
+                color: #111;
+            }}
+
+            .app-nav {{
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                display: flex;
+                gap: 6px;
+                padding: 10px 16px;
+                background: white;
+                border-bottom: 1px solid #e5e7eb;
+                overflow-x: auto;
+                white-space: nowrap;
+            }}
+            
+            .app-nav a {{
+                display: inline-block;
+                padding: 9px 12px;
+                color: #374151;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: bold;
+                border-radius: 8px;
+            }}
+            
+            .app-nav a:hover {{
+                background: #f3f4f6;
+                color: #111;
+            }}
+
+            .page {{
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+            }}
+
+            .header {{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }}
+
+            h1 {{
+                margin: 0;
+                font-size: 30px;
+            }}
+
+            .scan {{
+                background: #2563eb;
+                color: white;
+                text-decoration: none;
+                padding: 12px 16px;
+                border-radius: 9px;
+                font-weight: bold;
+            }}
+
+            .inventory-card {{
+                background: white;
+                border-radius: 14px;
+                padding: 20px;
+                margin-bottom: 16px;
+                box-shadow: 0 1px 4px rgba(0,0,0,.08);
+            }}
+            .compact-card {{
+                padding: 14px 18px;
+                margin-bottom: 10px;
+            }}
+            
+            .compact-top {{
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 15px;
+            }}
+            
+            .compact-card .player {{
+                font-size: 19px;
+                margin-bottom: 3px;
+            }}
+            
+            .compact-identity {{
+                font-size: 13px;
+                line-height: 1.35;
+            }}
+            
+            .compact-action {{
+                font-size: 15px;
+                font-weight: bold;
+                white-space: nowrap;
+            }}
+            
+            .compact-metrics {{
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px 18px;
+                margin-top: 10px;
+                padding-top: 9px;
+                border-top: 1px solid #e5e7eb;
+                font-size: 13px;
+            }}
+            
+            .compact-metrics span {{
+                white-space: nowrap;
+            }}
+            
+            @media (max-width: 600px) {{
+                .compact-card {{
+                    padding: 12px 14px;
+                }}
+            
+                .compact-metrics {{
+                    gap: 6px 12px;
+                }}
+            }}
+
+            .player {{
+                font-size: 24px;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }}
+
+            .identity {{
+                font-size: 16px;
+                margin-top: 3px;
+            }}
+
+            .parallel {{
+                font-size: 18px;
+                font-weight: bold;
+                margin-top: 8px;
+            }}
+
+            .badges {{
+                margin-top: 10px;
+            }}
+
+            .badge {{
+                display: inline-block;
+                background: #e5e7eb;
+                padding: 5px 9px;
+                margin-right: 5px;
+                border-radius: 7px;
+                font-size: 12px;
+                font-weight: bold;
+            }}
+
+            .details {{
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+                margin-top: 18px;
+                border-top: 1px solid #ddd;
+                padding-top: 16px;
+            }}
+
+            .details div {{
+                display: flex;
+                flex-direction: column;
+            }}
+
+            .details span,
+            .market-placeholder span {{
+                color: #666;
+                font-size: 12px;
+            }}
+
+            .details strong {{
+                margin-top: 3px;
+            }}
+
+            .market-placeholder {{
+                margin-top: 18px;
+                padding: 14px;
+                background: #f9fafb;
+                border-radius: 9px;
+                display: flex;
+                justify-content: space-between;
+            }}
+
+            .decision-placeholder {{
+                margin-top: 10px;
+                padding: 14px;
+                background: #f3f4f6;
+                border-radius: 9px;
+                text-align: center;
+                font-weight: bold;
+                color: #666;
+            }}
+
+            .empty {{
+                background: white;
+                padding: 30px;
+                text-align: center;
+                border-radius: 12px;
+            }}
+
+            @media (max-width: 600px) {{
+                .page {{
+                    padding: 14px;
+                }}
+
+                h1 {{
+                    font-size: 24px;
+                }}
+            }}
+        </style>
+    </head>
+
+    <body>
+
+        {NAV_HTML}
+
+        <div class="page">
+
+            <div class="header">
+                <h1>Bowman Inventory</h1>
+
+                <a class="scan" href="/scan-card">
+                    + Scan Card
+                </a>
+            </div>
+
+            <h2 id="action-queue" style="margin-top:10px;">
+                Action Queue
+            </h2>
+            
+            <div style="
+                margin-bottom:20px;
+                color:#666;
+                font-size:14px;
+            ">
+                Cards with the highest current attention priority.
+            </div>
+            
+            {action_queue_html}
+            
+           </div>
+
+    </body>
+    </html>
+    """
+
+
+@app.route("/inventory/actions", methods=["GET"])
 def inventory_cards_dashboard():
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
