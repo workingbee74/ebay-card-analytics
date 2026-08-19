@@ -4141,6 +4141,92 @@ def scan_card():
             Verify the serial number before saving.
         </div>
     </div>
+
+    <div class="field">
+        <div class="label">1st Bowman</div>
+        <select name="first_bowman">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+        </select>
+    </div>
+    
+    <div class="field">
+        <div class="label">Prospect Card</div>
+        <select name="prospect_card">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+        </select>
+    </div>
+    
+    <div class="field">
+        <div class="label">Autograph</div>
+        <select name="autograph">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+        </select>
+    </div>
+    
+    <div class="field">
+        <div class="label">Rookie Card</div>
+        <select name="rookie_card">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+        </select>
+    </div>
+    
+    <div class="field">
+        <div class="label">Grade Company</div>
+        <select name="grade_company">
+            <option value="">Raw</option>
+            <option value="PSA">PSA</option>
+            <option value="BGS">BGS</option>
+            <option value="SGC">SGC</option>
+            <option value="CGC">CGC</option>
+        </select>
+    </div>
+    
+    <div class="field">
+        <div class="label">Grade</div>
+        <input
+            type="number"
+            name="grade"
+            min="1"
+            max="10"
+            step="0.5"
+        >
+    </div>
+    
+    <div class="field">
+        <div class="label">Purchase Price</div>
+        <input
+            type="number"
+            name="purchase_price"
+            min="0"
+            step="0.01"
+            placeholder="0.00"
+        >
+    </div>
+    
+    <div class="field">
+        <div class="label">Purchase Date</div>
+        <input
+            type="date"
+            name="purchase_date"
+        >
+    </div>
+    
+    <div class="field">
+        <div class="label">Purchase Source</div>
+        <select name="purchase_source">
+            <option value=""></option>
+            <option value="eBay">eBay</option>
+            <option value="Whatnot">Whatnot</option>
+            <option value="Card Show">Card Show</option>
+            <option value="Local Shop">Local Shop</option>
+            <option value="Private Sale">Private Sale</option>
+            <option value="Other">Other</option>
+        </select>
+    </div>
     
     <div class="field">
         <div class="label">Card Hedge ID</div>
@@ -4186,10 +4272,24 @@ def inventory_add():
     scanner_source = request.form.get("scanner_source")
     resolver_score = request.form.get("resolver_score")
     cardhedge_id = request.form.get("cardhedge_id")
-
+    
+    first_bowman = request.form.get("first_bowman") == "true"
+    prospect_card = request.form.get("prospect_card") == "true"
+    autograph = request.form.get("autograph") == "true"
+    rookie_card = request.form.get("rookie_card") == "true"
+    
+    grade_company = request.form.get("grade_company") or None
+    grade = request.form.get("grade")
+    purchase_price = request.form.get("purchase_price")
+    purchase_date = request.form.get("purchase_date") or None
+    purchase_source = request.form.get("purchase_source") or None
+    
+    grade = float(grade) if grade else None
+    purchase_price = float(purchase_price) if purchase_price else None
+    
     card_year = int(card_year) if card_year else None
     serial_number = int(serial_number) if serial_number else None
-
+    
     serial_numbered_to = (
         int(serial_numbered_to)
         if serial_numbered_to
@@ -4217,11 +4317,22 @@ def inventory_add():
                     serial_numbered_to,
                     scanner_source,
                     scanner_confidence,
-                    external_card_id
+                    external_card_id,
+                    first_bowman,
+                    prospect_card,
+                    autograph,
+                    rookie_card,
+                    grade_company,
+                    grade,
+                    purchase_price,
+                    purchase_date,
+                    purchase_source
                 )
                 VALUES (
                     %s, %s, %s, %s, %s,
-                    %s, %s, %s, %s, %s, %s
+                    %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s
                 )
                 RETURNING id
                 """,
@@ -4237,6 +4348,15 @@ def inventory_add():
                     scanner_source,
                     scanner_confidence,
                     cardhedge_id,
+                    first_bowman,
+                    prospect_card,
+                    autograph,
+                    rookie_card,
+                    grade_company,
+                    grade,
+                    purchase_price,
+                    purchase_date,
+                    purchase_source,
                 ),
             )
 
