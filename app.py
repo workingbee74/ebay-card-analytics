@@ -3228,18 +3228,20 @@ def scan_card():
         image_bytes
     ).decode("utf-8")
 
-    response = requests.post(
+    headers = {
+        "Authorization": f"Token {XIMILAR_API_TOKEN}",
+        "Content-Type": "application/json",
+    }
+    
+    image_record = {
+        "_base64": image_base64
+    }
+    
+    sport_response = requests.post(
         "https://api.ximilar.com/collectibles/v2/sport_id",
-        headers={
-            "Authorization": f"Token {XIMILAR_API_TOKEN}",
-            "Content-Type": "application/json",
-        },
+        headers=headers,
         json={
-            "records": [
-                {
-                    "_base64": image_base64
-                }
-            ],
+            "records": [image_record],
             "magic_ai": True,
             "slab_id": True,
             "slab_grade": True,
@@ -3247,21 +3249,48 @@ def scan_card():
         },
         timeout=60,
     )
-
+    
+    ocr_response = requests.post(
+        "https://api.ximilar.com/collectibles/v2/card_ocr_id",
+        headers=headers,
+        json={
+            "records": [image_record]
+        },
+        timeout=60,
+    )
+    
     try:
-        ximilar_data = response.json()
+        sport_data = sport_response.json()
     except ValueError:
-        return jsonify({
-            "success": False,
-            "http_status": response.status_code,
-            "error": response.text,
-        }), response.status_code
-
+        sport_data = {
+            "error": sport_response.text
+        }
+    
+    try:
+        ocr_data = ocr_response.json()
+    except ValueError:
+        ocr_data = {
+            "error": ocr_response.text
+        }
+    
+    overall_success = (
+        sport_response.ok
+        or ocr_response.ok
+    )
+    
     return jsonify({
-        "success": response.ok,
-        "http_status": response.status_code,
-        "ximilar": ximilar_data,
-    }), response.status_code
+        "success": overall_success,
+        "sport_id": {
+            "http_status": sport_response.status_code,
+            "data": sport_data,
+        },
+        "card_ocr_id": {
+            "http_status": ocr_response.status_code,
+            "data": ocr_data,
+        },
+    }), 200 if overall_success else 502
+
+    
 @app.route("/ximilar-test", methods=["GET", "POST"])
 def ximilar_test():
     if request.method == "GET":
