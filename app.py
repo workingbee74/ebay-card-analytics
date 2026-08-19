@@ -4101,7 +4101,31 @@ def scan_card():
     
         <div class="field">
             <div class="label">Serial Number</div>
-            {serial_display}
+        
+            <input
+                type="number"
+                name="serial_number"
+                value="{serial_number if serial_number is not None else ''}"
+                min="1"
+                max="{serial_to if serial_to else ''}"
+                style="
+                    width:90px;
+                    padding:8px;
+                    font-size:18px;
+                "
+            >
+        
+            <span style="font-size:18px;">
+                / {serial_to if serial_to else ''}
+            </span>
+        
+            <div style="
+                margin-top:6px;
+                font-size:12px;
+                color:#777;
+            ">
+                Verify the individual serial number before saving.
+            </div>
         </div>
     
         <div class="field">
