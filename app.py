@@ -6,6 +6,7 @@ import psycopg
 import re
 import unicodedata
 from flask import Flask, request, jsonify
+from cardsightai import CardSightAI
 
 app = Flask(__name__)
 VERIFICATION_TOKEN = os.environ.get("EBAY_VERIFICATION_TOKEN", "")
