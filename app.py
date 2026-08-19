@@ -5285,35 +5285,35 @@ def inventory_cards_dashboard():
                 margin-bottom: 16px;
                 box-shadow: 0 1px 4px rgba(0,0,0,.08);
             }}
-            .compact-card {
+            .compact-card {{
                 padding: 14px 18px;
                 margin-bottom: 10px;
-            }
+            }}
             
-            .compact-top {
+            .compact-top {{
                 display: flex;
                 justify-content: space-between;
                 align-items: flex-start;
                 gap: 15px;
-            }
+            }}
             
-            .compact-card .player {
+            .compact-card .player {{
                 font-size: 19px;
                 margin-bottom: 3px;
-            }
+            }}
             
-            .compact-identity {
+            .compact-identity {{
                 font-size: 13px;
                 line-height: 1.35;
-            }
+            }}
             
-            .compact-action {
+            .compact-action {{
                 font-size: 15px;
                 font-weight: bold;
                 white-space: nowrap;
-            }
+            }}
             
-            .compact-metrics {
+            .compact-metrics {{
                 display: flex;
                 flex-wrap: wrap;
                 gap: 8px 18px;
@@ -5321,21 +5321,22 @@ def inventory_cards_dashboard():
                 padding-top: 9px;
                 border-top: 1px solid #e5e7eb;
                 font-size: 13px;
-            }
+            }}
             
-            .compact-metrics span {
+            .compact-metrics span {{
                 white-space: nowrap;
-            }
+            }}
             
-            @media (max-width: 600px) {
-                .compact-card {
+            @media (max-width: 600px) {{
+                .compact-card {{
                     padding: 12px 14px;
-                }
+                }}
             
-                .compact-metrics {
+                .compact-metrics {{
                     gap: 6px 12px;
-                }
-            }
+                }}
+            }}
+
             .player {{
                 font-size: 24px;
                 font-weight: bold;
