@@ -4256,7 +4256,7 @@ def scan_card():
             </script>
         </body>
         </html>
-        """
+        """.replace("{NAV_HTML}", NAV_HTML)
 
     image = request.files.get("card_image")
 
