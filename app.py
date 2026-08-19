@@ -18,6 +18,7 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "")
 SOLDCOMPS_API_KEY = os.environ.get("SOLDCOMPS_API_KEY", "")
 CARDSIGHT_API_KEY = os.environ.get("CARDSIGHT_API_KEY", "")
 XIMILAR_API_TOKEN = os.environ.get("XIMILAR_API_TOKEN", "")
+CARDHEDGE_API_KEY = os.environ.get("CARDHEDGE_API_KEY", "")
 
 def parse_card_title(title):
     title_upper = title.upper()
@@ -267,6 +268,38 @@ def parse_card_title(title):
         "grade": grade,
         "is_single_card": is_single_card,
     }
+
+@app.route("/cardhedge-test", methods=["GET"])
+def cardhedge_test():
+    query = request.args.get(
+        "q",
+        "2025 Leo De Vries Bowman Chrome ECP59 Aqua X-Fractor"
+    )
+
+    response = requests.get(
+        "https://api.cardhedger.com/v1/card-search",
+        headers={
+            "X-API-Key": CARDHEDGE_API_KEY
+        },
+        params={
+            "q": query
+        },
+        timeout=30,
+    )
+
+    try:
+        data = response.json()
+    except ValueError:
+        data = {
+            "error": response.text
+        }
+
+    return jsonify({
+        "success": response.ok,
+        "http_status": response.status_code,
+        "query": query,
+        "cardhedge": data,
+    }), response.status_code
 
 @app.route("/", methods=["GET"])
 def home():
