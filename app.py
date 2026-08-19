@@ -2962,6 +2962,98 @@ def deals():
         "deals": results
     }), 200
 
+@app.route("/scan-card", methods=["GET", "POST"])
+def scan_card():
+    if request.method == "GET":
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Bowman Card Scanner</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    max-width: 600px;
+                    margin: 40px auto;
+                    padding: 20px;
+                }
+
+                h1 {
+                    margin-bottom: 10px;
+                }
+
+                input, button {
+                    font-size: 18px;
+                    margin-top: 20px;
+                    width: 100%;
+                    padding: 14px;
+                }
+
+                button {
+                    cursor: pointer;
+                }
+            </style>
+        </head>
+
+        <body>
+            <h1>Bowman Card Scanner</h1>
+            <p>Take a photo or choose a card image.</p>
+
+            <form method="POST" enctype="multipart/form-data">
+                <input
+                    type="file"
+                    name="card_image"
+                    accept="image/*"
+                    capture="environment"
+                    required
+                >
+
+                <button type="submit">
+                    Identify Card
+                </button>
+            </form>
+        </body>
+        </html>
+        """
+
+    image = request.files.get("card_image")
+
+    if not image:
+        return jsonify({
+            "success": False,
+            "error": "No image uploaded"
+        }), 400
+
+    image_bytes = image.read()
+
+    cardsight_client = CardSightAI(
+        api_key=CARDSIGHT_API_KEY
+    )
+
+    result = cardsight_client.identify.identify(
+        image_bytes
+    )
+
+    if not result or not getattr(result, "detections", None):
+        return jsonify({
+            "success": False,
+            "error": "No card identified"
+        }), 404
+
+    detection = result.detections[0]
+    card = detection.card
+
+    return jsonify({
+        "success": True,
+        "confidence": detection.confidence,
+        "player": getattr(card, "name", None),
+        "year": getattr(card, "year", None),
+        "set_name": getattr(card, "set_name", None),
+        "card_number": getattr(card, "card_number", None),
+        "numbered_to": getattr(detection, "numbered_to", None),
+    })
+
 @app.route("/deals-dashboard-v2", methods=["GET"])
 def deals_dashboard_v2():
     player_filter = request.args.get("player", "").strip()
