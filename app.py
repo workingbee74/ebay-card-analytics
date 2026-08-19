@@ -4421,6 +4421,344 @@ def inventory_add():
     </html>
     """
 
+@app.route("/inventory", methods=["GET"])
+def inventory_dashboard():
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT
+                    id,
+                    player_name,
+                    card_year,
+                    product,
+                    card_number,
+                    first_bowman,
+                    prospect_card,
+                    parallel,
+                    serial_number,
+                    serial_numbered_to,
+                    autograph,
+                    rookie_card,
+                    grade_company,
+                    grade,
+                    purchase_price,
+                    purchase_date,
+                    purchase_source,
+                    external_card_id
+                FROM inventory_cards
+                WHERE player_name IS NOT NULL
+                ORDER BY created_at DESC
+            """)
+
+            rows = cur.fetchall()
+
+    cards_html = ""
+
+    for row in rows:
+        (
+            inventory_id,
+            player_name,
+            card_year,
+            product,
+            card_number,
+            first_bowman,
+            prospect_card,
+            parallel,
+            serial_number,
+            serial_numbered_to,
+            autograph,
+            rookie_card,
+            grade_company,
+            grade,
+            purchase_price,
+            purchase_date,
+            purchase_source,
+            cardhedge_id,
+        ) = row
+
+        serial_display = ""
+
+        if serial_numbered_to:
+            if serial_number is not None:
+                serial_display = (
+                    f"{serial_number:03d}/{serial_numbered_to}"
+                )
+            else:
+                serial_display = f"/{serial_numbered_to}"
+
+        grade_display = "Raw"
+
+        if grade_company:
+            grade_display = (
+                f"{grade_company} {grade}"
+                if grade is not None
+                else grade_company
+            )
+
+        price_display = (
+            f"${float(purchase_price):,.2f}"
+            if purchase_price is not None
+            else "—"
+        )
+
+        date_display = (
+            purchase_date.strftime("%b %d, %Y")
+            if purchase_date
+            else "—"
+        )
+
+        badges = []
+
+        if first_bowman:
+            badges.append("1st Bowman")
+
+        if prospect_card:
+            badges.append("Prospect")
+
+        if autograph:
+            badges.append("Auto")
+
+        if rookie_card:
+            badges.append("RC")
+
+        badges_html = " ".join(
+            f'<span class="badge">{badge}</span>'
+            for badge in badges
+        )
+
+        cards_html += f"""
+        <div class="inventory-card">
+
+            <div class="player">
+                {player_name}
+            </div>
+
+            <div class="identity">
+                {card_year or ""} {product or ""}
+            </div>
+
+            <div class="identity">
+                #{card_number or ""}
+            </div>
+
+            <div class="parallel">
+                {parallel or "Base"}
+                {serial_display}
+            </div>
+
+            <div class="badges">
+                {badges_html}
+            </div>
+
+            <div class="details">
+                <div>
+                    <span>Grade</span>
+                    <strong>{grade_display}</strong>
+                </div>
+
+                <div>
+                    <span>Cost</span>
+                    <strong>{price_display}</strong>
+                </div>
+
+                <div>
+                    <span>Purchased</span>
+                    <strong>{date_display}</strong>
+                </div>
+
+                <div>
+                    <span>Source</span>
+                    <strong>{purchase_source or "—"}</strong>
+                </div>
+            </div>
+
+            <div class="market-placeholder">
+                <span>Market Value</span>
+                <strong>Coming next</strong>
+            </div>
+
+            <div class="decision-placeholder">
+                HOLD / SELL analysis coming next
+            </div>
+
+        </div>
+        """
+
+    if not cards_html:
+        cards_html = """
+        <div class="empty">
+            No inventory cards yet.
+        </div>
+        """
+
+    return f"""
+    <!DOCTYPE html>
+    <html>
+
+    <head>
+        <title>Bowman Inventory</title>
+
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        >
+
+        <style>
+            body {{
+                margin: 0;
+                background: #f3f4f6;
+                font-family: Arial, sans-serif;
+                color: #111;
+            }}
+
+            .page {{
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+            }}
+
+            .header {{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }}
+
+            h1 {{
+                margin: 0;
+                font-size: 30px;
+            }}
+
+            .scan {{
+                background: #2563eb;
+                color: white;
+                text-decoration: none;
+                padding: 12px 16px;
+                border-radius: 9px;
+                font-weight: bold;
+            }}
+
+            .inventory-card {{
+                background: white;
+                border-radius: 14px;
+                padding: 20px;
+                margin-bottom: 16px;
+                box-shadow: 0 1px 4px rgba(0,0,0,.08);
+            }}
+
+            .player {{
+                font-size: 24px;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }}
+
+            .identity {{
+                font-size: 16px;
+                margin-top: 3px;
+            }}
+
+            .parallel {{
+                font-size: 18px;
+                font-weight: bold;
+                margin-top: 8px;
+            }}
+
+            .badges {{
+                margin-top: 10px;
+            }}
+
+            .badge {{
+                display: inline-block;
+                background: #e5e7eb;
+                padding: 5px 9px;
+                margin-right: 5px;
+                border-radius: 7px;
+                font-size: 12px;
+                font-weight: bold;
+            }}
+
+            .details {{
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+                margin-top: 18px;
+                border-top: 1px solid #ddd;
+                padding-top: 16px;
+            }}
+
+            .details div {{
+                display: flex;
+                flex-direction: column;
+            }}
+
+            .details span,
+            .market-placeholder span {{
+                color: #666;
+                font-size: 12px;
+            }}
+
+            .details strong {{
+                margin-top: 3px;
+            }}
+
+            .market-placeholder {{
+                margin-top: 18px;
+                padding: 14px;
+                background: #f9fafb;
+                border-radius: 9px;
+                display: flex;
+                justify-content: space-between;
+            }}
+
+            .decision-placeholder {{
+                margin-top: 10px;
+                padding: 14px;
+                background: #f3f4f6;
+                border-radius: 9px;
+                text-align: center;
+                font-weight: bold;
+                color: #666;
+            }}
+
+            .empty {{
+                background: white;
+                padding: 30px;
+                text-align: center;
+                border-radius: 12px;
+            }}
+
+            @media (max-width: 600px) {{
+                .page {{
+                    padding: 14px;
+                }}
+
+                h1 {{
+                    font-size: 24px;
+                }}
+            }}
+        </style>
+    </head>
+
+    <body>
+
+        <div class="page">
+
+            <div class="header">
+                <h1>Bowman Inventory</h1>
+
+                <a class="scan" href="/scan-card">
+                    + Scan Card
+                </a>
+            </div>
+
+            {cards_html}
+
+        </div>
+
+    </body>
+    </html>
+    """
+
 @app.route("/ximilar-test", methods=["GET", "POST"])
 def ximilar_test():
     if request.method == "GET":
