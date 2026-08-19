@@ -4136,8 +4136,8 @@ def scan_card():
             {cardhedge_id}
         </div>
     
-        <button class="confirm" disabled>
-            Confirm & Add to Inventory
+        <button class="confirm" type="submit">
+        Confirm & Add to Inventory
         </button>
     
         <a class="secondary" href="/scan-card">
