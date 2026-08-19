@@ -5159,7 +5159,7 @@ def inventory_cards_dashboard():
     action_items = [
         item
         for item in inventory_items
-        if item["priority"] >= 40
+        if item["priority"] >= 35
     ]
     
     action_queue_html = "".join(
