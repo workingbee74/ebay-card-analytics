@@ -23,7 +23,7 @@ CARDHEDGE_API_KEY = os.environ.get("CARDHEDGE_API_KEY", "")
 NAV_HTML = """
 <nav class="app-nav">
     <a href="/inventory">Inventory</a>
-    <a href="/inventory#action-queue">Actions</a>
+    <a href="/inventory/actions">Actions</a>
     <a href="/scan-card">Scan</a>
     <a href="/auction-watch">Auction Watch</a>
     <a href="/deals-dashboard-v2">Bowman Deals</a>
@@ -2567,6 +2567,13 @@ def ebay_auction_snapshot():
         "unique_auctions": len(unique_items),
         "snapshots_saved": snapshots_saved
     }), 200
+
+@app.route("/inventory/actions", methods=["GET"])
+def inventory_actions():
+    return """
+    <h1>Action Queue</h1>
+    <p>Action dashboard coming next.</p>
+    """
 
 @app.route("/inventory/actions", methods=["GET"])
 def inventory_actions():
