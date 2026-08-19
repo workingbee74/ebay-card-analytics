@@ -636,6 +636,96 @@ def resolve_with_cardhedge(evidence):
 
     return evidence
 
+def get_inventory_market_data(
+    cardhedge_id,
+    grade_company=None,
+    grade=None
+):
+    if not cardhedge_id:
+        return {
+            "market_value": None,
+            "sales_7day": 0,
+            "sales_30day": 0,
+            "market_gain": None,
+            "grade_used": None,
+        }
+
+    response = requests.post(
+        "https://api.cardhedger.com/v1/cards/card-details",
+        headers={
+            "X-API-Key": CARDHEDGE_API_KEY,
+            "Content-Type": "application/json",
+        },
+        json={
+            "card_id": cardhedge_id
+        },
+        timeout=30,
+    )
+
+    if not response.ok:
+        return {
+            "market_value": None,
+            "sales_7day": 0,
+            "sales_30day": 0,
+            "market_gain": None,
+            "grade_used": None,
+        }
+
+    data = response.json()
+    cards = data.get("cards", [])
+
+    if not cards:
+        return {
+            "market_value": None,
+            "sales_7day": 0,
+            "sales_30day": 0,
+            "market_gain": None,
+            "grade_used": None,
+        }
+
+    card = cards[0]
+    prices = card.get("prices", [])
+
+    if grade_company and grade is not None:
+        grade_value = float(grade)
+
+        if grade_value.is_integer():
+            grade_text = str(int(grade_value))
+        else:
+            grade_text = str(grade_value)
+
+        target_grade = (
+            f"{grade_company.upper()} {grade_text}"
+        )
+    else:
+        target_grade = "Raw"
+
+    market_value = None
+    grade_used = None
+
+    for price_record in prices:
+        record_grade = (
+            price_record.get("grade") or ""
+        ).strip()
+
+        if record_grade.casefold() == target_grade.casefold():
+            try:
+                market_value = float(
+                    price_record.get("price")
+                )
+                grade_used = record_grade
+            except (TypeError, ValueError):
+                pass
+
+            break
+
+    return {
+        "market_value": market_value,
+        "sales_7day": card.get("7 Day Sales", 0) or 0,
+        "sales_30day": card.get("30 Day Sales", 0) or 0,
+        "market_gain": card.get("gain"),
+        "grade_used": grade_used,
+    }
 
 @app.route("/cardhedge-scan-test", methods=["GET", "POST"])
 def cardhedge_scan_test():
@@ -3367,6 +3457,8 @@ def inventory_dashboard():
             purchase_price
         ) = row
 
+
+
         if card_number:
             card_display = f"{card_year} #{card_number}"
         else:
@@ -4476,6 +4568,53 @@ def inventory_cards_dashboard():
             cardhedge_id,
         ) = row
 
+        market = get_inventory_market_data(
+            cardhedge_id,
+            grade_company,
+            grade
+        )
+        
+        market_value = market["market_value"]
+        sales_7day = market["sales_7day"]
+        sales_30day = market["sales_30day"]
+        market_gain = market["market_gain"]
+        
+        gain_loss = None
+        gain_loss_pct = None
+        
+        if (
+            market_value is not None
+            and purchase_price is not None
+        ):
+            gain_loss = (
+                market_value - float(purchase_price)
+            )
+        
+            if float(purchase_price) > 0:
+                gain_loss_pct = (
+                    gain_loss
+                    / float(purchase_price)
+                    * 100
+                )
+        
+        market_value_display = (
+            f"${market_value:,.2f}"
+            if market_value is not None
+            else "—"
+        )
+        
+        gain_loss_display = "—"
+        
+        if gain_loss is not None:
+            gain_loss_display = (
+                f"${gain_loss:+,.2f}"
+            )
+        
+            if gain_loss_pct is not None:
+                gain_loss_display += (
+                    f" ({gain_loss_pct:+.1f}%)"
+                )
+        
         serial_display = ""
 
         if serial_numbered_to:
@@ -4573,9 +4712,28 @@ def inventory_cards_dashboard():
             </div>
 
             <div class="market-placeholder">
+            <div>
                 <span>Market Value</span>
-                <strong>Coming next</strong>
+                <strong>{market_value_display}</strong>
             </div>
+        
+            <div>
+                <span>Gain / Loss</span>
+                <strong>{gain_loss_display}</strong>
+            </div>
+        </div>
+        
+        <div class="market-placeholder">
+            <div>
+                <span>7-Day Sales</span>
+                <strong>{sales_7day}</strong>
+            </div>
+        
+            <div>
+                <span>30-Day Sales</span>
+                <strong>{sales_30day}</strong>
+            </div>
+        </div>
 
             <div class="decision-placeholder">
                 HOLD / SELL analysis coming next
