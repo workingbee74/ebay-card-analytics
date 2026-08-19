@@ -5034,11 +5034,11 @@ def inventory_cards_dashboard():
             for badge in badges
         )
 
-         inventory_items.append({
-            "priority": action_priority,
-            "action": disposition_action,
-            "trend": price_trend,
-            "html": f"""
+    inventory_items.append({
+        "priority": action_priority,
+        "action": disposition_action,
+        "trend": price_trend,
+        "html": f"""
             
         <div class="inventory-card">
 
