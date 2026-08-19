@@ -4653,7 +4653,7 @@ def inventory_cards_dashboard():
 
             rows = cur.fetchall()
 
-    cards_html = ""
+    inventory_items = []
 
     for row in rows:
         (
@@ -4741,6 +4741,44 @@ def inventory_cards_dashboard():
         disposition_score = disposition["score"]
         disposition_liquidity = disposition["liquidity"]
         disposition_reasons = disposition["reasons"]
+
+        # Action priority determines dashboard sorting.
+        # Higher number = card deserves attention sooner.
+        
+        action_priority = 0
+        
+        if disposition_action == "SELL — AUCTION":
+            action_priority += 90
+        
+        elif disposition_action == "SELL — BIN + BEST OFFER":
+            action_priority += 80
+        
+        elif disposition_action == "REVIEW":
+            action_priority += 70
+        
+        elif disposition_action == "HOLD":
+            action_priority += 30
+        
+        # Strong liquidity makes an action more executable.
+        if disposition_liquidity == "HIGH":
+            action_priority += 15
+        
+        elif disposition_liquidity == "MODERATE":
+            action_priority += 8
+        
+        # Large market movement versus cost deserves attention.
+        if gain_loss_pct is not None:
+            if gain_loss_pct >= 25:
+                action_priority += 15
+        
+            elif gain_loss_pct >= 10:
+                action_priority += 8
+        
+            elif gain_loss_pct <= -25:
+                action_priority += 10
+        
+        # Cap at 100 for display.
+        action_priority = min(action_priority, 100)
         
         reasons_html = "".join(
             f"<li>{reason}</li>"
@@ -4797,7 +4835,10 @@ def inventory_cards_dashboard():
             for badge in badges
         )
 
-        cards_html += f"""
+        inventory_items.append({
+            "priority": action_priority,
+            "html": f"""
+            
         <div class="inventory-card">
 
             <div class="player">
@@ -4896,7 +4937,16 @@ def inventory_cards_dashboard():
 
         </div>
         """
-
+    })
+    inventory_items.sort(
+        key=lambda item: item["priority"],
+        reverse=True
+    )
+    
+    cards_html = "".join(
+        item["html"]
+        for item in inventory_items
+    )
     if not cards_html:
         cards_html = """
         <div class="empty">
