@@ -3815,6 +3815,10 @@ def scan_card():
     normalized_evidence = normalize_ximilar_sport_result(
         sport_data
     )
+
+    cardhedge_resolution = resolve_with_cardhedge(
+    normalized_evidence
+    )
     
     try:
         ocr_data = ocr_response.json()
@@ -3831,6 +3835,7 @@ def scan_card():
     return jsonify({
         "success": overall_success,
         "normalized_evidence": normalized_evidence,
+        "cardhedge_resolution": cardhedge_resolution,
         "sport_id": {
             "http_status": sport_response.status_code,
             "data": sport_data,
