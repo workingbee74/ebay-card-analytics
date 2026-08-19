@@ -4152,7 +4152,133 @@ def scan_card():
 
 @app.route("/inventory-add", methods=["POST"])
 def inventory_add():
-    
+    player_name = request.form.get("player_name")
+    card_year = request.form.get("card_year")
+    product = request.form.get("product")
+    card_number = request.form.get("card_number")
+    parallel = request.form.get("parallel")
+
+    serial_number = request.form.get("serial_number")
+    serial_numbered_to = request.form.get("serial_numbered_to")
+
+    scanner_source = request.form.get("scanner_source")
+    resolver_score = request.form.get("resolver_score")
+    cardhedge_id = request.form.get("cardhedge_id")
+
+    card_year = int(card_year) if card_year else None
+    serial_number = int(serial_number) if serial_number else None
+
+    serial_numbered_to = (
+        int(serial_numbered_to)
+        if serial_numbered_to
+        else None
+    )
+
+    scanner_confidence = (
+        float(resolver_score)
+        if resolver_score
+        else None
+    )
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO inventory_cards (
+                    player_name,
+                    card_year,
+                    manufacturer,
+                    product,
+                    card_number,
+                    parallel,
+                    serial_number,
+                    serial_numbered_to,
+                    scanner_source,
+                    scanner_confidence,
+                    external_card_id
+                )
+                VALUES (
+                    %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s, %s
+                )
+                RETURNING id
+                """,
+                (
+                    player_name,
+                    card_year,
+                    "Bowman",
+                    product,
+                    card_number,
+                    parallel,
+                    serial_number,
+                    serial_numbered_to,
+                    scanner_source,
+                    scanner_confidence,
+                    cardhedge_id,
+                ),
+            )
+
+            inventory_id = cur.fetchone()[0]
+
+        conn.commit()
+
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Card Added</title>
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        >
+    </head>
+
+    <body style="
+        font-family:Arial;
+        max-width:600px;
+        margin:40px auto;
+        padding:20px;
+    ">
+
+        <h1>Card Added ✓</h1>
+
+        <h2>{player_name}</h2>
+
+        <p>
+            {card_year} {product}<br>
+            #{card_number}<br>
+            {parallel}
+        </p>
+
+        <p>
+            Serial:
+            {serial_number if serial_number is not None else ''}
+            /
+            {serial_numbered_to if serial_numbered_to is not None else ''}
+        </p>
+
+        <p>Inventory ID: {inventory_id}</p>
+
+        <a
+            href="/scan-card"
+            style="
+                display:block;
+                padding:16px;
+                background:#2563eb;
+                color:white;
+                text-decoration:none;
+                text-align:center;
+                border-radius:10px;
+                font-size:18px;
+            "
+        >
+            Scan Next Card
+        </a>
+
+    </body>
+    </html>
+    """
+
 @app.route("/ximilar-test", methods=["GET", "POST"])
 def ximilar_test():
     if request.method == "GET":
