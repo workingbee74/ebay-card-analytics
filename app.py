@@ -20,6 +20,16 @@ CARDSIGHT_API_KEY = os.environ.get("CARDSIGHT_API_KEY", "")
 XIMILAR_API_TOKEN = os.environ.get("XIMILAR_API_TOKEN", "")
 CARDHEDGE_API_KEY = os.environ.get("CARDHEDGE_API_KEY", "")
 
+NAV_HTML = """
+<nav class="app-nav">
+    <a href="/inventory">Inventory</a>
+    <a href="/inventory#action-queue">Actions</a>
+    <a href="/scan-card">Scan</a>
+    <a href="/auction-watch">Auction Watch</a>
+    <a href="/deals-dashboard-v2">Bowman Deals</a>
+</nav>
+"""
+
 def parse_card_title(title):
     title_upper = title.upper()
 
@@ -5251,6 +5261,34 @@ def inventory_cards_dashboard():
                 color: #111;
             }}
 
+            .app-nav {{
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                display: flex;
+                gap: 6px;
+                padding: 10px 16px;
+                background: white;
+                border-bottom: 1px solid #e5e7eb;
+                overflow-x: auto;
+                white-space: nowrap;
+            }}
+            
+            .app-nav a {{
+                display: inline-block;
+                padding: 9px 12px;
+                color: #374151;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: bold;
+                border-radius: 8px;
+            }}
+            
+            .app-nav a:hover {{
+                background: #f3f4f6;
+                color: #111;
+            }}
+
             .page {{
                 max-width: 800px;
                 margin: 0 auto;
@@ -5431,6 +5469,8 @@ def inventory_cards_dashboard():
     </head>
 
     <body>
+
+        {NAV_HTML}
 
         <div class="page">
 
