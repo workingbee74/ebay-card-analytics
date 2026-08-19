@@ -276,13 +276,17 @@ def cardhedge_test():
         "2025 Leo De Vries Bowman Chrome ECP59 Aqua X-Fractor"
     )
 
-    response = requests.get(
-        "https://api.cardhedger.com/v1/card-search",
+    response = requests.post(
+        "https://api.cardhedger.com/v1/cards/card-search",
         headers={
-            "X-API-Key": CARDHEDGE_API_KEY
+            "X-API-Key": CARDHEDGE_API_KEY,
+            "Content-Type": "application/json",
         },
-        params={
-            "q": query
+        json={
+            "search": query,
+            "category": "Baseball",
+            "page": 1,
+            "page_size": 20,
         },
         timeout=30,
     )
@@ -300,7 +304,7 @@ def cardhedge_test():
         "query": query,
         "cardhedge": data,
     }), response.status_code
-
+    
 @app.route("/", methods=["GET"])
 def home():
     return "eBay notification endpoint is running", 200
