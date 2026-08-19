@@ -22,8 +22,8 @@ CARDHEDGE_API_KEY = os.environ.get("CARDHEDGE_API_KEY", "")
 
 NAV_HTML = """
 <nav class="app-nav">
-    <a href="/inventory">Inventory</a>
-    <a href="/inventory/actions">Actions</a>
+    <a href="/inventory/actions">Inventory</a>
+    <a href="/inventory">Actions</a>
     <a href="/scan-card">Scan</a>
     <a href="/auction-watch">Auction Watch</a>
     <a href="/deals-dashboard-v2">Bowman Deals</a>
