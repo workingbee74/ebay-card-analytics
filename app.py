@@ -298,6 +298,104 @@ def normalize_ximilar_sport_result(ximilar_data):
     if not objects:
         return evidence
 
+    identification = objects[0].get("_identification", {})
+
+    best_match = identification.get("best_match")
+    alternatives = identification.get("alternatives", [])
+
+    evidence["best_match"] = best_match
+    evidence["alternatives"] = alternatives
+
+    if best_match:
+        evidence["player_name"] = best_match.get("name")
+
+        year_value = (
+            best_match.get("year")
+            or best_match.get("season")
+        )
+
+        if year_value:
+            try:
+                evidence["card_year"] = int(year_value)
+            except (TypeError, ValueError):
+                pass
+
+        company = best_match.get("company")
+
+        if company:
+            if "BOWMAN" in company.upper():
+                evidence["manufacturer"] = "Bowman"
+            elif "TOPPS" in company.upper():
+                evidence["manufacturer"] = "Topps"
+            else:
+                evidence["manufacturer"] = company
+
+        set_name = best_match.get("set_name")
+        sub_set = best_match.get("sub_set")
+
+        combined_product = " ".join(
+            value
+            for value in [set_name, sub_set]
+            if value
+        )
+
+        parsed_product = parse_card_title(
+            combined_product
+        )
+
+        evidence["product"] = (
+            parsed_product.get("product")
+            or set_name
+        )
+
+        evidence["parallel"] = (
+            parsed_product.get("parallel")
+            or sub_set
+        )
+
+        evidence["card_number"] = (
+            best_match.get("card_number")
+            or best_match.get("number")
+        )
+
+        serial_text = best_match.get("serial_number")
+
+        if serial_text:
+            serial_match = re.search(
+                r"(\d{1,4})\s*/\s*(\d{1,4})",
+                str(serial_text)
+            )
+
+            if serial_match:
+                evidence["serial_number"] = int(
+                    serial_match.group(1)
+                )
+
+                evidence["serial_numbered_to"] = int(
+                    serial_match.group(2)
+                )
+
+    tags = objects[0].get("_tags", {})
+
+    autograph_tags = tags.get("Autograph", [])
+
+    if autograph_tags:
+        strongest = max(
+            autograph_tags,
+            key=lambda item: item.get("prob", 0)
+        )
+
+        name = (
+            strongest.get("name") or ""
+        ).casefold()
+
+        if name == "signed":
+            evidence["autograph"] = True
+        elif name == "not signed":
+            evidence["autograph"] = False
+
+    return evidence
+
 def resolve_with_cardhedge(evidence):
     player_name = evidence.get("player_name")
     card_year = evidence.get("card_year")
