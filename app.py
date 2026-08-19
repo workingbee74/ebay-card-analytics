@@ -298,6 +298,147 @@ def normalize_ximilar_sport_result(ximilar_data):
     if not objects:
         return evidence
 
+def resolve_with_cardhedge(evidence):
+    player_name = evidence.get("player_name")
+    card_year = evidence.get("card_year")
+    product = evidence.get("product")
+    card_number = evidence.get("card_number")
+    parallel = evidence.get("parallel")
+    serial_numbered_to = evidence.get("serial_numbered_to")
+
+    # Normalize Bowman card numbers such as BCP59 -> BCP-59
+    normalized_card_number = card_number
+
+    if normalized_card_number:
+        normalized_card_number = re.sub(
+            r"^([A-Z]{2,5})(\d+)$",
+            r"\1-\2",
+            normalized_card_number.upper()
+        )
+
+    query_parts = [
+        str(card_year or ""),
+        str(player_name or ""),
+        str(product or ""),
+        str(normalized_card_number or ""),
+        str(parallel or ""),
+    ]
+
+    if serial_numbered_to:
+        query_parts.append(
+            f"/{serial_numbered_to}"
+        )
+
+    query = " ".join(
+        part.strip()
+        for part in query_parts
+        if part and part.strip()
+    )
+
+    response = requests.post(
+        "https://api.cardhedger.com/v1/cards/card-search",
+        headers={
+            "X-API-Key": CARDHEDGE_API_KEY,
+            "Content-Type": "application/json",
+        },
+        json={
+            "search": query,
+            "category": "Baseball",
+            "page": 1,
+            "page_size": 20,
+        },
+        timeout=30,
+    )
+
+    if not response.ok:
+        return {
+            "success": False,
+            "query": query,
+            "http_status": response.status_code,
+            "candidates": [],
+        }
+
+    data = response.json()
+
+    candidates = data.get("cards", [])
+
+    scored_candidates = []
+
+    for card in candidates:
+        score = 0
+
+        candidate_player = (
+            card.get("player") or ""
+        ).casefold()
+
+        candidate_number = (
+            card.get("number") or ""
+        ).upper()
+
+        candidate_set = (
+            card.get("set") or ""
+        ).casefold()
+
+        candidate_variant = (
+            card.get("variant") or ""
+        ).casefold()
+
+        candidate_description = (
+            card.get("description") or ""
+        ).casefold()
+
+        # Player is essential
+        if player_name and (
+            player_name.casefold()
+            == candidate_player
+        ):
+            score += 35
+
+        # Card number is extremely strong evidence
+        if (
+            normalized_card_number
+            and normalized_card_number
+            == candidate_number
+        ):
+            score += 30
+
+        # Correct year
+        if card_year and str(card_year) in candidate_description:
+            score += 15
+
+        # Product/set family
+        if product and product.casefold() in candidate_set:
+            score += 10
+
+        # Exact parallel
+        if parallel and parallel.casefold() == candidate_variant:
+            score += 30
+        elif parallel and parallel.casefold() in candidate_description:
+            score += 20
+
+        scored_candidates.append({
+            "score": score,
+            "card": card,
+        })
+
+    scored_candidates.sort(
+        key=lambda item: item["score"],
+        reverse=True
+    )
+
+    best = (
+        scored_candidates[0]
+        if scored_candidates
+        else None
+    )
+
+    return {
+        "success": True,
+        "query": query,
+        "best": best,
+        "candidates": scored_candidates[:5],
+    }
+    
     identification = objects[0].get("_identification", {})
 
     best_match = identification.get("best_match")
