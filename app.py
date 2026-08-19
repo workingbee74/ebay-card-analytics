@@ -269,6 +269,245 @@ def parse_card_title(title):
         "is_single_card": is_single_card,
     }
 
+@app.route("/cardhedge-scan-test", methods=["GET", "POST"])
+def cardhedge_scan_test():
+    if request.method == "GET":
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Card Hedge Scanner Test</title>
+            <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1, viewport-fit=cover"
+            >
+
+            <style>
+                body {
+                    margin: 0;
+                    background: #111;
+                    color: white;
+                    font-family: Arial, sans-serif;
+                    text-align: center;
+                }
+
+                h1 {
+                    margin: 16px 0 10px;
+                    font-size: 26px;
+                }
+
+                #camera-wrap {
+                    position: relative;
+                    width: 100%;
+                    max-width: 650px;
+                    margin: 0 auto;
+                    background: black;
+                }
+
+                video {
+                    display: block;
+                    width: 100%;
+                }
+
+                #guide {
+                    position: absolute;
+                    top: 8%;
+                    left: 15%;
+                    width: 70%;
+                    height: 84%;
+                    border: 3px solid white;
+                    border-radius: 14px;
+                    box-sizing: border-box;
+                    pointer-events: none;
+                }
+
+                #capture-button {
+                    width: calc(100% - 40px);
+                    max-width: 610px;
+                    margin: 18px auto 8px;
+                    padding: 18px;
+                    border: 0;
+                    border-radius: 12px;
+                    background: #2563eb;
+                    color: white;
+                    font-size: 22px;
+                    font-weight: bold;
+                }
+
+                #status {
+                    padding: 10px 20px 24px;
+                    font-size: 16px;
+                }
+
+                canvas {
+                    display: none;
+                }
+
+                pre {
+                    text-align: left;
+                    white-space: pre-wrap;
+                    word-break: break-word;
+                    background: white;
+                    color: black;
+                    padding: 20px;
+                    margin: 0;
+                    min-height: 100vh;
+                }
+            </style>
+        </head>
+
+        <body>
+            <h1>Card Hedge Scanner Test</h1>
+
+            <div id="camera-wrap">
+                <video
+                    id="video"
+                    autoplay
+                    playsinline
+                    muted
+                ></video>
+
+                <div id="guide"></div>
+            </div>
+
+            <button id="capture-button">
+                Capture Card
+            </button>
+
+            <div id="status">
+                Center the card inside the frame.
+            </div>
+
+            <canvas id="canvas"></canvas>
+
+            <script>
+                const video = document.getElementById("video");
+                const canvas = document.getElementById("canvas");
+                const button = document.getElementById("capture-button");
+                const status = document.getElementById("status");
+
+                async function startCamera() {
+                    try {
+                        const stream =
+                            await navigator.mediaDevices.getUserMedia({
+                                video: {
+                                    facingMode: {
+                                        ideal: "environment"
+                                    }
+                                },
+                                audio: false
+                            });
+
+                        video.srcObject = stream;
+                    } catch (error) {
+                        status.textContent =
+                            "Camera unavailable: " + error.message;
+                    }
+                }
+
+                button.addEventListener("click", async () => {
+                    if (!video.videoWidth) {
+                        status.textContent =
+                            "Camera is not ready yet.";
+                        return;
+                    }
+
+                    button.disabled = true;
+                    status.textContent =
+                        "Identifying card with Card Hedge...";
+
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+
+                    const ctx = canvas.getContext("2d");
+
+                    ctx.drawImage(
+                        video,
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height
+                    );
+
+                    canvas.toBlob(
+                        async (blob) => {
+                            const formData = new FormData();
+
+                            formData.append(
+                                "card_image",
+                                blob,
+                                "card.jpg"
+                            );
+
+                            const response =
+                                await fetch(
+                                    "/cardhedge-scan-test",
+                                    {
+                                        method: "POST",
+                                        body: formData
+                                    }
+                                );
+
+                            const result =
+                                await response.json();
+
+                            document.body.innerHTML =
+                                "<pre>" +
+                                JSON.stringify(result, null, 2) +
+                                "</pre>";
+                        },
+                        "image/jpeg",
+                        0.92
+                    );
+                });
+
+                startCamera();
+            </script>
+        </body>
+        </html>
+        """
+
+    image = request.files.get("card_image")
+
+    if not image:
+        return jsonify({
+            "success": False,
+            "error": "No image received"
+        }), 400
+
+    image_bytes = image.read()
+
+    image_base64 = base64.b64encode(
+        image_bytes
+    ).decode("utf-8")
+
+    response = requests.post(
+        "https://api.cardhedger.com/v1/cards/image-match",
+        headers={
+            "X-API-Key": CARDHEDGE_API_KEY,
+            "Content-Type": "application/json",
+        },
+        json={
+            "image_base64": image_base64,
+            "k": 10,
+        },
+        timeout=60,
+    )
+
+    try:
+        data = response.json()
+    except ValueError:
+        data = {
+            "error": response.text
+        }
+
+    return jsonify({
+        "success": response.ok,
+        "http_status": response.status_code,
+        "cardhedge": data,
+    }), response.status_code
+
+
 @app.route("/cardhedge-test", methods=["GET"])
 def cardhedge_test():
     query = request.args.get(
