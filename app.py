@@ -5830,7 +5830,7 @@ def deals_dashboard_v2():
         <title>Baseball Card Deals</title>
         <style>
 
-        .app-nav {
+        .app-nav {{
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -5841,9 +5841,9 @@ def deals_dashboard_v2():
             border-bottom: 1px solid #e5e7eb;
             overflow-x: auto;
             white-space: nowrap;
-        }
+        }}
         
-        .app-nav a {
+        .app-nav a {{
             display: inline-block;
             padding: 9px 12px;
             color: #374151;
@@ -5851,12 +5851,12 @@ def deals_dashboard_v2():
             font-size: 14px;
             font-weight: bold;
             border-radius: 8px;
-        }
+        }}
         
-        .app-nav a:hover {
+        .app-nav a:hover {{
             background: #f3f4f6;
             color: #111;
-        }
+        }}
             body {{
                 font-family: Arial, sans-serif;
                 margin: 30px;
