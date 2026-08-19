@@ -1121,7 +1121,18 @@ def ebay_search():
                             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                         );
                     """)
-                    
+
+                    cur.execute("""
+                        ALTER TABLE inventory_cards
+                        ADD COLUMN IF NOT EXISTS quantity INTEGER DEFAULT 1,
+                        ADD COLUMN IF NOT EXISTS condition TEXT,
+                        ADD COLUMN IF NOT EXISTS storage_location TEXT,
+                        ADD COLUMN IF NOT EXISTS scanner_source TEXT,
+                        ADD COLUMN IF NOT EXISTS scanner_confidence NUMERIC(5,2),
+                        ADD COLUMN IF NOT EXISTS external_card_id TEXT,
+                        ADD COLUMN IF NOT EXISTS front_image_url TEXT,
+                        ADD COLUMN IF NOT EXISTS back_image_url TEXT;
+                    """)
                     for item in items:
                         title = item.get("title", "")
                         card_data = parse_card_title(title)
