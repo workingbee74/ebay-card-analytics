@@ -5149,6 +5149,52 @@ def inventory_cards_dashboard():
     </div>
     
             </div>
+            """,
+    
+            "compact_html": f"""
+            <div class="inventory-card compact-card">
+    
+                <div class="compact-top">
+                    <div>
+                        <div class="player">
+                            {player_name}
+                        </div>
+    
+                        <div class="compact-identity">
+                            {card_year or ""} · #{card_number or ""}
+                            · {parallel or "Base"}
+                            {serial_display}
+                        </div>
+    
+                        <div class="compact-identity">
+                            {grade_display}
+                        </div>
+                    </div>
+    
+                    <div class="compact-action">
+                        {disposition_action}
+                    </div>
+                </div>
+    
+                <div class="compact-metrics">
+                    <span>
+                        Cost <strong>{price_display}</strong>
+                    </span>
+    
+                    <span>
+                        Market <strong>{market_value_display}</strong>
+                    </span>
+    
+                    <span>
+                        P/L <strong>{gain_loss_display}</strong>
+                    </span>
+    
+                    <span>
+                        Trend <strong>{trend_display}</strong>
+                    </span>
+                </div>
+    
+            </div>
             """
         })
     inventory_items.sort(
@@ -5175,7 +5221,7 @@ def inventory_cards_dashboard():
         """
     
     cards_html = "".join(
-        item["html"]
+        item["compact_html"]
         for item in inventory_items
     )
     if not cards_html:
