@@ -4422,7 +4422,7 @@ def inventory_add():
     """
 
 @app.route("/inventory", methods=["GET"])
-def inventory_dashboard():
+def inventory_cards_dashboard():
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
