@@ -816,13 +816,12 @@ def cardhedge_scan_test():
                                     }
                                 );
 
-                            const result =
-                                await response.json();
-
-                            document.body.innerHTML =
-                                "<pre>" +
-                                JSON.stringify(result, null, 2) +
-                                "</pre>";
+                            const html =
+                                await response.text();
+                            
+                            document.open();
+                            document.write(html);
+                            document.close();
                         },
                         "image/jpeg",
                         0.92
@@ -3832,13 +3831,13 @@ def scan_card():
                                         body: formData
                                     });
 
-                                const result =
-                                    await response.json();
-
-                                document.body.innerHTML =
-                                    "<pre>" +
-                                    JSON.stringify(result, null, 2) +
-                                    "</pre>";
+                                const html =
+                                    await response.text();
+                                
+                                document.open();
+                                document.write(html);
+                                document.close();
+                                    
                             } catch (error) {
                                 status.textContent =
                                     "Scan failed: " +
