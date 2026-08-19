@@ -5829,6 +5829,34 @@ def deals_dashboard_v2():
     <head>
         <title>Baseball Card Deals</title>
         <style>
+
+        .app-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            gap: 6px;
+            padding: 10px 16px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .app-nav a {
+            display: inline-block;
+            padding: 9px 12px;
+            color: #374151;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+        
+        .app-nav a:hover {
+            background: #f3f4f6;
+            color: #111;
+        }
             body {{
                 font-family: Arial, sans-serif;
                 margin: 30px;
@@ -5878,7 +5906,7 @@ def deals_dashboard_v2():
     </head>
 
     <body>
-
+    {NAV_HTML}
         <h1>Baseball Card Deal Finder</h1>
         <div class="subtitle">
             Ranked by Deal Quality Score
@@ -6035,6 +6063,7 @@ def deals_dashboard_v2():
     </html>
     """
 
+    html = html.replace("{NAV_HTML}", NAV_HTML)
     return html
 
    
