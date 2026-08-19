@@ -3343,6 +3343,35 @@ def auction_watch():
         <title>Bowman Auction Watch</title>
 
         <style>
+
+        .app-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            gap: 6px;
+            padding: 10px 16px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .app-nav a {
+            display: inline-block;
+            padding: 9px 12px;
+            color: #374151;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+        
+        .app-nav a:hover {
+            background: #f3f4f6;
+            color: #111;
+        }
+        
             body {
                 font-family: Arial, sans-serif;
                 background: #f4f5f7;
@@ -3407,7 +3436,7 @@ def auction_watch():
     </head>
 
     <body>
-
+    {NAV_HTML}
         <h1>Bowman Auction Watch</h1>
 
         <div class="subtitle">
@@ -3600,7 +3629,7 @@ def auction_watch():
     </body>
     </html>
     """
-
+    html = html.replace("{NAV_HTML}", NAV_HTML)
     return html
 
 @app.route("/inventory-dashboard", methods=["GET"])
