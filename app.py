@@ -5564,7 +5564,7 @@ def inventory_cards_dashboard():
 
 
 @app.route("/inventory/actions", methods=["GET"])
-def inventory_cards_dashboard():
+def inventory_actions_page():
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
