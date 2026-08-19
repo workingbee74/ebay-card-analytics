@@ -2973,49 +2973,197 @@ def scan_card():
         <html>
         <head>
             <title>Bowman Card Scanner</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1, viewport-fit=cover"
+            >
+
             <style>
                 body {
+                    margin: 0;
+                    background: #111;
+                    color: white;
                     font-family: Arial, sans-serif;
-                    max-width: 600px;
-                    margin: 40px auto;
-                    padding: 20px;
+                    text-align: center;
                 }
 
                 h1 {
-                    margin-bottom: 10px;
+                    margin: 16px 0 10px;
+                    font-size: 26px;
                 }
 
-                input, button {
-                    font-size: 18px;
-                    margin-top: 20px;
+                #camera-wrap {
+                    position: relative;
                     width: 100%;
-                    padding: 14px;
+                    max-width: 650px;
+                    margin: 0 auto;
+                    background: black;
                 }
 
-                button {
-                    cursor: pointer;
+                video {
+                    display: block;
+                    width: 100%;
+                }
+
+                #guide {
+                    position: absolute;
+                    top: 8%;
+                    left: 15%;
+                    width: 70%;
+                    height: 84%;
+                    border: 3px solid white;
+                    border-radius: 14px;
+                    box-sizing: border-box;
+                    pointer-events: none;
+                }
+
+                #capture-button {
+                    width: calc(100% - 40px);
+                    max-width: 610px;
+                    margin: 18px auto 8px;
+                    padding: 18px;
+                    border: 0;
+                    border-radius: 12px;
+                    background: #2563eb;
+                    color: white;
+                    font-size: 22px;
+                    font-weight: bold;
+                }
+
+                #status {
+                    padding: 10px 20px 24px;
+                    font-size: 16px;
+                }
+
+                canvas {
+                    display: none;
+                }
+
+                pre {
+                    text-align: left;
+                    white-space: pre-wrap;
+                    word-break: break-word;
+                    background: white;
+                    color: black;
+                    padding: 20px;
+                    margin: 0;
+                    min-height: 100vh;
                 }
             </style>
         </head>
 
         <body>
             <h1>Bowman Card Scanner</h1>
-            <p>Take a photo or choose a card image.</p>
 
-            <form method="POST" enctype="multipart/form-data">
-                <input
-                    type="file"
-                    name="card_image"
-                    accept="image/*"
-                    capture="environment"
-                    required
-                >
+            <div id="camera-wrap">
+                <video
+                    id="video"
+                    autoplay
+                    playsinline
+                    muted
+                ></video>
 
-                <button type="submit">
-                    Identify Card
-                </button>
-            </form>
+                <div id="guide"></div>
+            </div>
+
+            <button id="capture-button">
+                Capture Card
+            </button>
+
+            <div id="status">
+                Center the card inside the frame.
+            </div>
+
+            <canvas id="canvas"></canvas>
+
+            <script>
+                const video = document.getElementById("video");
+                const canvas = document.getElementById("canvas");
+                const button = document.getElementById("capture-button");
+                const status = document.getElementById("status");
+
+                async function startCamera() {
+                    try {
+                        const stream =
+                            await navigator.mediaDevices.getUserMedia({
+                                video: {
+                                    facingMode: {
+                                        ideal: "environment"
+                                    }
+                                },
+                                audio: false
+                            });
+
+                        video.srcObject = stream;
+                    } catch (error) {
+                        status.textContent =
+                            "Camera unavailable: " + error.message;
+                    }
+                }
+
+                button.addEventListener("click", async () => {
+                    if (!video.videoWidth) {
+                        status.textContent =
+                            "Camera is not ready yet.";
+                        return;
+                    }
+
+                    button.disabled = true;
+                    status.textContent =
+                        "Identifying card...";
+
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+
+                    const ctx = canvas.getContext("2d");
+
+                    ctx.drawImage(
+                        video,
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height
+                    );
+
+                    canvas.toBlob(
+                        async (blob) => {
+                            const formData = new FormData();
+
+                            formData.append(
+                                "card_image",
+                                blob,
+                                "card.jpg"
+                            );
+
+                            try {
+                                const response =
+                                    await fetch("/scan-card", {
+                                        method: "POST",
+                                        body: formData
+                                    });
+
+                                const result =
+                                    await response.json();
+
+                                document.body.innerHTML =
+                                    "<pre>" +
+                                    JSON.stringify(result, null, 2) +
+                                    "</pre>";
+                            } catch (error) {
+                                status.textContent =
+                                    "Scan failed: " +
+                                    error.message;
+
+                                button.disabled = false;
+                            }
+                        },
+                        "image/jpeg",
+                        0.92
+                    );
+                });
+
+                startCamera();
+            </script>
         </body>
         </html>
         """
@@ -3025,38 +3173,49 @@ def scan_card():
     if not image:
         return jsonify({
             "success": False,
-            "error": "No image uploaded"
+            "error": "No image received"
         }), 400
 
     image_bytes = image.read()
 
-    cardsight_client = CardSightAI(
-        api_key=CARDSIGHT_API_KEY
-    )
-
-    result = cardsight_client.identify.identify(
+    image_base64 = base64.b64encode(
         image_bytes
+    ).decode("utf-8")
+
+    response = requests.post(
+        "https://api.ximilar.com/collectibles/v2/sport_id",
+        headers={
+            "Authorization": f"Token {XIMILAR_API_TOKEN}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "records": [
+                {
+                    "_base64": image_base64
+                }
+            ],
+            "magic_ai": True,
+            "slab_id": True,
+            "slab_grade": True,
+            "price_stats": False,
+        },
+        timeout=60,
     )
 
-    if not result or not getattr(result, "detections", None):
+    try:
+        ximilar_data = response.json()
+    except ValueError:
         return jsonify({
             "success": False,
-            "error": "No card identified"
-        }), 404
-
-    detection = result.detections[0]
-    card = detection.card
+            "http_status": response.status_code,
+            "error": response.text,
+        }), response.status_code
 
     return jsonify({
-        "success": True,
-        "confidence": detection.confidence,
-        "player": getattr(card, "name", None),
-        "year": getattr(card, "year", None),
-        "set_name": getattr(card, "set_name", None),
-        "card_number": getattr(card, "card_number", None),
-        "numbered_to": getattr(detection, "numbered_to", None),
-    })
-
+        "success": response.ok,
+        "http_status": response.status_code,
+        "ximilar": ximilar_data,
+    }), response.status_code
 @app.route("/ximilar-test", methods=["GET", "POST"])
 def ximilar_test():
     if request.method == "GET":
