@@ -837,6 +837,7 @@ def calculate_disposition(
 @app.route("/cardhedge-history-test", methods=["GET"])
 def cardhedge_history_test():
     card_id = request.args.get("card_id")
+    grade = request.args.get("grade", "PSA 10")
 
     if not card_id:
         return jsonify({
@@ -845,13 +846,15 @@ def cardhedge_history_test():
         }), 400
 
     response = requests.post(
-        "https://api.cardhedger.com/v1/cards/price-history",
+        "https://api.cardhedger.com/v1/cards/prices-by-card",
         headers={
             "X-API-Key": CARDHEDGE_API_KEY,
             "Content-Type": "application/json",
         },
         json={
-            "card_id": card_id
+            "card_id": card_id,
+            "grade": grade,
+            "days": 30,
         },
         timeout=30,
     )
@@ -867,6 +870,7 @@ def cardhedge_history_test():
         "success": response.ok,
         "http_status": response.status_code,
         "card_id": card_id,
+        "grade": grade,
         "cardhedge": data,
     }), response.status_code
 
