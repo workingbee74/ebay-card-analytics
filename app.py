@@ -4103,42 +4103,64 @@ def scan_card():
         </div>
     
         <div class="field">
-            <div class="label">Serial Number</div>
-        
-            <input
-                type="number"
-                name="serial_number"
-                value="{serial_number if serial_number is not None else ''}"
-                min="1"
-                max="{serial_to if serial_to else ''}"
-                style="
-                    width:90px;
-                    padding:8px;
-                    font-size:18px;
-                "
-            >
-        
-            <span style="font-size:18px;">
-                / {serial_to if serial_to else ''}
-            </span>
-        
-            <div style="
-                margin-top:6px;
-                font-size:12px;
-                color:#777;
-            ">
-                Verify the individual serial number before saving.
-            </div>
-        </div>
+        <div class="label">Serial Number</div>
     
-        <div class="field">
-            <div class="label">Card Hedge ID</div>
-            {cardhedge_id}
-        </div>
+        <input
+            type="number"
+            name="serial_number"
+            value="{serial_number if serial_number is not None else ''}"
+            min="1"
+            style="
+                width:90px;
+                padding:8px;
+                font-size:18px;
+            "
+        >
     
-        <button class="confirm" type="submit">
+        <span style="font-size:18px;">
+            /
+        </span>
+    
+        <input
+            type="number"
+            name="serial_numbered_to"
+            value="{serial_to if serial_to is not None else ''}"
+            min="1"
+            style="
+                width:90px;
+                padding:8px;
+                font-size:18px;
+            "
+        >
+    
+        <div style="
+            margin-top:6px;
+            font-size:12px;
+            color:#777;
+        ">
+            Verify the serial number before saving.
+        </div>
+    </div>
+    
+    <div class="field">
+        <div class="label">Card Hedge ID</div>
+        {cardhedge_id}
+    </div>
+    
+    <input type="hidden" name="player_name" value="{player}">
+    <input type="hidden" name="card_year" value="{year}">
+    <input type="hidden" name="product" value="{product}">
+    <input type="hidden" name="card_number" value="{card_number}">
+    <input type="hidden" name="parallel" value="{parallel}">
+    <input type="hidden" name="cardhedge_id" value="{cardhedge_id}">
+    <input type="hidden" name="scanner_source" value="Ximilar + Card Hedge">
+    <input type="hidden" name="resolver_score" value="{resolver_score}">
+    
+    <button class="confirm" type="submit">
         Confirm & Add to Inventory
-        </button>
+    </button>
+    
+    </form>
     
         <a class="secondary" href="/scan-card">
             Scan Again
