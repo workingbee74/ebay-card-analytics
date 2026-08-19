@@ -834,7 +834,41 @@ def calculate_disposition(
         "gain_loss_pct": gain_loss_pct,
     }
 
+@app.route("/cardhedge-history-test", methods=["GET"])
+def cardhedge_history_test():
+    card_id = request.args.get("card_id")
 
+    if not card_id:
+        return jsonify({
+            "success": False,
+            "error": "card_id is required"
+        }), 400
+
+    response = requests.post(
+        "https://api.cardhedger.com/v1/cards/price-history",
+        headers={
+            "X-API-Key": CARDHEDGE_API_KEY,
+            "Content-Type": "application/json",
+        },
+        json={
+            "card_id": card_id
+        },
+        timeout=30,
+    )
+
+    try:
+        data = response.json()
+    except ValueError:
+        data = {
+            "error": response.text
+        }
+
+    return jsonify({
+        "success": response.ok,
+        "http_status": response.status_code,
+        "card_id": card_id,
+        "cardhedge": data,
+    }), response.status_code
 
 @app.route("/cardhedge-scan-test", methods=["GET", "POST"])
 def cardhedge_scan_test():
