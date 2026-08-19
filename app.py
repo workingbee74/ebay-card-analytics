@@ -5482,7 +5482,7 @@ def inventory_cards_dashboard():
                 </a>
             </div>
 
-             <h2 style="margin-top:10px;">
+            <h2 id="action-queue" style="margin-top:10px;">
                 Action Queue
             </h2>
             
