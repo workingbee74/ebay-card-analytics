@@ -727,6 +727,115 @@ def get_inventory_market_data(
         "grade_used": grade_used,
     }
 
+def calculate_disposition(
+    market_value,
+    purchase_price,
+    sales_7day,
+    sales_30day,
+    prospect_card,
+    first_bowman,
+    autograph,
+    grade_company,
+    grade,
+    serial_numbered_to
+):
+    score = 0
+    reasons = []
+
+    # Scarcity
+    if serial_numbered_to:
+        if serial_numbered_to <= 25:
+            score += 3
+            reasons.append("Very scarce numbered parallel")
+
+        elif serial_numbered_to <= 75:
+            score += 2
+            reasons.append("Low-print numbered parallel")
+
+        elif serial_numbered_to <= 150:
+            score += 1
+            reasons.append("Numbered parallel")
+
+    # Prospect upside
+    if prospect_card:
+        score += 2
+        reasons.append("Prospect upside")
+
+    # 1st Bowman
+    if first_bowman:
+        score += 2
+        reasons.append("1st Bowman")
+
+    # Autograph
+    if autograph:
+        score += 2
+        reasons.append("Autograph")
+
+    # Premium grade
+    if (
+        grade_company
+        and grade is not None
+        and float(grade) >= 10
+    ):
+        score += 1
+        reasons.append("Gem-mint grade")
+
+    # Liquidity
+    if sales_30day >= 10:
+        liquidity = "HIGH"
+        score -= 2
+        reasons.append("Strong recent liquidity")
+
+    elif sales_30day >= 4:
+        liquidity = "MODERATE"
+        score -= 1
+        reasons.append("Moderate recent liquidity")
+
+    else:
+        liquidity = "LOW"
+        score += 1
+        reasons.append("Thin recent market")
+
+    # Position vs current market
+    gain_loss_pct = None
+
+    if (
+        market_value is not None
+        and purchase_price is not None
+        and float(purchase_price) > 0
+    ):
+        gain_loss_pct = (
+            (
+                float(market_value)
+                - float(purchase_price)
+            )
+            / float(purchase_price)
+            * 100
+        )
+
+    # Decide
+    if score >= 4:
+        action = "HOLD"
+
+    elif liquidity == "HIGH":
+        action = "SELL — AUCTION"
+
+    elif liquidity == "MODERATE":
+        action = "SELL — BIN + BEST OFFER"
+
+    else:
+        action = "HOLD"
+
+    return {
+        "action": action,
+        "score": score,
+        "liquidity": liquidity,
+        "reasons": reasons,
+        "gain_loss_pct": gain_loss_pct,
+    }
+
+
+
 @app.route("/cardhedge-scan-test", methods=["GET", "POST"])
 def cardhedge_scan_test():
     if request.method == "GET":
@@ -4614,6 +4723,29 @@ def inventory_cards_dashboard():
                 gain_loss_display += (
                     f" ({gain_loss_pct:+.1f}%)"
                 )
+
+        disposition = calculate_disposition(
+            market_value,
+            purchase_price,
+            sales_7day,
+            sales_30day,
+            prospect_card,
+            first_bowman,
+            autograph,
+            grade_company,
+            grade,
+            serial_numbered_to
+        )
+        
+        disposition_action = disposition["action"]
+        disposition_score = disposition["score"]
+        disposition_liquidity = disposition["liquidity"]
+        disposition_reasons = disposition["reasons"]
+        
+        reasons_html = "".join(
+            f"<li>{reason}</li>"
+            for reason in disposition_reasons
+        )
         
         serial_display = ""
 
@@ -4736,8 +4868,31 @@ def inventory_cards_dashboard():
         </div>
 
             <div class="decision-placeholder">
-                HOLD / SELL analysis coming next
+            <div style="
+                font-size:20px;
+                font-weight:bold;
+                margin-bottom:8px;
+            ">
+                {disposition_action}
             </div>
+
+    <div style="
+        font-size:13px;
+        color:#666;
+        margin-bottom:8px;
+    ">
+        Liquidity: {disposition_liquidity}
+    </div>
+
+    <ul style="
+        text-align:left;
+        margin:0;
+        padding-left:20px;
+        font-weight:normal;
+    ">
+        {reasons_html}
+    </ul>
+</div>
 
         </div>
         """
