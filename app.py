@@ -4951,6 +4951,24 @@ def inventory_cards_dashboard():
         
         # Cap at 100 for display.
         action_priority = min(action_priority, 100)
+
+        if price_trend == "FALLING":
+            if price_trend_confidence == "HIGH":
+                action_priority += 20
+            elif price_trend_confidence == "MEDIUM":
+                action_priority += 12
+            else:
+                action_priority += 6
+        
+        elif price_trend == "RISING":
+            if price_trend_confidence == "HIGH":
+                action_priority += 15
+            elif price_trend_confidence == "MEDIUM":
+                action_priority += 10
+            else:
+                action_priority += 5
+
+        action_priority = min(action_priority, 100)
         
         reasons_html = "".join(
             f"<li>{reason}</li>"
@@ -5016,8 +5034,10 @@ def inventory_cards_dashboard():
             for badge in badges
         )
 
-        inventory_items.append({
+         inventory_items.append({
             "priority": action_priority,
+            "action": disposition_action,
+            "trend": price_trend,
             "html": f"""
             
         <div class="inventory-card">
@@ -5135,6 +5155,24 @@ def inventory_cards_dashboard():
         key=lambda item: item["priority"],
         reverse=True
     )
+
+    action_items = [
+        item
+        for item in inventory_items
+        if item["priority"] >= 40
+    ]
+    
+    action_queue_html = "".join(
+        item["html"]
+        for item in action_items
+    )
+
+    if not action_queue_html:
+        action_queue_html = """
+        <div class="empty">
+            No cards currently require attention.
+        </div>
+        """
     
     cards_html = "".join(
         item["html"]
@@ -5307,6 +5345,24 @@ def inventory_cards_dashboard():
                 </a>
             </div>
 
+             <h2 style="margin-top:10px;">
+                Action Queue
+            </h2>
+            
+            <div style="
+                margin-bottom:20px;
+                color:#666;
+                font-size:14px;
+            ">
+                Cards with the highest current attention priority.
+            </div>
+            
+            {action_queue_html}
+            
+            <h2 style="margin-top:30px;">
+                All Inventory
+            </h2>
+            
             {cards_html}
 
         </div>
