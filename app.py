@@ -1086,6 +1086,41 @@ def ebay_search():
                 );
             """)
 
+                    cur.execute("""
+                        CREATE TABLE IF NOT EXISTS inventory_cards (
+                            id BIGSERIAL PRIMARY KEY,
+                    
+                            player_name TEXT,
+                            card_year INTEGER,
+                            manufacturer TEXT DEFAULT 'Bowman',
+                            product TEXT,
+                            card_number TEXT,
+                    
+                            first_bowman BOOLEAN DEFAULT FALSE,
+                            prospect_card BOOLEAN DEFAULT FALSE,
+                    
+                            parallel TEXT,
+                            serial_numbered_to INTEGER,
+                            serial_number INTEGER,
+                    
+                            autograph BOOLEAN DEFAULT FALSE,
+                            rookie_card BOOLEAN DEFAULT FALSE,
+                    
+                            grade_company TEXT,
+                            grade NUMERIC(3,1),
+                    
+                            purchase_price NUMERIC(12,2),
+                            purchase_date DATE,
+                            purchase_source TEXT,
+                    
+                            image_url TEXT,
+                    
+                            notes TEXT,
+                    
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        );
+                    """)
                     
                     for item in items:
                         title = item.get("title", "")
