@@ -3932,197 +3932,197 @@ def scan_card():
     
     best_resolution = cardhedge_resolution.get("best")
 
-if best_resolution:
-    resolved_card = best_resolution.get("card", {})
-    resolver_score = best_resolution.get("score", 0)
-else:
-    resolved_card = {}
-    resolver_score = 0
-
-player = (
-    resolved_card.get("player")
-    or normalized_evidence.get("player_name")
-    or ""
-)
-
-year = (
-    normalized_evidence.get("card_year")
-    or ""
-)
-
-product = (
-    resolved_card.get("set")
-    or normalized_evidence.get("product")
-    or ""
-)
-
-card_number = (
-    resolved_card.get("number")
-    or normalized_evidence.get("card_number")
-    or ""
-)
-
-parallel = (
-    resolved_card.get("variant")
-    or normalized_evidence.get("parallel")
-    or ""
-)
-
-serial_number = (
-    normalized_evidence.get("serial_number")
-)
-
-serial_to = (
-    normalized_evidence.get("serial_numbered_to")
-)
-
-serial_display = ""
-
-if serial_to:
-    if serial_number is not None:
-        serial_display = f"{serial_number:03d}/{serial_to}"
+    if best_resolution:
+        resolved_card = best_resolution.get("card", {})
+        resolver_score = best_resolution.get("score", 0)
     else:
-        serial_display = f"/{serial_to}"
-
-confidence_label = "REVIEW"
-
-if resolver_score >= 85:
-    confidence_label = "HIGH"
-elif resolver_score >= 65:
-    confidence_label = "MEDIUM"
-
-cardhedge_id = resolved_card.get("card_id") or ""
-
-return f"""
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Card Identified</title>
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1"
-    >
-
-    <style>
-        body {{
-            font-family: Arial, sans-serif;
-            max-width: 650px;
-            margin: 30px auto;
-            padding: 20px;
-            background: #f5f5f5;
-        }}
-
-        .card {{
-            background: white;
-            padding: 24px;
-            border-radius: 14px;
-        }}
-
-        h1 {{
-            margin-top: 0;
-        }}
-
-        .field {{
-            margin: 12px 0;
-            font-size: 18px;
-        }}
-
-        .label {{
-            color: #666;
-            font-size: 14px;
-        }}
-
-        .confidence {{
-            font-size: 20px;
-            font-weight: bold;
-            margin: 20px 0;
-        }}
-
-        button, a {{
-            display: block;
-            box-sizing: border-box;
-            width: 100%;
-            padding: 16px;
-            margin-top: 12px;
-            border-radius: 10px;
-            text-align: center;
-            font-size: 18px;
-            text-decoration: none;
-        }}
-
-        .confirm {{
-            background: #2563eb;
-            color: white;
-            border: none;
-        }}
-
-        .secondary {{
-            background: #e5e7eb;
-            color: #111;
-        }}
-    </style>
-</head>
-
-<body>
-
-<div class="card">
-
-    <h1>Card Identified</h1>
-
-    <div class="confidence">
-        Resolver Confidence: {confidence_label}
-        ({resolver_score})
+        resolved_card = {}
+        resolver_score = 0
+    
+    player = (
+        resolved_card.get("player")
+        or normalized_evidence.get("player_name")
+        or ""
+    )
+    
+    year = (
+        normalized_evidence.get("card_year")
+        or ""
+    )
+    
+    product = (
+        resolved_card.get("set")
+        or normalized_evidence.get("product")
+        or ""
+    )
+    
+    card_number = (
+        resolved_card.get("number")
+        or normalized_evidence.get("card_number")
+        or ""
+    )
+    
+    parallel = (
+        resolved_card.get("variant")
+        or normalized_evidence.get("parallel")
+        or ""
+    )
+    
+    serial_number = (
+        normalized_evidence.get("serial_number")
+    )
+    
+    serial_to = (
+        normalized_evidence.get("serial_numbered_to")
+    )
+    
+    serial_display = ""
+    
+    if serial_to:
+        if serial_number is not None:
+            serial_display = f"{serial_number:03d}/{serial_to}"
+        else:
+            serial_display = f"/{serial_to}"
+    
+    confidence_label = "REVIEW"
+    
+    if resolver_score >= 85:
+        confidence_label = "HIGH"
+    elif resolver_score >= 65:
+        confidence_label = "MEDIUM"
+    
+    cardhedge_id = resolved_card.get("card_id") or ""
+    
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Card Identified</title>
+    
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        >
+    
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                max-width: 650px;
+                margin: 30px auto;
+                padding: 20px;
+                background: #f5f5f5;
+            }}
+    
+            .card {{
+                background: white;
+                padding: 24px;
+                border-radius: 14px;
+            }}
+    
+            h1 {{
+                margin-top: 0;
+            }}
+    
+            .field {{
+                margin: 12px 0;
+                font-size: 18px;
+            }}
+    
+            .label {{
+                color: #666;
+                font-size: 14px;
+            }}
+    
+            .confidence {{
+                font-size: 20px;
+                font-weight: bold;
+                margin: 20px 0;
+            }}
+    
+            button, a {{
+                display: block;
+                box-sizing: border-box;
+                width: 100%;
+                padding: 16px;
+                margin-top: 12px;
+                border-radius: 10px;
+                text-align: center;
+                font-size: 18px;
+                text-decoration: none;
+            }}
+    
+            .confirm {{
+                background: #2563eb;
+                color: white;
+                border: none;
+            }}
+    
+            .secondary {{
+                background: #e5e7eb;
+                color: #111;
+            }}
+        </style>
+    </head>
+    
+    <body>
+    
+    <div class="card">
+    
+        <h1>Card Identified</h1>
+    
+        <div class="confidence">
+            Resolver Confidence: {confidence_label}
+            ({resolver_score})
+        </div>
+    
+        <div class="field">
+            <div class="label">Player</div>
+            {player}
+        </div>
+    
+        <div class="field">
+            <div class="label">Year</div>
+            {year}
+        </div>
+    
+        <div class="field">
+            <div class="label">Product</div>
+            {product}
+        </div>
+    
+        <div class="field">
+            <div class="label">Card Number</div>
+            {card_number}
+        </div>
+    
+        <div class="field">
+            <div class="label">Parallel</div>
+            {parallel}
+        </div>
+    
+        <div class="field">
+            <div class="label">Serial Number</div>
+            {serial_display}
+        </div>
+    
+        <div class="field">
+            <div class="label">Card Hedge ID</div>
+            {cardhedge_id}
+        </div>
+    
+        <button class="confirm" disabled>
+            Confirm & Add to Inventory
+        </button>
+    
+        <a class="secondary" href="/scan-card">
+            Scan Again
+        </a>
+    
     </div>
-
-    <div class="field">
-        <div class="label">Player</div>
-        {player}
-    </div>
-
-    <div class="field">
-        <div class="label">Year</div>
-        {year}
-    </div>
-
-    <div class="field">
-        <div class="label">Product</div>
-        {product}
-    </div>
-
-    <div class="field">
-        <div class="label">Card Number</div>
-        {card_number}
-    </div>
-
-    <div class="field">
-        <div class="label">Parallel</div>
-        {parallel}
-    </div>
-
-    <div class="field">
-        <div class="label">Serial Number</div>
-        {serial_display}
-    </div>
-
-    <div class="field">
-        <div class="label">Card Hedge ID</div>
-        {cardhedge_id}
-    </div>
-
-    <button class="confirm" disabled>
-        Confirm & Add to Inventory
-    </button>
-
-    <a class="secondary" href="/scan-card">
-        Scan Again
-    </a>
-
-</div>
-
-</body>
-</html>
-"""
+    
+    </body>
+    </html>
+    """
     
 @app.route("/ximilar-test", methods=["GET", "POST"])
 def ximilar_test():
