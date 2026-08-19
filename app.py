@@ -5034,123 +5034,123 @@ def inventory_cards_dashboard():
             for badge in badges
         )
 
-    inventory_items.append({
-        "priority": action_priority,
-        "action": disposition_action,
-        "trend": price_trend,
-        "html": f"""
+        inventory_items.append({
+            "priority": action_priority,
+            "action": disposition_action,
+            "trend": price_trend,
+            "html": f"""
+                
+            <div class="inventory-card">
+    
+                <div class="player">
+                    {player_name}
+                </div>
+    
+                <div class="identity">
+                    {card_year or ""} {product or ""}
+                </div>
+    
+                <div class="identity">
+                    #{card_number or ""}
+                </div>
+    
+                <div class="parallel">
+                    {parallel or "Base"}
+                    {serial_display}
+                </div>
+    
+                <div class="badges">
+                    {badges_html}
+                </div>
+    
+                <div class="details">
+                    <div>
+                        <span>Grade</span>
+                        <strong>{grade_display}</strong>
+                    </div>
+    
+                    <div>
+                        <span>Cost</span>
+                        <strong>{price_display}</strong>
+                    </div>
+    
+                    <div>
+                        <span>Purchased</span>
+                        <strong>{date_display}</strong>
+                    </div>
+    
+                    <div>
+                        <span>Source</span>
+                        <strong>{purchase_source or "—"}</strong>
+                    </div>
+                </div>
+    
+                <div class="market-placeholder">
+                <div>
+                    <span>Market Value</span>
+                    <strong>{market_value_display}</strong>
+                </div>
             
-        <div class="inventory-card">
-
-            <div class="player">
-                {player_name}
-            </div>
-
-            <div class="identity">
-                {card_year or ""} {product or ""}
-            </div>
-
-            <div class="identity">
-                #{card_number or ""}
-            </div>
-
-            <div class="parallel">
-                {parallel or "Base"}
-                {serial_display}
-            </div>
-
-            <div class="badges">
-                {badges_html}
-            </div>
-
-            <div class="details">
                 <div>
-                    <span>Grade</span>
-                    <strong>{grade_display}</strong>
-                </div>
-
-                <div>
-                    <span>Cost</span>
-                    <strong>{price_display}</strong>
-                </div>
-
-                <div>
-                    <span>Purchased</span>
-                    <strong>{date_display}</strong>
-                </div>
-
-                <div>
-                    <span>Source</span>
-                    <strong>{purchase_source or "—"}</strong>
+                    <span>Gain / Loss</span>
+                    <strong>{gain_loss_display}</strong>
                 </div>
             </div>
-
+            
             <div class="market-placeholder">
-            <div>
-                <span>Market Value</span>
-                <strong>{market_value_display}</strong>
+                <div>
+                    <span>7-Day Sales</span>
+                    <strong>{sales_7day}</strong>
+                </div>
+            
+                <div>
+                    <span>30-Day Sales</span>
+                    <strong>{sales_30day}</strong>
+                </div>
             </div>
-        
-            <div>
-                <span>Gain / Loss</span>
-                <strong>{gain_loss_display}</strong>
+    
+            <div class="market-placeholder">
+                <div>
+                    <span>30-Day Price Trend</span>
+                    <strong>{trend_display}</strong>
+                </div>
+            
+                <div>
+                    <span>History Points</span>
+                    <strong>{history_points}</strong>
+                </div>
             </div>
+    
+                <div class="decision-placeholder">
+                <div style="
+                    font-size:20px;
+                    font-weight:bold;
+                    margin-bottom:8px;
+                ">
+                    {disposition_action}
+                </div>
+    
+        <div style="
+            font-size:13px;
+            color:#666;
+            margin-bottom:8px;
+        ">
+            Liquidity: {disposition_liquidity}
         </div>
-        
-        <div class="market-placeholder">
-            <div>
-                <span>7-Day Sales</span>
-                <strong>{sales_7day}</strong>
-            </div>
-        
-            <div>
-                <span>30-Day Sales</span>
-                <strong>{sales_30day}</strong>
-            </div>
-        </div>
-
-        <div class="market-placeholder">
-            <div>
-                <span>30-Day Price Trend</span>
-                <strong>{trend_display}</strong>
-            </div>
-        
-            <div>
-                <span>History Points</span>
-                <strong>{history_points}</strong>
-            </div>
-        </div>
-
-            <div class="decision-placeholder">
-            <div style="
-                font-size:20px;
-                font-weight:bold;
-                margin-bottom:8px;
-            ">
-                {disposition_action}
-            </div>
-
-    <div style="
-        font-size:13px;
-        color:#666;
-        margin-bottom:8px;
-    ">
-        Liquidity: {disposition_liquidity}
+    
+        <ul style="
+            text-align:left;
+            margin:0;
+            padding-left:20px;
+            font-weight:normal;
+        ">
+            {reasons_html}
+        </ul>
     </div>
-
-    <ul style="
-        text-align:left;
-        margin:0;
-        padding-left:20px;
-        font-weight:normal;
-    ">
-        {reasons_html}
-    </ul>
-</div>
-
-        </div>
-        """
-    })
+    
+            </div>
+            """
+        })
     inventory_items.sort(
         key=lambda item: item["priority"],
         reverse=True
