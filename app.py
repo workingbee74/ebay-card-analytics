@@ -727,6 +727,128 @@ def get_inventory_market_data(
         "grade_used": grade_used,
     }
 
+def get_cardhedge_price_trend(
+    cardhedge_id,
+    grade_company=None,
+    grade=None
+):
+    if not cardhedge_id:
+        return {
+            "trend": "UNKNOWN",
+            "trend_pct": None,
+            "trend_confidence": "LOW",
+            "history_points": 0,
+        }
+
+    if grade_company and grade is not None:
+        grade_value = float(grade)
+
+        if grade_value.is_integer():
+            grade_text = str(int(grade_value))
+        else:
+            grade_text = str(grade_value)
+
+        target_grade = (
+            f"{grade_company.upper()} {grade_text}"
+        )
+    else:
+        target_grade = "Raw"
+
+    response = requests.post(
+        "https://api.cardhedger.com/v1/cards/prices-by-card",
+        headers={
+            "X-API-Key": CARDHEDGE_API_KEY,
+            "Content-Type": "application/json",
+        },
+        json={
+            "card_id": cardhedge_id,
+            "grade": target_grade,
+            "days": 30,
+        },
+        timeout=30,
+    )
+
+    if not response.ok:
+        return {
+            "trend": "UNKNOWN",
+            "trend_pct": None,
+            "trend_confidence": "LOW",
+            "history_points": 0,
+        }
+
+    data = response.json()
+    prices = data.get("prices", [])
+
+    valid_points = []
+
+    for item in prices:
+        try:
+            price = float(item.get("price"))
+            date = item.get("closing_date")
+
+            if date:
+                valid_points.append({
+                    "date": date,
+                    "price": price,
+                })
+
+        except (TypeError, ValueError):
+            continue
+
+    valid_points.sort(
+        key=lambda item: item["date"]
+    )
+
+    if len(valid_points) < 2:
+        return {
+            "trend": "UNKNOWN",
+            "trend_pct": None,
+            "trend_confidence": "LOW",
+            "history_points": len(valid_points),
+        }
+
+    start_price = valid_points[0]["price"]
+    end_price = valid_points[-1]["price"]
+
+    if start_price <= 0:
+        trend_pct = None
+    else:
+        trend_pct = (
+            (end_price - start_price)
+            / start_price
+            * 100
+        )
+
+    if trend_pct is None:
+        trend = "UNKNOWN"
+
+    elif trend_pct >= 5:
+        trend = "RISING"
+
+    elif trend_pct <= -5:
+        trend = "FALLING"
+
+    else:
+        trend = "FLAT"
+
+    if len(valid_points) >= 8:
+        trend_confidence = "HIGH"
+
+    elif len(valid_points) >= 4:
+        trend_confidence = "MEDIUM"
+
+    else:
+        trend_confidence = "LOW"
+
+    return {
+        "trend": trend,
+        "trend_pct": trend_pct,
+        "trend_confidence": trend_confidence,
+        "history_points": len(valid_points),
+        "start_price": start_price,
+        "end_price": end_price,
+    }
+
 def calculate_disposition(
     market_value,
     purchase_price,
@@ -4720,6 +4842,18 @@ def inventory_cards_dashboard():
             grade_company,
             grade
         )
+
+        trend_data = get_cardhedge_price_trend(
+            cardhedge_id,
+            grade_company,
+            grade
+        )
+
+        
+        price_trend = trend_data["trend"]
+        price_trend_pct = trend_data["trend_pct"]
+        price_trend_confidence = trend_data["trend_confidence"]
+        history_points = trend_data["history_points"]
         
         market_value = market["market_value"]
         sales_7day = market["sales_7day"]
@@ -4821,6 +4955,15 @@ def inventory_cards_dashboard():
         reasons_html = "".join(
             f"<li>{reason}</li>"
             for reason in disposition_reasons
+        )
+
+        trend_display = price_trend
+        
+        if price_trend_pct is not None:
+            trend_display += f" ({price_trend_pct:+.1f}%)"
+        
+        trend_display += (
+            f" · {price_trend_confidence} confidence"
         )
         
         serial_display = ""
@@ -4943,6 +5086,18 @@ def inventory_cards_dashboard():
             <div>
                 <span>30-Day Sales</span>
                 <strong>{sales_30day}</strong>
+            </div>
+        </div>
+
+        <div class="market-placeholder">
+            <div>
+                <span>30-Day Price Trend</span>
+                <strong>{trend_display}</strong>
+            </div>
+        
+            <div>
+                <span>History Points</span>
+                <strong>{history_points}</strong>
             </div>
         </div>
 
