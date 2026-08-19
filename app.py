@@ -2569,7 +2569,7 @@ def ebay_auction_snapshot():
     }), 200
 
 @app.route("/inventory/actions", methods=["GET"])
-def inventory_actions():
+def inventory_actions_page():
     return """
     <h1>Action Queue</h1>
     <p>Action dashboard coming next.</p>
