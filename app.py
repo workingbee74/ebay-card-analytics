@@ -5755,7 +5755,12 @@ def inventory_cards_dashboard():
             rows = cur.fetchall()
 
     inventory_items = []
-
+    years = set()
+    products = set()
+    parallels = set()
+    grades = set()
+    actions = set()
+    
     for row in rows:
         (
             inventory_id,
@@ -5878,6 +5883,21 @@ def inventory_cards_dashboard():
         
         elif disposition_liquidity == "MODERATE":
             action_priority += 8
+
+        if card_year:
+            years.add(str(card_year))
+        
+        if product:
+            products.add(str(product))
+        
+        if parallel:
+            parallels.add(str(parallel))
+        
+        if grade_display:
+            grades.add(str(grade_display))
+        
+        if disposition_action:
+            actions.add(str(disposition_action))
         
         # Large market movement versus cost deserves attention.
         if gain_loss_pct is not None:
@@ -6092,56 +6112,33 @@ def inventory_cards_dashboard():
             </div>
             """,
     
-            "compact_html": f"""
-            <div class="inventory-card compact-card">
-    
-                <div class="compact-top">
-                    <div>
-                        <div class="player">
-                            {player_name}
-                        </div>
-    
-                        <div class="compact-identity">
-                            {card_year or ""} · #{card_number or ""}
-                            · {parallel or "Base"}
-                            {serial_display}
-                        </div>
-    
-                        <div class="compact-identity">
-                            {grade_display}
-                        </div>
-                    </div>
-    
-                    <div class="compact-action">
-                        {disposition_action}
-                    </div>
-                </div>
-    
-                <div class="compact-metrics">
-                    <span>
-                        Cost <strong>{price_display}</strong>
-                    </span>
-    
-                    <span>
-                        Market <strong>{market_value_display}</strong>
-                    </span>
-    
-                    <span>
-                        P/L <strong>{gain_loss_display}</strong>
-                    </span>
-    
-                    <span>
-                        Trend <strong>{trend_display}</strong>
-                    </span>
-                </div>
-    
-            </div>
+           "compact_html": f"""
+            <tr>
+                <td>{player_name}</td>
+                <td>{card_year or ""}</td>
+                <td>#{card_number or ""}</td>
+                <td>{product or ""}</td>
+                <td>{parallel or "Base"} {serial_display}</td>
+                <td>{grade_display}</td>
+                <td>{price_display}</td>
+                <td>{market_value_display}</td>
+                <td>{gain_loss_display}</td>
+                <td>{trend_display}</td>
+                <td>{disposition_action}</td>
+            </tr>
             """
         })
-    inventory_items.sort(
-        key=lambda item: item["priority"],
-        reverse=True
-    )
+
+        years = sorted(years, reverse=True)
+        products = sorted(products)
+        parallels = sorted(parallels)
+        grades = sorted(grades)
+        actions = sorted(actions)
+
+        inventory_items.sort(
+            key=lambda item: item["priority"],
+            reverse=True
+        )
 
     action_items = [
         item
@@ -6492,22 +6489,27 @@ def inventory_cards_dashboard():
             
                 <select id="yearFilter">
                     <option value="">All Years</option>
+                    {"".join(f'<option value="{year.lower()}">{year}</option>' for year in years)}
                 </select>
             
                 <select id="productFilter">
                     <option value="">All Products</option>
+                    {"".join(f'<option value="{product.lower()}">{product}</option>' for product in products)}
                 </select>
-            
+                
                 <select id="parallelFilter">
                     <option value="">All Parallels</option>
+                    {"".join(f'<option value="{parallel.lower()}">{parallel}</option>' for parallel in parallels)}
                 </select>
-            
+                
                 <select id="gradeFilter">
                     <option value="">All Grades</option>
+                    {"".join(f'<option value="{grade.lower()}">{grade}</option>' for grade in grades)}
                 </select>
-            
+                
                 <select id="actionFilter">
                     <option value="">All Actions</option>
+                    {"".join(f'<option value="{action.lower()}">{action}</option>' for action in actions)}
                 </select>
             
                 <select id="marketFilter">
@@ -6581,11 +6583,7 @@ def inventory_cards_dashboard():
                 }});
             }}
         
-            fillSelect(yearFilter, uniqueValues(1));
-            fillSelect(productFilter, uniqueValues(3));
-            fillSelect(parallelFilter, uniqueValues(4));
-            fillSelect(gradeFilter, uniqueValues(5));
-            fillSelect(actionFilter, uniqueValues(11));
+            
         
             function applyFilters() {{
                 const player = playerFilter.value.trim().toLowerCase();
