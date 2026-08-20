@@ -6772,15 +6772,6 @@ def inventory_cards_dashboard():
         elif disposition_liquidity == "MODERATE":
             action_priority += 8
 
-        
-        
-        if product:
-            products.add(str(product))
-        
-        if parallel:
-            parallels.add(str(parallel))
-        
-         
         # Large market movement versus cost deserves attention.
         if gain_loss_pct is not None:
             if gain_loss_pct >= 25:
