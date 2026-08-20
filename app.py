@@ -5919,10 +5919,123 @@ def inventory_actions_page():
                 </table>
             </div>
            </div>
-
+        <script>
+            const actionTable = document.querySelector(".actions-table");
+        
+            if (actionTable) {{
+                const actionRows = Array.from(
+                    actionTable.querySelectorAll("tbody tr")
+                );
+        
+                const playerSearch =
+                    document.getElementById("actionPlayerSearch");
+        
+                const yearFilter =
+                    document.getElementById("actionYearFilter");
+        
+                const gradeFilter =
+                    document.getElementById("actionGradeFilter");
+        
+                const actionFilter =
+                    document.getElementById("actionActionFilter");
+        
+                const clearFilters =
+                    document.getElementById("actionClearFilters");
+        
+        
+                function applyActionFilters() {{
+                    const playerValue =
+                        playerSearch.value.trim().toLowerCase();
+        
+                    const yearValue =
+                        yearFilter.value.trim().toLowerCase();
+        
+                    const gradeValue =
+                        gradeFilter.value.trim().toLowerCase();
+        
+                    const actionValue =
+                        actionFilter.value.trim().toLowerCase();
+        
+        
+                    actionRows.forEach(row => {{
+                        const cells = row.querySelectorAll("td");
+        
+                        const player =
+                            cells[0]?.textContent.trim().toLowerCase() || "";
+        
+                        const card =
+                            cells[1]?.textContent.trim().toLowerCase() || "";
+        
+                        const action =
+                            cells[6]?.textContent.trim().toLowerCase() || "";
+        
+        
+                        const playerMatch =
+                            !playerValue ||
+                            player.includes(playerValue);
+        
+                        const yearMatch =
+                            !yearValue ||
+                            card.includes(yearValue);
+        
+                        const gradeMatch =
+                            !gradeValue ||
+                            card.includes(gradeValue);
+        
+                        const actionMatch =
+                            !actionValue ||
+                            action.includes(actionValue);
+        
+        
+                        const showRow =
+                            playerMatch &&
+                            yearMatch &&
+                            gradeMatch &&
+                            actionMatch;
+        
+                        row.style.display =
+                            showRow ? "" : "none";
+                    }});
+                }}
+        
+        
+                playerSearch.addEventListener(
+                    "input",
+                    applyActionFilters
+                );
+        
+                yearFilter.addEventListener(
+                    "change",
+                    applyActionFilters
+                );
+        
+                gradeFilter.addEventListener(
+                    "change",
+                    applyActionFilters
+                );
+        
+                actionFilter.addEventListener(
+                    "change",
+                    applyActionFilters
+                );
+        
+        
+                clearFilters.addEventListener("click", () => {{
+                    playerSearch.value = "";
+                    yearFilter.value = "";
+                    gradeFilter.value = "";
+                    actionFilter.value = "";
+        
+                    applyActionFilters();
+                }});
+            }}
+        </script>
     </body>
     </html>
     """
+
+
+    
 @app.route("/inventory/actions/refresh", methods=["POST"])
 def refresh_inventory_actions():
     with psycopg.connect(DATABASE_URL) as conn:
