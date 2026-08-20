@@ -5884,8 +5884,7 @@ def inventory_cards_dashboard():
         elif disposition_liquidity == "MODERATE":
             action_priority += 8
 
-        if card_year:
-            years.add(str(card_year))
+        
         
         if product:
             products.add(str(product))
@@ -5995,6 +5994,9 @@ def inventory_cards_dashboard():
             for badge in badges
         )
 
+        if card_year:
+            years.add(str(card_year))
+            
         inventory_items.append({
             "priority": action_priority,
             "action": disposition_action,
