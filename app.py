@@ -6521,116 +6521,115 @@ def inventory_actions_page():
 
         </div>
 
-    <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const table = document.querySelector(".inventory-table");
-        if (!table) return;
+        <script>
+        document.addEventListener("DOMContentLoaded", function () {{
+            const table = document.querySelector(".inventory-table");
+            if (!table) return;
+        
+            const rows = Array.from(table.querySelectorAll("tbody tr"));
+        
+            const playerFilter = document.getElementById("playerFilter");
+            const yearFilter = document.getElementById("yearFilter");
+            const productFilter = document.getElementById("productFilter");
+            const parallelFilter = document.getElementById("parallelFilter");
+            const gradeFilter = document.getElementById("gradeFilter");
+            const actionFilter = document.getElementById("actionFilter");
+            const marketFilter = document.getElementById("marketFilter");
+            const clearFilters = document.getElementById("clearFilters");
+        
+            function uniqueValues(columnIndex) {{
+                return [...new Set(
+                    rows.map(row => row.cells[columnIndex]?.textContent.trim())
+                        .filter(Boolean)
+                )].sort();
+            }}
+        
+            function fillSelect(select, values) {{
+                values.forEach(value => {{
+                    const option = document.createElement("option");
+                    option.value = value.toLowerCase();
+                    option.textContent = value;
+                    select.appendChild(option);
+                }});
+            }}
     
-        const rows = Array.from(table.querySelectorAll("tbody tr"));
+            fillSelect(yearFilter, uniqueValues(1));
+            fillSelect(productFilter, uniqueValues(3));
+            fillSelect(parallelFilter, uniqueValues(4));
+            fillSelect(gradeFilter, uniqueValues(5));
+            fillSelect(actionFilter, uniqueValues(11));
+        
+            function applyFilters() {{
+                const player = playerFilter.value.trim().toLowerCase();
+                const year = yearFilter.value;
+                const product = productFilter.value;
+                const parallel = parallelFilter.value;
+                const grade = gradeFilter.value;
+                const action = actionFilter.value;
+                const market = marketFilter.value;
+        
+                rows.forEach(row => {{
+                    const cells = Array.from(row.cells).map(
+                        cell => cell.textContent.trim().toLowerCase()
+                    );
+        
+                    const playerMatch = !player || cells[0].includes(player);
+                    const yearMatch = !year || cells[1] === year;
+                    const productMatch = !product || cells[3] === product;
+                    const parallelMatch = !parallel || cells[4] === parallel;
+                    const gradeMatch = !grade || cells[5] === grade;
+                    const actionMatch = !action || cells[11] === action;
+        
+                    const marketText = cells[8] || "";
+                    const hasMarket =
+                        marketText !== "" &&
+                        marketText !== "—" &&
+                        marketText !== "-";
+        
+                    const marketMatch =
+                        !market ||
+                        (market === "has" && hasMarket) ||
+                        (market === "missing" && !hasMarket);
+        
+                    row.style.display =
+                        playerMatch &&
+                        yearMatch &&
+                        productMatch &&
+                        parallelMatch &&
+                        gradeMatch &&
+                        actionMatch &&
+                        marketMatch
+                            ? ""
+                            : "none";
+                }});
+            }}
     
-        const playerFilter = document.getElementById("playerFilter");
-        const yearFilter = document.getElementById("yearFilter");
-        const productFilter = document.getElementById("productFilter");
-        const parallelFilter = document.getElementById("parallelFilter");
-        const gradeFilter = document.getElementById("gradeFilter");
-        const actionFilter = document.getElementById("actionFilter");
-        const marketFilter = document.getElementById("marketFilter");
-        const clearFilters = document.getElementById("clearFilters");
-    
-        function uniqueValues(columnIndex) {
-            return [...new Set(
-                rows.map(row => row.cells[columnIndex]?.textContent.trim())
-                    .filter(Boolean)
-            )].sort();
-        }
-    
-        function fillSelect(select, values) {
-            values.forEach(value => {
-                const option = document.createElement("option");
-                option.value = value.toLowerCase();
-                option.textContent = value;
-                select.appendChild(option);
-            });
-        }
-    
-        fillSelect(yearFilter, uniqueValues(1));
-        fillSelect(productFilter, uniqueValues(3));
-        fillSelect(parallelFilter, uniqueValues(4));
-        fillSelect(gradeFilter, uniqueValues(5));
-        fillSelect(actionFilter, uniqueValues(11));
-    
-        function applyFilters() {
-            const player = playerFilter.value.trim().toLowerCase();
-            const year = yearFilter.value;
-            const product = productFilter.value;
-            const parallel = parallelFilter.value;
-            const grade = gradeFilter.value;
-            const action = actionFilter.value;
-            const market = marketFilter.value;
-    
-            rows.forEach(row => {
-                const cells = Array.from(row.cells).map(
-                    cell => cell.textContent.trim().toLowerCase()
-                );
-    
-                const playerMatch = !player || cells[0].includes(player);
-                const yearMatch = !year || cells[1] === year;
-                const productMatch = !product || cells[3] === product;
-                const parallelMatch = !parallel || cells[4] === parallel;
-                const gradeMatch = !grade || cells[5] === grade;
-                const actionMatch = !action || cells[11] === action;
-    
-                const marketText = cells[8] || "";
-                const hasMarket =
-                    marketText !== "" &&
-                    marketText !== "—" &&
-                    marketText !== "-";
-    
-                const marketMatch =
-                    !market ||
-                    (market === "has" && hasMarket) ||
-                    (market === "missing" && !hasMarket);
-    
-                row.style.display =
-                    playerMatch &&
-                    yearMatch &&
-                    productMatch &&
-                    parallelMatch &&
-                    gradeMatch &&
-                    actionMatch &&
-                    marketMatch
-                        ? ""
-                        : "none";
-            });
-        }
-    
-        playerFilter.addEventListener("input", applyFilters);
-    
-        [
-            yearFilter,
-            productFilter,
-            parallelFilter,
-            gradeFilter,
-            actionFilter,
-            marketFilter
-        ].forEach(select => {
-            select.addEventListener("change", applyFilters);
-        });
-    
-        clearFilters.addEventListener("click", function () {
-            playerFilter.value = "";
-            yearFilter.value = "";
-            productFilter.value = "";
-            parallelFilter.value = "";
-            gradeFilter.value = "";
-            actionFilter.value = "";
-            marketFilter.value = "";
-    
-            applyFilters();
-        });
-    });
-    </script>
-
+            playerFilter.addEventListener("input", applyFilters);
+        
+            [
+                yearFilter,
+                productFilter,
+                parallelFilter,
+                gradeFilter,
+                actionFilter,
+                marketFilter
+            ].forEach(select => {{
+                select.addEventListener("change", applyFilters);
+            }});
+        
+            clearFilters.addEventListener("click", function () {{
+                playerFilter.value = "";
+                yearFilter.value = "";
+                productFilter.value = "";
+                parallelFilter.value = "";
+                gradeFilter.value = "";
+                actionFilter.value = "";
+                marketFilter.value = "";
+        
+                applyFilters();
+            }});
+        }});
+        </script>
     </body>
     </html>
     """
