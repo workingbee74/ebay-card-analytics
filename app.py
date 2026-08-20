@@ -7232,27 +7232,27 @@ def inventory_cards_dashboard():
             
                 <select id="yearFilter">
                     <option value="">All Years</option>
-                    {"".join(f'<option value="{year.lower()}">{year}</option>' for year in action_years)}
+                    {"".join(f'<option value="{year.lower()}">{year}</option>' for year in years)}
                 </select>
                 
                 <select id="productFilter">
                     <option value="">All Products</option>
-                    {"".join(f'<option value="{product.lower()}">{product}</option>' for product in action_products)}
+                    {"".join(f'<option value="{product.lower()}">{product}</option>' for product in products)}
                 </select>
                 
                 <select id="parallelFilter">
                     <option value="">All Parallels</option>
-                    {"".join(f'<option value="{parallel.lower()}">{parallel}</option>' for parallel in action_parallels)}
+                    {"".join(f'<option value="{parallel.lower()}">{parallel}</option>' for parallel in parallels)}
                 </select>
                 
                 <select id="gradeFilter">
                     <option value="">All Grades</option>
-                    {"".join(f'<option value="{grade.lower()}">{grade}</option>' for grade in action_grades)}
+                    {"".join(f'<option value="{grade.lower()}">{grade}</option>' for grade in grades)}
                 </select>
                 
                 <select id="actionFilter">
                     <option value="">All Actions</option>
-                    {"".join(f'<option value="{action.lower()}">{action}</option>' for action in action_actions)}
+                    {"".join(f'<option value="{action.lower()}">{action}</option>' for action in actions)}
                 </select>
             
                 <select id="marketFilter">
