@@ -7502,7 +7502,11 @@ def inventory_cards_dashboard():
                     const playerMatch = !player || cells[0].includes(player);
                     const yearMatch = !year || cells[1] === year;
                     const productMatch = !product || cells[3] === product;
-                    const parallelMatch = !parallel || cells[4] === parallel;
+                    const parallelText =
+                        (row.dataset.parallel || "").trim().toLowerCase();
+                    
+                    const parallelMatch =
+                        !parallel || parallelText === parallel;
                     const gradeMatch = !grade || cells[5] === grade;
                     const actionText =
                         (row.dataset.action || "").trim().toLowerCase();
