@@ -4576,18 +4576,50 @@ def scan_card():
         <form method="POST" action="/inventory-add">
         
         <div class="field">
-            <div class="label">Player</div>
-            {player}
+        <div class="label">Player</div>
+    
+            <input
+                type="text"
+                name="player_name"
+                value="{player}"
+                style="
+                    width:260px;
+                    padding:8px;
+                    font-size:18px;
+                "
+            >
         </div>
     
         <div class="field">
-            <div class="label">Year</div>
-            {year}
+        <div class="label">Year</div>
+    
+            <input
+                type="number"
+                name="card_year"
+                value="{year}"
+                min="1900"
+                max="2100"
+                style="
+                    width:120px;
+                    padding:8px;
+                    font-size:18px;
+                "
+            >
         </div>
     
         <div class="field">
-            <div class="label">Product</div>
-            {product}
+        <div class="label">Product</div>
+    
+            <input
+                type="text"
+                name="product"
+                value="{product}"
+                style="
+                    width:300px;
+                    padding:8px;
+                    font-size:18px;
+                "
+            >
         </div>
     
         <div class="field">
@@ -4750,10 +4782,7 @@ def scan_card():
         <div class="label">Card Hedge ID</div>
         {cardhedge_id}
     </div>
-    
-    <input type="hidden" name="player_name" value="{player}">
-    <input type="hidden" name="card_year" value="{year}">
-    <input type="hidden" name="product" value="{product}">
+     
     <input type="hidden" name="cardhedge_id" value="{cardhedge_id}">
     <input type="hidden" name="scanner_source" value="Ximilar + Card Hedge">
     <input type="hidden" name="resolver_score" value="{resolver_score}">
