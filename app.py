@@ -5832,15 +5832,7 @@ def inventory_action_detail(inventory_id):
     if not card:
         return "Inventory card not found", 404
 
-    return f"""
-    <html>
-    <head>
-        <title>Sell - Auction</title>
-    
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1"
-return f"""
+   
 <html>
 <head>
     <title>Sell - Auction</title>
