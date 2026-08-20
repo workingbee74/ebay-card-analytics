@@ -4850,7 +4850,7 @@ def inventory_add():
     purchase_price = float(purchase_price) if purchase_price else None
 
     quantity = request.form.get("quantity", "1")
-        try:
+    try:
         quantity = int(quantity)
     except (TypeError, ValueError):
         quantity = 1
