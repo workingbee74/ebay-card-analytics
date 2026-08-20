@@ -6138,16 +6138,16 @@ def inventory_cards_dashboard():
             """
         })
 
-        years = sorted(years, reverse=True)
-        products = sorted(products)
-        parallels = sorted(parallels)
-        grades = sorted(grades)
-        actions = sorted(actions)
+    years = sorted(years, reverse=True)
+    products = sorted(products)
+    parallels = sorted(parallels)
+    grades = sorted(grades)
+    actions = sorted(actions)
 
-        inventory_items.sort(
-            key=lambda item: item["priority"],
-            reverse=True
-        )
+    inventory_items.sort(
+        key=lambda item: item["priority"],
+        reverse=True
+    )
 
     action_items = [
         item
