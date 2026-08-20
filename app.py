@@ -5832,356 +5832,356 @@ def inventory_action_detail(inventory_id):
     if not card:
         return "Inventory card not found", 404
 
-return f"""
-<html>
-<head>
-    <title>Sell - Auction</title>
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1"
-    >
-
-    <style>
-        * {{
-            box-sizing: border-box;
-        }}
-
-        body {{
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f6f8;
-            color: #111;
-        }}
-
-        .app-nav {{
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            display: flex;
-            gap: 6px;
-            padding: 10px 16px;
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-            overflow-x: auto;
-            white-space: nowrap;
-        }}
-
-        .app-nav a {{
-            display: inline-block;
-            padding: 10px 14px;
-            color: #222;
-            text-decoration: none;
-            font-weight: 700;
-        }}
-
-        .app-nav a:hover {{
-            background: #f3f4f6;
-            border-radius: 8px;
-        }}
-
-        .page {{
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 28px 24px 60px;
-        }}
-
-        .header {{
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            align-items: flex-start;
-            margin-bottom: 24px;
-        }}
-
-        h1 {{
-            margin: 0 0 8px;
-            font-size: 34px;
-        }}
-
-        .player {{
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }}
-
-        .identity {{
-            font-size: 15px;
-            color: #555;
-            line-height: 1.5;
-        }}
-
-        .summary {{
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            margin: 22px 0 28px;
-        }}
-
-        .summary-item {{
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 14px;
-        }}
-
-        .summary-label {{
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 6px;
-        }}
-
-        .summary-value {{
-            font-size: 18px;
-            font-weight: 700;
-        }}
-
-        .section {{
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 18px;
-        }}
-
-        .section h2 {{
-            margin: 0 0 16px;
-            font-size: 20px;
-        }}
-
-        .plan-grid {{
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 14px 28px;
-        }}
-
-        .plan-label {{
-            color: #666;
-            font-size: 12px;
-            margin-bottom: 4px;
-        }}
-
-        .plan-value {{
-            font-weight: 700;
-            font-size: 16px;
-        }}
-
-        .actions {{
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }}
-
-        .button {{
-            display: inline-block;
-            padding: 10px 14px;
-            border-radius: 7px;
-            text-decoration: none;
-            font-weight: 700;
-            border: 1px solid #d1d5db;
-            background: white;
-            color: #222;
-        }}
-
-        .button-primary {{
-            background: #2563eb;
-            color: white;
-            border-color: #2563eb;
-        }}
-
-        .button:hover {{
-            opacity: .9;
-        }}
-
-        .status {{
-            display: inline-block;
-            padding: 7px 10px;
-            border-radius: 7px;
-            background: #2563eb;
-            color: white;
-            font-weight: 700;
-            white-space: nowrap;
-        }}
-
-        @media (max-width: 800px) {{
-            .summary {{
-                grid-template-columns: repeat(2, 1fr);
+    return f"""
+    <html>
+    <head>
+        <title>Sell - Auction</title>
+    
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        >
+    
+        <style>
+            * {{
+                box-sizing: border-box;
             }}
-
-            .plan-grid {{
-                grid-template-columns: 1fr;
+    
+            body {{
+                margin: 0;
+                font-family: Arial, sans-serif;
+                background: #f5f6f8;
+                color: #111;
             }}
-
+    
+            .app-nav {{
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                display: flex;
+                gap: 6px;
+                padding: 10px 16px;
+                background: white;
+                border-bottom: 1px solid #e5e7eb;
+                overflow-x: auto;
+                white-space: nowrap;
+            }}
+    
+            .app-nav a {{
+                display: inline-block;
+                padding: 10px 14px;
+                color: #222;
+                text-decoration: none;
+                font-weight: 700;
+            }}
+    
+            .app-nav a:hover {{
+                background: #f3f4f6;
+                border-radius: 8px;
+            }}
+    
+            .page {{
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 28px 24px 60px;
+            }}
+    
             .header {{
-                flex-direction: column;
+                display: flex;
+                justify-content: space-between;
+                gap: 20px;
+                align-items: flex-start;
+                margin-bottom: 24px;
             }}
-        }}
-    </style>
-</head>
-
-<body>
-
-    <div class="app-nav">
-        <a href="/inventory">Inventory</a>
-        <a href="/inventory/actions">Actions</a>
-        <a href="/scan-card">Scan</a>
-        <a href="/auction-watch">Auction Watch</a>
-        <a href="/deals">Bowman Deals</a>
-    </div>
-
-    <div class="page">
-
-        <div class="header">
-            <div>
-                <h1>Sell - Auction</h1>
-
-                <div class="player">
-                    {card[1]}
-                </div>
-
-                <div class="identity">
-                    {card[2] or ""} {card[3] or ""}<br>
-                    #{card[4] or ""} · {card[5] or "Base"}
-                    {f" · {card[6]}/{card[7]}" if card[7] else ""}
-                    <br>
-                    {card[8] or "Raw"} {card[9] if card[9] is not None else ""}
-                </div>
-            </div>
-
-            <div class="status">
-                SELL - AUCTION
-            </div>
+    
+            h1 {{
+                margin: 0 0 8px;
+                font-size: 34px;
+            }}
+    
+            .player {{
+                font-size: 24px;
+                font-weight: 700;
+                margin-bottom: 6px;
+            }}
+    
+            .identity {{
+                font-size: 15px;
+                color: #555;
+                line-height: 1.5;
+            }}
+    
+            .summary {{
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 10px;
+                margin: 22px 0 28px;
+            }}
+    
+            .summary-item {{
+                background: white;
+                border: 1px solid #e5e7eb;
+                border-radius: 10px;
+                padding: 14px;
+            }}
+    
+            .summary-label {{
+                font-size: 12px;
+                color: #666;
+                margin-bottom: 6px;
+            }}
+    
+            .summary-value {{
+                font-size: 18px;
+                font-weight: 700;
+            }}
+    
+            .section {{
+                background: white;
+                border: 1px solid #e5e7eb;
+                border-radius: 12px;
+                padding: 20px;
+                margin-bottom: 18px;
+            }}
+    
+            .section h2 {{
+                margin: 0 0 16px;
+                font-size: 20px;
+            }}
+    
+            .plan-grid {{
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 14px 28px;
+            }}
+    
+            .plan-label {{
+                color: #666;
+                font-size: 12px;
+                margin-bottom: 4px;
+            }}
+    
+            .plan-value {{
+                font-weight: 700;
+                font-size: 16px;
+            }}
+    
+            .actions {{
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }}
+    
+            .button {{
+                display: inline-block;
+                padding: 10px 14px;
+                border-radius: 7px;
+                text-decoration: none;
+                font-weight: 700;
+                border: 1px solid #d1d5db;
+                background: white;
+                color: #222;
+            }}
+    
+            .button-primary {{
+                background: #2563eb;
+                color: white;
+                border-color: #2563eb;
+            }}
+    
+            .button:hover {{
+                opacity: .9;
+            }}
+    
+            .status {{
+                display: inline-block;
+                padding: 7px 10px;
+                border-radius: 7px;
+                background: #2563eb;
+                color: white;
+                font-weight: 700;
+                white-space: nowrap;
+            }}
+    
+            @media (max-width: 800px) {{
+                .summary {{
+                    grid-template-columns: repeat(2, 1fr);
+                }}
+    
+                .plan-grid {{
+                    grid-template-columns: 1fr;
+                }}
+    
+                .header {{
+                    flex-direction: column;
+                }}
+            }}
+        </style>
+    </head>
+    
+    <body>
+    
+        <div class="app-nav">
+            <a href="/inventory">Inventory</a>
+            <a href="/inventory/actions">Actions</a>
+            <a href="/scan-card">Scan</a>
+            <a href="/auction-watch">Auction Watch</a>
+            <a href="/deals">Bowman Deals</a>
         </div>
-
-
-        <div class="summary">
-
-            <div class="summary-item">
-                <div class="summary-label">Market Value</div>
-                <div class="summary-value">-</div>
-            </div>
-
-            <div class="summary-item">
-                <div class="summary-label">Your Cost</div>
-                <div class="summary-value">
-                    {f"${float(card[10]):,.2f}" if card[10] is not None else "-"}
+    
+        <div class="page">
+    
+            <div class="header">
+                <div>
+                    <h1>Sell - Auction</h1>
+    
+                    <div class="player">
+                        {card[1]}
+                    </div>
+    
+                    <div class="identity">
+                        {card[2] or ""} {card[3] or ""}<br>
+                        #{card[4] or ""} · {card[5] or "Base"}
+                        {f" · {card[6]}/{card[7]}" if card[7] else ""}
+                        <br>
+                        {card[8] or "Raw"} {card[9] if card[9] is not None else ""}
+                    </div>
+                </div>
+    
+                <div class="status">
+                    SELL - AUCTION
                 </div>
             </div>
-
-            <div class="summary-item">
-                <div class="summary-label">P/L</div>
-                <div class="summary-value">-</div>
+    
+    
+            <div class="summary">
+    
+                <div class="summary-item">
+                    <div class="summary-label">Market Value</div>
+                    <div class="summary-value">-</div>
+                </div>
+    
+                <div class="summary-item">
+                    <div class="summary-label">Your Cost</div>
+                    <div class="summary-value">
+                        {f"${float(card[10]):,.2f}" if card[10] is not None else "-"}
+                    </div>
+                </div>
+    
+                <div class="summary-item">
+                    <div class="summary-label">P/L</div>
+                    <div class="summary-value">-</div>
+                </div>
+    
+                <div class="summary-item">
+                    <div class="summary-label">Trend</div>
+                    <div class="summary-value">—</div>
+                </div>
+    
+                <div class="summary-item">
+                    <div class="summary-label">Confidence</div>
+                    <div class="summary-value">—</div>
+                </div>
+    
             </div>
-
-            <div class="summary-item">
-                <div class="summary-label">Trend</div>
-                <div class="summary-value">—</div>
+    
+    
+            <div class="section">
+                <h2>Auction Plan</h2>
+    
+                <div class="plan-grid">
+    
+                    <div>
+                        <div class="plan-label">Recommended Starting Price</div>
+                        <div class="plan-value">Coming next</div>
+                    </div>
+    
+                    <div>
+                        <div class="plan-label">Expected Sale Range</div>
+                        <div class="plan-value">Coming next</div>
+                    </div>
+    
+                    <div>
+                        <div class="plan-label">Minimum Acceptable Outcome</div>
+                        <div class="plan-value">Coming next</div>
+                    </div>
+    
+                    <div>
+                        <div class="plan-label">Recommended Duration</div>
+                        <div class="plan-value">7 days</div>
+                    </div>
+    
+                    <div>
+                        <div class="plan-label">Recommended Ending Window</div>
+                        <div class="plan-value">Coming next</div>
+                    </div>
+    
+                    <div>
+                        <div class="plan-label">Selling Method</div>
+                        <div class="plan-value">eBay Auction</div>
+                    </div>
+    
+                </div>
             </div>
-
-            <div class="summary-item">
-                <div class="summary-label">Confidence</div>
-                <div class="summary-value">—</div>
+    
+    
+            <div class="section">
+                <h2>Why This Action?</h2>
+    
+                <p>
+                    This card has been identified by the portfolio action engine
+                    as a candidate for sale by auction.
+                </p>
+    
+                <p>
+                    We will connect the current market value, price trend,
+                    confidence, recent comparable sales, liquidity and expected
+                    auction outcome here next.
+                </p>
             </div>
-
+    
+    
+            <div class="section">
+                <h2>Action Items</h2>
+    
+                <div class="actions">
+    
+                    <a
+                        class="button button-primary"
+                        href="/inventory/action/{inventory_id}/ebay-draft"
+                    >
+                        Create eBay Auction Draft
+                    </a>
+    
+                    <a
+                        class="button"
+                        href="/inventory/action/{inventory_id}/bin"
+                    >
+                        Compare Buy It Now
+                    </a>
+    
+                    <a
+                        class="button"
+                        href="/inventory/action/{inventory_id}/hold"
+                    >
+                        Hold Instead
+                    </a>
+    
+                    <a
+                        class="button"
+                        href="/inventory/actions"
+                    >
+                        Back to Actions
+                    </a>
+    
+                </div>
+            </div>
+    
         </div>
-
-
-        <div class="section">
-            <h2>Auction Plan</h2>
-
-            <div class="plan-grid">
-
-                <div>
-                    <div class="plan-label">Recommended Starting Price</div>
-                    <div class="plan-value">Coming next</div>
-                </div>
-
-                <div>
-                    <div class="plan-label">Expected Sale Range</div>
-                    <div class="plan-value">Coming next</div>
-                </div>
-
-                <div>
-                    <div class="plan-label">Minimum Acceptable Outcome</div>
-                    <div class="plan-value">Coming next</div>
-                </div>
-
-                <div>
-                    <div class="plan-label">Recommended Duration</div>
-                    <div class="plan-value">7 days</div>
-                </div>
-
-                <div>
-                    <div class="plan-label">Recommended Ending Window</div>
-                    <div class="plan-value">Coming next</div>
-                </div>
-
-                <div>
-                    <div class="plan-label">Selling Method</div>
-                    <div class="plan-value">eBay Auction</div>
-                </div>
-
-            </div>
-        </div>
-
-
-        <div class="section">
-            <h2>Why This Action?</h2>
-
-            <p>
-                This card has been identified by the portfolio action engine
-                as a candidate for sale by auction.
-            </p>
-
-            <p>
-                We will connect the current market value, price trend,
-                confidence, recent comparable sales, liquidity and expected
-                auction outcome here next.
-            </p>
-        </div>
-
-
-        <div class="section">
-            <h2>Action Items</h2>
-
-            <div class="actions">
-
-                <a
-                    class="button button-primary"
-                    href="/inventory/action/{inventory_id}/ebay-draft"
-                >
-                    Create eBay Auction Draft
-                </a>
-
-                <a
-                    class="button"
-                    href="/inventory/action/{inventory_id}/bin"
-                >
-                    Compare Buy It Now
-                </a>
-
-                <a
-                    class="button"
-                    href="/inventory/action/{inventory_id}/hold"
-                >
-                    Hold Instead
-                </a>
-
-                <a
-                    class="button"
-                    href="/inventory/actions"
-                >
-                    Back to Actions
-                </a>
-
-            </div>
-        </div>
-
-    </div>
-
-</body>
-</html>
-"""
+    
+    </body>
+    </html>
+    """
 
 @app.route("/inventory/action/<int:inventory_id>/ebay-draft", methods=["GET"])
 def inventory_action_ebay_draft(inventory_id):
