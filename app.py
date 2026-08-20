@@ -7504,8 +7504,11 @@ def inventory_cards_dashboard():
                     const productMatch = !product || cells[3] === product;
                     const parallelMatch = !parallel || cells[4] === parallel;
                     const gradeMatch = !grade || cells[5] === grade;
-                    const actionText = cells[11] || "";
-                    const actionMatch = !action || actionText.includes(action);
+                    const actionText =
+                        (row.dataset.action || "").trim().toLowerCase();
+                    
+                    const actionMatch =
+                        !action || actionText === action;
         
                     const marketText = cells[8] || "";
         
