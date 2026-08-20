@@ -540,13 +540,37 @@ def resolve_with_cardhedge(evidence):
         else None
     )
 
+    # Do not auto-resolve weak catalog matches.
+    # Weak matches should go to manual review instead.
+    
+    minimum_resolver_score = 70
+    
+    if best and best["score"] < minimum_resolver_score:
+        best = None
+        
     return {
         "success": True,
         "query": query,
         "best": best,
         "candidates": scored_candidates[:5],
     }
+
+    if best:
+        expected_player = (
+            evidence.get("player_name") or ""
+        ).casefold().strip()
     
+        resolved_player = (
+            best["card"].get("player") or ""
+        ).casefold().strip()
+    
+        if (
+            expected_player
+            and resolved_player
+            and expected_player != resolved_player
+        ):
+            best = None
+
     identification = objects[0].get("_identification", {})
 
     best_match = identification.get("best_match")
@@ -4368,6 +4392,7 @@ def scan_card():
     else:
         resolved_card = {}
         resolver_score = 0
+        needs_review = best_resolution is None
     
     player = (
         resolved_card.get("player")
@@ -4416,10 +4441,11 @@ def scan_card():
     
     confidence_label = "REVIEW"
     
-    if resolver_score >= 85:
-        confidence_label = "HIGH"
-    elif resolver_score >= 65:
-        confidence_label = "MEDIUM"
+    if not needs_review:
+        if resolver_score >= 85:
+            confidence_label = "HIGH"
+        elif resolver_score >= 70:
+            confidence_label = "MEDIUM"
     
     cardhedge_id = resolved_card.get("card_id") or ""
     
@@ -4533,6 +4559,19 @@ def scan_card():
             Resolver Confidence: {confidence_label}
             ({resolver_score})
         </div>
+
+        {"""
+        <div style="
+            margin: 12px 0 18px;
+            padding: 12px;
+            border-radius: 10px;
+            background: #fff3cd;
+            color: #664d03;
+            font-weight: bold;
+        ">
+            Manual Review Required — scanner sources did not agree strongly enough.
+        </div>
+        """ if needs_review else ""}
         
         <form method="POST" action="/inventory-add">
         
