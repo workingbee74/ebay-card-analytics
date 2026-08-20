@@ -3749,7 +3749,7 @@ def inventory_dashboard():
 
     <body>
 
-        <h1>Bowman Inventory</h1>
+        <h1>Action Queue</h1>
 
         <div class="summary">
             <strong>{total_cards}</strong> Bowman cards
@@ -6502,7 +6502,7 @@ def inventory_cards_dashboard():
         <div class="page">
 
             <div class="header">
-                <h1>Actions</h1>
+                <h1>Inventory</h1>
 
                 <a class="scan" href="/scan-card">
                     + Scan Card
@@ -6549,10 +6549,7 @@ def inventory_cards_dashboard():
                 <button type="button" id="clearFilters">Clear</button>
             </div>
             
-            <h2 style="margin-top:30px;">
-                All Inventory
-            </h2>
-            
+                       
             <div>
                 <table class="inventory-table">
                     <thead>
