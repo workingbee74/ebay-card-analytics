@@ -4524,9 +4524,19 @@ def scan_card():
         </div>
     
         <div class="field">
-            <div class="label">Card Number</div>
-            {card_number}
-        </div>
+        <div class="label">Card Number</div>
+    
+            <input
+                type="text"
+                name="card_number"
+                value="{card_number}"
+                style="
+                    width:140px;
+                    padding:8px;
+                    font-size:18px;
+                    "
+                >
+            </div>
     
         <div class="field">
             <div class="label">Parallel</div>
@@ -4667,7 +4677,6 @@ def scan_card():
     <input type="hidden" name="player_name" value="{player}">
     <input type="hidden" name="card_year" value="{year}">
     <input type="hidden" name="product" value="{product}">
-    <input type="hidden" name="card_number" value="{card_number}">
     <input type="hidden" name="parallel" value="{parallel}">
     <input type="hidden" name="cardhedge_id" value="{cardhedge_id}">
     <input type="hidden" name="scanner_source" value="Ximilar + Card Hedge">
