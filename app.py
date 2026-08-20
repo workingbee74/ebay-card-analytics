@@ -5298,6 +5298,10 @@ def inventory_actions_page():
             "priority": action_priority,
             "action": disposition_action,
             "trend": price_trend,
+            "card_year": card_year,
+            "product": product,
+            "parallel": parallel,
+            "grade_display": grade_display,
             "html": f"""
                 
             <div class="inventory-card">
@@ -5450,6 +5454,36 @@ def inventory_actions_page():
         for item in inventory_items
         if item["priority"] >= 35
     ]
+
+    action_years = sorted({
+        str(item["card_year"])
+        for item in action_items
+        if item.get("card_year")
+    }, reverse=True)
+    
+    action_products = sorted({
+        str(item["product"])
+        for item in action_items
+        if item.get("product")
+    })
+    
+    action_parallels = sorted({
+        str(item["parallel"])
+        for item in action_items
+        if item.get("parallel")
+    })
+    
+    action_grades = sorted({
+        str(item["grade_display"])
+        for item in action_items
+        if item.get("grade_display")
+    })
+    
+    action_actions = sorted({
+        str(item["action"])
+        for item in action_items
+        if item.get("action")
+    })
     
     action_queue_html = "".join(
         item["compact_html"]
@@ -7198,27 +7232,27 @@ def inventory_cards_dashboard():
             
                 <select id="yearFilter">
                     <option value="">All Years</option>
-                    {"".join(f'<option value="{year.lower()}">{year}</option>' for year in years)}
+                    {"".join(f'<option value="{year.lower()}">{year}</option>' for year in action_years)}
                 </select>
-            
+                
                 <select id="productFilter">
                     <option value="">All Products</option>
-                    {"".join(f'<option value="{product.lower()}">{product}</option>' for product in products)}
+                    {"".join(f'<option value="{product.lower()}">{product}</option>' for product in action_products)}
                 </select>
                 
                 <select id="parallelFilter">
                     <option value="">All Parallels</option>
-                    {"".join(f'<option value="{parallel.lower()}">{parallel}</option>' for parallel in parallels)}
+                    {"".join(f'<option value="{parallel.lower()}">{parallel}</option>' for parallel in action_parallels)}
                 </select>
                 
                 <select id="gradeFilter">
                     <option value="">All Grades</option>
-                    {"".join(f'<option value="{grade.lower()}">{grade}</option>' for grade in grades)}
+                    {"".join(f'<option value="{grade.lower()}">{grade}</option>' for grade in action_grades)}
                 </select>
                 
                 <select id="actionFilter">
                     <option value="">All Actions</option>
-                    {"".join(f'<option value="{action.lower()}">{action}</option>' for action in actions)}
+                    {"".join(f'<option value="{action.lower()}">{action}</option>' for action in action_actions)}
                 </select>
             
                 <select id="marketFilter">
