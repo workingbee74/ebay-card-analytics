@@ -5115,11 +5115,10 @@ def inventory_actions_page():
         price_trend = saved_price_trend or "UNKNOWN"
         price_trend_pct = saved_trend_pct
         price_trend_confidence = saved_trend_confidence or "LOW"
-        history_points = trend_data["history_points"]
-        
-       sales_7day = market["sales_7day"]
-        sales_30day = market["sales_30day"]
-        market_gain = market["market_gain"]
+        history_points = 0
+        sales_7day = 0
+        sales_30day = 0
+        market_gain = None
         
         gain_loss = None
         gain_loss_pct = None
