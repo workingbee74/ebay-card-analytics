@@ -5767,7 +5767,31 @@ def inventory_actions_page():
                 justify-content: space-between;
             }}
 
-
+            .action-filters {{
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin: 14px 0 18px;
+            }}
+            
+            .action-filters input,
+            .action-filters select,
+            .action-filters button {{
+                font-size: 12px;
+                padding: 7px 9px;
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                background: white;
+            }}
+            
+            .action-filters input {{
+                min-width: 180px;
+            }}
+            
+            .action-filters button {{
+                cursor: pointer;
+                font-weight: 700;
+            }}
             .refresh-button {{
                 padding: 10px 14px;
                 border: 1px solid #2563eb;
@@ -5836,6 +5860,44 @@ def inventory_actions_page():
                 font-size:14px;
             ">
                 Cards with the highest current attention priority.
+            </div>
+
+            <div class="action-filters">
+            
+                <input
+                    type="text"
+                    id="actionPlayerSearch"
+                    placeholder="Search player..."
+                >
+            
+                <select id="actionYearFilter">
+                    <option value="">All Years</option>
+                    {"".join(
+                        f'<option value="{year.lower()}">{year}</option>'
+                        for year in action_years
+                    )}
+                </select>
+            
+                <select id="actionGradeFilter">
+                    <option value="">All Grades</option>
+                    {"".join(
+                        f'<option value="{grade.lower()}">{grade}</option>'
+                        for grade in action_grades
+                    )}
+                </select>
+            
+                <select id="actionActionFilter">
+                    <option value="">All Actions</option>
+                    {"".join(
+                        f'<option value="{action.lower()}">{action}</option>'
+                        for action in action_actions
+                    )}
+                </select>
+            
+                <button type="button" id="actionClearFilters">
+                    Clear
+                </button>
+            
             </div>
             
             <div>
