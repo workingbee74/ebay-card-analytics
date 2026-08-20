@@ -5022,6 +5022,7 @@ def inventory_cards_dashboard():
                     purchase_price,
                     purchase_date,
                     purchase_source,
+                    quantity,
                     external_card_id
                 FROM inventory_cards
                 WHERE player_name IS NOT NULL
@@ -5051,6 +5052,7 @@ def inventory_cards_dashboard():
             purchase_price,
             purchase_date,
             purchase_source,
+            quantity,
             cardhedge_id,
         ) = row
 
@@ -5369,49 +5371,20 @@ def inventory_cards_dashboard():
             """,
     
             "compact_html": f"""
-            <div class="inventory-card compact-card">
-    
-                <div class="compact-top">
-                    <div>
-                        <div class="player">
-                            {player_name}
-                        </div>
-    
-                        <div class="compact-identity">
-                            {card_year or ""} · #{card_number or ""}
-                            · {parallel or "Base"}
-                            {serial_display}
-                        </div>
-    
-                        <div class="compact-identity">
-                            {grade_display}
-                        </div>
-                    </div>
-    
-                    <div class="compact-action">
-                        {disposition_action}
-                    </div>
-                </div>
-    
-                <div class="compact-metrics">
-                    <span>
-                        Cost <strong>{price_display}</strong>
-                    </span>
-    
-                    <span>
-                        Market <strong>{market_value_display}</strong>
-                    </span>
-    
-                    <span>
-                        P/L <strong>{gain_loss_display}</strong>
-                    </span>
-    
-                    <span>
-                        Trend <strong>{trend_display}</strong>
-                    </span>
-                </div>
-    
-            </div>
+            <tr>
+                <td>{player_name}</td>
+                <td>{card_year or ""}</td>
+                <td>#{card_number or ""}</td>
+                <td>{product or ""}</td>
+                <td>{parallel or "Base"} {serial_display}</td>
+                <td>{grade_display}</td>
+                <td>{quantity or 1}</td>
+                <td>{price_display}</td>
+                <td>{market_value_display}</td>
+                <td>{gain_loss_display}</td>
+                <td>{trend_display}</td>
+                <td>{disposition_action}</td>
+            </tr>
             """
         })
     inventory_items.sort(
@@ -6257,6 +6230,73 @@ def inventory_actions_page():
                 font-size: 19px;
                 margin-bottom: 3px;
             }}
+
+            .inventory-table {{
+                width: 100%;
+                border-collapse: collapse;
+                background: white;
+                font-size: 14px;
+            }}
+            
+            .inventory-table th {{
+                text-align: left;
+                padding: 10px 8px;
+                background: #f3f4f6;
+                border-bottom: 2px solid #d1d5db;
+                white-space: nowrap;
+                position: sticky;
+                top: 55px;
+                z-index: 10;
+            }}
+
+            .inventory-filters {{
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin: 18px 0;
+            }}
+            
+            .inventory-filters input,
+            .inventory-filters select,
+            .inventory-filters button {{
+                padding: 8px 10px;
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                background: white;
+                font-size: 14px;
+            }}
+            
+            .inventory-filters input {{
+                min-width: 190px;
+            }}
+            
+            .inventory-filters button {{
+                cursor: pointer;
+            }}
+            
+            .inventory-table td {{
+                padding: 9px 8px;
+                border-bottom: 1px solid #e5e7eb;
+                vertical-align: middle;
+                white-space: nowrap;
+            }}
+            
+            .inventory-table tbody tr:hover {{
+                background: #f8fafc;
+            }}
+            
+            .inventory-table td:first-child {{
+                font-weight: 700;
+            }}
+            
+            .inventory-table th:nth-child(7),
+            .inventory-table th:nth-child(8),
+            .inventory-table th:nth-child(9),
+            .inventory-table td:nth-child(7),
+            .inventory-table td:nth-child(8),
+            .inventory-table td:nth-child(9) {{
+                text-align: right;
+            }}
             
             .compact-identity {{
                 font-size: 13px;
@@ -6413,14 +6453,183 @@ def inventory_actions_page():
             </div>
             
             {action_queue_html}
+
+
+            <div class="inventory-filters">
+                <input
+                    type="text"
+                    id="playerFilter"
+                    placeholder="Search player..."
+                >
+            
+                <select id="yearFilter">
+                    <option value="">All Years</option>
+                </select>
+            
+                <select id="productFilter">
+                    <option value="">All Products</option>
+                </select>
+            
+                <select id="parallelFilter">
+                    <option value="">All Parallels</option>
+                </select>
+            
+                <select id="gradeFilter">
+                    <option value="">All Grades</option>
+                </select>
+            
+                <select id="actionFilter">
+                    <option value="">All Actions</option>
+                </select>
+            
+                <select id="marketFilter">
+                    <option value="">All Market Data</option>
+                    <option value="has">Has Market Value</option>
+                    <option value="missing">Missing Market Value</option>
+                </select>
+            
+                <button type="button" id="clearFilters">Clear</button>
+            </div>
             
             <h2 style="margin-top:30px;">
                 All Inventory
             </h2>
             
-            {cards_html}
+            <div style="overflow-x:auto;">
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>Year</th>
+                            <th>Card #</th>
+                            <th>Product</th>
+                            <th>Parallel</th>
+                            <th>Grade</th>
+                            <th>Qty</th>
+                            <th>Cost</th>
+                            <th>Market</th>
+                            <th>P/L</th>
+                            <th>Trend</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {cards_html}
+                    </tbody>
+                </table>
+            </div>      
 
         </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const table = document.querySelector(".inventory-table");
+        if (!table) return;
+    
+        const rows = Array.from(table.querySelectorAll("tbody tr"));
+    
+        const playerFilter = document.getElementById("playerFilter");
+        const yearFilter = document.getElementById("yearFilter");
+        const productFilter = document.getElementById("productFilter");
+        const parallelFilter = document.getElementById("parallelFilter");
+        const gradeFilter = document.getElementById("gradeFilter");
+        const actionFilter = document.getElementById("actionFilter");
+        const marketFilter = document.getElementById("marketFilter");
+        const clearFilters = document.getElementById("clearFilters");
+    
+        function uniqueValues(columnIndex) {
+            return [...new Set(
+                rows.map(row => row.cells[columnIndex]?.textContent.trim())
+                    .filter(Boolean)
+            )].sort();
+        }
+    
+        function fillSelect(select, values) {
+            values.forEach(value => {
+                const option = document.createElement("option");
+                option.value = value.toLowerCase();
+                option.textContent = value;
+                select.appendChild(option);
+            });
+        }
+    
+        fillSelect(yearFilter, uniqueValues(1));
+        fillSelect(productFilter, uniqueValues(3));
+        fillSelect(parallelFilter, uniqueValues(4));
+        fillSelect(gradeFilter, uniqueValues(5));
+        fillSelect(actionFilter, uniqueValues(11));
+    
+        function applyFilters() {
+            const player = playerFilter.value.trim().toLowerCase();
+            const year = yearFilter.value;
+            const product = productFilter.value;
+            const parallel = parallelFilter.value;
+            const grade = gradeFilter.value;
+            const action = actionFilter.value;
+            const market = marketFilter.value;
+    
+            rows.forEach(row => {
+                const cells = Array.from(row.cells).map(
+                    cell => cell.textContent.trim().toLowerCase()
+                );
+    
+                const playerMatch = !player || cells[0].includes(player);
+                const yearMatch = !year || cells[1] === year;
+                const productMatch = !product || cells[3] === product;
+                const parallelMatch = !parallel || cells[4] === parallel;
+                const gradeMatch = !grade || cells[5] === grade;
+                const actionMatch = !action || cells[11] === action;
+    
+                const marketText = cells[8] || "";
+                const hasMarket =
+                    marketText !== "" &&
+                    marketText !== "—" &&
+                    marketText !== "-";
+    
+                const marketMatch =
+                    !market ||
+                    (market === "has" && hasMarket) ||
+                    (market === "missing" && !hasMarket);
+    
+                row.style.display =
+                    playerMatch &&
+                    yearMatch &&
+                    productMatch &&
+                    parallelMatch &&
+                    gradeMatch &&
+                    actionMatch &&
+                    marketMatch
+                        ? ""
+                        : "none";
+            });
+        }
+    
+        playerFilter.addEventListener("input", applyFilters);
+    
+        [
+            yearFilter,
+            productFilter,
+            parallelFilter,
+            gradeFilter,
+            actionFilter,
+            marketFilter
+        ].forEach(select => {
+            select.addEventListener("change", applyFilters);
+        });
+    
+        clearFilters.addEventListener("click", function () {
+            playerFilter.value = "";
+            yearFilter.value = "";
+            productFilter.value = "";
+            parallelFilter.value = "";
+            gradeFilter.value = "";
+            actionFilter.value = "";
+            marketFilter.value = "";
+    
+            applyFilters();
+        });
+    });
+    </script>
 
     </body>
     </html>
