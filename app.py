@@ -5430,9 +5430,11 @@ def inventory_actions_page():
             <td>{price_trend_confidence}</td>
         
             <td>
-                <a href="/inventory/action/{inventory_id}" class="action-link">
-                    {disposition_action}
-                </a>
+                {
+                    f'<a href="/inventory/action/{inventory_id}" class="action-link">{disposition_action}</a>'
+                    if disposition_action == "SELL — AUCTION"
+                    else disposition_action
+                }
             </td>
         </tr>
         """
@@ -5823,6 +5825,7 @@ def inventory_action_detail(inventory_id):
                     grade_company,
                     grade,
                     purchase_price
+                    external_card_id
                 FROM inventory_cards
                 WHERE id = %s
             """, (inventory_id,))
@@ -5831,6 +5834,91 @@ def inventory_action_detail(inventory_id):
 
     if not card:
         return "Inventory card not found", 404
+
+    cardhedge_id = card[11]
+    
+    market = get_inventory_market_data(
+        cardhedge_id,
+        card[8],
+        card[9]
+    )
+    
+    trend_data = get_cardhedge_price_trend(
+        cardhedge_id,
+        card[8],
+        card[9]
+    )
+    
+    market_value = market["market_value"]
+    price_trend = trend_data["trend"]
+    price_trend_pct = trend_data["trend_pct"]
+    price_trend_confidence = trend_data["trend_confidence"]
+    
+    purchase_price = card[10]
+    
+    gain_loss = None
+    gain_loss_pct = None
+    
+    if market_value is not None and purchase_price is not None:
+        gain_loss = float(market_value) - float(purchase_price)
+    
+        if float(purchase_price) != 0:
+            gain_loss_pct = (
+                gain_loss / float(purchase_price)
+            ) * 100
+    
+    market_value_display = (
+        f"${float(market_value):,.2f}"
+        if market_value is not None
+        else "-"
+    )
+    
+    gain_loss_display = "-"
+    
+    if gain_loss is not None:
+        gain_loss_display = f"${gain_loss:+,.2f}"
+    
+        if gain_loss_pct is not None:
+            gain_loss_display += f" ({gain_loss_pct:+.1f}%)"
+    
+    trend_display = price_trend or "UNKNOWN"
+
+    recommended_start_price = None
+    expected_low = None
+    expected_high = None
+    minimum_outcome = None
+    
+    if market_value is not None:
+        mv = float(market_value)
+    
+        recommended_start_price = max(0.99, mv * 0.50)
+        expected_low = mv * 0.90
+        expected_high = mv * 1.10
+        minimum_outcome = mv * 0.80
+    
+    recommended_start_display = (
+        f"${recommended_start_price:,.2f}"
+        if recommended_start_price is not None
+        else "-"
+    )
+    
+    expected_sale_display = (
+        f"${expected_low:,.2f} - ${expected_high:,.2f}"
+        if expected_low is not None and expected_high is not None
+        else "-"
+    )
+    
+    minimum_outcome_display = (
+        f"${minimum_outcome:,.2f}"
+        if minimum_outcome is not None
+        else "-"
+    )
+
+    recommended_duration = "7 days"
+    recommended_ending_window = "Sunday 7:00 PM - 10:00 PM"
+    
+    if price_trend_pct is not None:
+        trend_display += f" ({price_trend_pct:+.1f}%)"
 
     return f"""
     <html>
@@ -6058,7 +6146,7 @@ def inventory_action_detail(inventory_id):
     
                 <div class="summary-item">
                     <div class="summary-label">Market Value</div>
-                    <div class="summary-value">-</div>
+                    <div class="summary-value">{market_value_display}</div>
                 </div>
     
                 <div class="summary-item">
@@ -6070,12 +6158,12 @@ def inventory_action_detail(inventory_id):
     
                 <div class="summary-item">
                     <div class="summary-label">P/L</div>
-                    <div class="summary-value">-</div>
+                    <div class="summary-value">{gain_loss_display}</div>
                 </div>
     
                 <div class="summary-item">
                     <div class="summary-label">Trend</div>
-                    <div class="summary-value">—</div>
+                    <div class="summary-value">{trend_display}</div>
                 </div>
     
                 <div class="summary-item">
@@ -6093,12 +6181,12 @@ def inventory_action_detail(inventory_id):
     
                     <div>
                         <div class="plan-label">Recommended Starting Price</div>
-                        <div class="plan-value">Coming next</div>
+                        <div class="plan-value">{recommended_start_display}</div>
                     </div>
     
                     <div>
                         <div class="plan-label">Expected Sale Range</div>
-                        <div class="plan-value">Coming next</div>
+                        <div class="plan-value">{expected_sale_display}</div>
                     </div>
     
                     <div>
@@ -6108,12 +6196,12 @@ def inventory_action_detail(inventory_id):
     
                     <div>
                         <div class="plan-label">Recommended Duration</div>
-                        <div class="plan-value">7 days</div>
+                        <div class="plan-value">{recommended_duration}</div>
                     </div>
     
                     <div>
                         <div class="plan-label">Recommended Ending Window</div>
-                        <div class="plan-value">Coming next</div>
+                        <div class="plan-value">{recommended_ending_window}</div>
                     </div>
     
                     <div>
@@ -6129,14 +6217,16 @@ def inventory_action_detail(inventory_id):
                 <h2>Why This Action?</h2>
     
                 <p>
-                    This card has been identified by the portfolio action engine
-                    as a candidate for sale by auction.
+                    Current market value is approximately {market_value_display}
+                    versus your cost of
+                    {f"${float(purchase_price):,.2f}" if purchase_price is not None else "-"}.
                 </p>
-    
+                
                 <p>
-                    We will connect the current market value, price trend,
-                    confidence, recent comparable sales, liquidity and expected
-                    auction outcome here next.
+                    The current price trend is {trend_display}
+                    with {price_trend_confidence} confidence.
+                    The portfolio engine is recommending an auction exit
+                    rather than continuing to hold this position.
                 </p>
             </div>
     
