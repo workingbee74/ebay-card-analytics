@@ -7479,8 +7479,7 @@ def inventory_cards_dashboard():
                         .filter(Boolean)
                 )].sort();
             }}
-        
-            function fillSelect(select, values) {{
+             function fillSelect(select, values) {{
                 values.forEach(value => {{
                     const option = document.createElement("option");
                     option.value = value.toLowerCase();
@@ -7488,9 +7487,6 @@ def inventory_cards_dashboard():
                     select.appendChild(option);
                 }});
             }}
-        
-            
-        
             function applyFilters() {{
                 const player = playerFilter.value.trim().toLowerCase();
                 const year = yearFilter.value.toLowerCase();
@@ -7510,7 +7506,8 @@ def inventory_cards_dashboard():
                     const productMatch = !product || cells[3] === product;
                     const parallelMatch = !parallel || cells[4] === parallel;
                     const gradeMatch = !grade || cells[5] === grade;
-                    const actionMatch = !action || cells[11] === action;
+                    const actionText = cells[11] || "";
+                    const actionMatch = !action || actionText.includes(action);
         
                     const marketText = cells[8] || "";
         
@@ -7536,7 +7533,26 @@ def inventory_cards_dashboard():
                             : "none";
                 }});
             }}
-        
+            function resetAndFillSelect(select, values) {{
+                const firstOption = select.options[0];
+            
+                select.innerHTML = "";
+                select.appendChild(firstOption);
+            
+                values.forEach(value => {{
+                    const option = document.createElement("option");
+                    option.value = value.toLowerCase();
+                    option.textContent = value;
+                    select.appendChild(option);
+                }});
+            }}
+            
+            resetAndFillSelect(yearFilter, uniqueValues(1));
+            resetAndFillSelect(productFilter, uniqueValues(3));
+            resetAndFillSelect(parallelFilter, uniqueValues(4));
+            resetAndFillSelect(gradeFilter, uniqueValues(5));
+            resetAndFillSelect(actionFilter, uniqueValues(11));
+            
             playerFilter.addEventListener("input", applyFilters);
         
             [
