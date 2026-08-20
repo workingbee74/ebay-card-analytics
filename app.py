@@ -5039,7 +5039,7 @@ def inventory_add():
     </html>
     """
 
-@app.route("/inventory", methods=["GET"])
+@app.route("/inventory/actions", methods=["GET"])
 def inventory_actions_page():
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -5723,7 +5723,7 @@ def inventory_actions_page():
     """
 
 
-@app.route("/inventory/actions", methods=["GET"])
+@app.route("/inventory", methods=["GET"])
 def inventory_cards_dashboard():
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
