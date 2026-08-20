@@ -4693,6 +4693,23 @@ def scan_card():
     </div>
 
     <div class="field">
+        <div class="label">Quantity</div>
+    
+        <input
+            type="number"
+            name="quantity"
+            value="1"
+            min="1"
+            max="100"
+            style="
+                width:90px;
+                padding:8px;
+                font-size:18px;
+            "
+        >
+    </div>
+
+    <div class="field">
         <div class="label">1st Bowman</div>
         <select name="first_bowman">
             <option value="false">No</option>
@@ -4831,6 +4848,13 @@ def inventory_add():
     
     grade = float(grade) if grade else None
     purchase_price = float(purchase_price) if purchase_price else None
+
+    quantity = request.form.get("quantity", "1")
+        try:
+        quantity = int(quantity)
+    except (TypeError, ValueError):
+        quantity = 1
+    quantity = max(1, min(quantity, 100))
     
     card_year = int(card_year) if card_year else None
     serial_number = int(serial_number) if serial_number else None
@@ -4849,61 +4873,64 @@ def inventory_add():
 
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute(
-                """
-                INSERT INTO inventory_cards (
-                    player_name,
-                    card_year,
-                    manufacturer,
-                    product,
-                    card_number,
-                    parallel,
-                    serial_number,
-                    serial_numbered_to,
-                    scanner_source,
-                    scanner_confidence,
-                    external_card_id,
-                    first_bowman,
-                    prospect_card,
-                    autograph,
-                    rookie_card,
-                    grade_company,
-                    grade,
-                    purchase_price,
-                    purchase_date,
-                    purchase_source
+            inventory_ids = []
+            for _ in range(quantity):
+            
+                cur.execute(
+                    """
+                    INSERT INTO inventory_cards (
+                        player_name,
+                        card_year,
+                        manufacturer,
+                        product,
+                        card_number,
+                        parallel,
+                        serial_number,
+                        serial_numbered_to,
+                        scanner_source,
+                        scanner_confidence,
+                        external_card_id,
+                        first_bowman,
+                        prospect_card,
+                        autograph,
+                        rookie_card,
+                        grade_company,
+                        grade,
+                        purchase_price,
+                        purchase_date,
+                        purchase_source
+                    )
+                    VALUES (
+                        %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s
+                    )
+                    RETURNING id
+                    """,
+                    (
+                        player_name,
+                        card_year,
+                        "Bowman",
+                        product,
+                        card_number,
+                        parallel,
+                        serial_number,
+                        serial_numbered_to,
+                        scanner_source,
+                        scanner_confidence,
+                        cardhedge_id,
+                        first_bowman,
+                        prospect_card,
+                        autograph,
+                        rookie_card,
+                        grade_company,
+                        grade,
+                        purchase_price,
+                        purchase_date,
+                        purchase_source,
+                    ),
                 )
-                VALUES (
-                    %s, %s, %s, %s, %s,
-                    %s, %s, %s, %s, %s,
-                    %s, %s, %s, %s, %s,
-                    %s, %s, %s, %s, %s
-                )
-                RETURNING id
-                """,
-                (
-                    player_name,
-                    card_year,
-                    "Bowman",
-                    product,
-                    card_number,
-                    parallel,
-                    serial_number,
-                    serial_numbered_to,
-                    scanner_source,
-                    scanner_confidence,
-                    cardhedge_id,
-                    first_bowman,
-                    prospect_card,
-                    autograph,
-                    rookie_card,
-                    grade_company,
-                    grade,
-                    purchase_price,
-                    purchase_date,
-                    purchase_source,
-                ),
-            )
 
             inventory_id = cur.fetchone()[0]
 
@@ -4944,7 +4971,13 @@ def inventory_add():
             {serial_numbered_to if serial_numbered_to is not None else ''}
         </p>
 
-        <p>Inventory ID: {inventory_id}</p>
+        <p>
+            Added {quantity} card{"s" if quantity != 1 else ""} to inventory.
+        </p>
+        
+        <p>
+            Inventory IDs: {", ".join(str(i) for i in inventory_ids)}
+        </p>
 
         <a
             href="/scan-card"
