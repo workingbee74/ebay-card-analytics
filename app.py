@@ -5128,8 +5128,8 @@ def inventory_actions_page():
             and purchase_price is not None
         ):
             gain_loss = (
-                market_value - float(purchase_price)
-            )
+                float(market_value) - float(purchase_price)
+            )    
         
             if float(purchase_price) > 0:
                 gain_loss_pct = (
