@@ -6620,7 +6620,7 @@ def inventory_cards_dashboard():
                     id,
                     player_name,
                     card_year,
-                    product,
+                    product,<select id="parallelFilter">
                     card_number,
                     first_bowman,
                     prospect_card,
@@ -7408,7 +7408,6 @@ def inventory_cards_dashboard():
                 
                 <select id="parallelFilter">
                     <option value="">All Parallels</option>
-                    {"".join(f'<option value="{parallel.lower()}">{parallel}</option>' for parallel in parallels)}
                 </select>
                 
                 <select id="gradeFilter">
