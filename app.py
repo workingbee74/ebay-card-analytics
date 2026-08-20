@@ -6522,10 +6522,9 @@ def inventory_actions_page():
         </div>
 
         <script>
-        document.addEventListener("DOMContentLoaded", function () {{
-            const table = document.querySelector(".inventory-table");
-            if (!table) return;
+        const table = document.querySelector(".inventory-table");
         
+        if (table) {{
             const rows = Array.from(table.querySelectorAll("tbody tr"));
         
             const playerFilter = document.getElementById("playerFilter");
@@ -6539,7 +6538,8 @@ def inventory_actions_page():
         
             function uniqueValues(columnIndex) {{
                 return [...new Set(
-                    rows.map(row => row.cells[columnIndex]?.textContent.trim())
+                    rows
+                        .map(row => row.cells[columnIndex]?.textContent.trim())
                         .filter(Boolean)
                 )].sort();
             }}
@@ -6552,7 +6552,7 @@ def inventory_actions_page():
                     select.appendChild(option);
                 }});
             }}
-    
+        
             fillSelect(yearFilter, uniqueValues(1));
             fillSelect(productFilter, uniqueValues(3));
             fillSelect(parallelFilter, uniqueValues(4));
@@ -6561,11 +6561,11 @@ def inventory_actions_page():
         
             function applyFilters() {{
                 const player = playerFilter.value.trim().toLowerCase();
-                const year = yearFilter.value;
-                const product = productFilter.value;
-                const parallel = parallelFilter.value;
-                const grade = gradeFilter.value;
-                const action = actionFilter.value;
+                const year = yearFilter.value.toLowerCase();
+                const product = productFilter.value.toLowerCase();
+                const parallel = parallelFilter.value.toLowerCase();
+                const grade = gradeFilter.value.toLowerCase();
+                const action = actionFilter.value.toLowerCase();
                 const market = marketFilter.value;
         
                 rows.forEach(row => {{
@@ -6581,6 +6581,7 @@ def inventory_actions_page():
                     const actionMatch = !action || cells[11] === action;
         
                     const marketText = cells[8] || "";
+        
                     const hasMarket =
                         marketText !== "" &&
                         marketText !== "—" &&
@@ -6603,7 +6604,7 @@ def inventory_actions_page():
                             : "none";
                 }});
             }}
-    
+        
             playerFilter.addEventListener("input", applyFilters);
         
             [
@@ -6628,7 +6629,7 @@ def inventory_actions_page():
         
                 applyFilters();
             }});
-        }});
+        }}
         </script>
     </body>
     </html>
