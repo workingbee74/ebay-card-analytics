@@ -5410,22 +5410,32 @@ def inventory_actions_page():
             </div>
             """,
     
-            "compact_html": f"""
-            <tr>
-                <td>{player_name}</td>
-                <td>{card_year or ""}</td>
-                <td>#{card_number or ""}</td>
-                <td>{product or ""}</td>
-                <td>{parallel or "Base"} {serial_display}</td>
-                <td>{grade_display}</td>
-                <td>{quantity or 1}</td>
-                <td>{price_display}</td>
-                <td>{market_value_display}</td>
-                <td>{gain_loss_display}</td>
-                <td>{trend_display}</td>
-                <td>{disposition_action}</td>
-            </tr>
-            """
+       "compact_html": f"""
+        <tr>
+            <td>{player_name}</td>
+        
+            <td>
+                <strong>{card_year or ""} #{card_number or ""}</strong><br>
+                {product or ""}<br>
+                {parallel or "Base"} {serial_display}<br>
+                {grade_display}
+            </td>
+        
+            <td>{market_value_display}</td>
+        
+            <td>{gain_loss_display}</td>
+        
+            <td>{trend_display}</td>
+        
+            <td>{price_trend_confidence}</td>
+        
+            <td>
+                <a href="/inventory/action/{inventory_id}" class="action-link">
+                    {disposition_action}
+                </a>
+            </td>
+        </tr>
+        """
         })
     inventory_items.sort(
         key=lambda item: item["priority"],
@@ -5606,6 +5616,22 @@ def inventory_actions_page():
                 margin-top: 3px;
             }}
 
+
+            .action-link {{
+                display: inline-block;
+                padding: 7px 10px;
+                border-radius: 6px;
+                background: #2563eb;
+                color: white;
+                text-decoration: none;
+                font-weight: 700;
+                white-space: nowrap;
+            }}
+            
+            .action-link:hover {{
+                background: #1d4ed8;
+            }}
+            
             .parallel {{
                 font-size: 18px;
                 font-weight: bold;
@@ -5719,16 +5745,11 @@ def inventory_actions_page():
                     <thead>
                         <tr>
                             <th>Player</th>
-                            <th>Year</th>
-                            <th>Card #</th>
-                            <th>Product</th>
-                            <th>Parallel</th>
-                            <th>Grade</th>
-                            <th>Qty</th>
-                            <th>Cost</th>
+                            <th>Card</th>
                             <th>Market</th>
                             <th>P/L</th>
                             <th>Trend</th>
+                            <th>Confidence</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -5742,7 +5763,61 @@ def inventory_actions_page():
     </body>
     </html>
     """
+@app.route("/inventory/action/<int:inventory_id>", methods=["GET"])
+def inventory_action_detail(inventory_id):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT
+                    id,
+                    player_name,
+                    card_year,
+                    product,
+                    card_number,
+                    parallel,
+                    serial_number,
+                    serial_numbered_to,
+                    grade_company,
+                    grade,
+                    purchase_price
+                FROM inventory_cards
+                WHERE id = %s
+            """, (inventory_id,))
 
+            card = cur.fetchone()
+
+    if not card:
+        return "Inventory card not found", 404
+
+    return f"""
+    <html>
+    <head>
+        <title>Card Action</title>
+    </head>
+    <body>
+        <h1>Card Action Detail</h1>
+        <h2>{card[1]}</h2>
+
+        <p>
+            {card[2] or ""} {card[3] or ""}<br>
+            #{card[4] or ""}<br>
+            {card[5] or "Base"}
+        </p>
+
+        <p>
+            Purchase Price:
+            {f"${float(card[10]):,.2f}" if card[10] is not None else "—"}
+        </p>
+
+        <p>
+            This page will contain the recommendation,
+            reasoning, pricing guidance, and execution workflow.
+        </p>
+
+        <a href="/inventory/actions">← Back to Actions</a>
+    </body>
+    </html>
+    """
 
 @app.route("/inventory", methods=["GET"])
 def inventory_cards_dashboard():
