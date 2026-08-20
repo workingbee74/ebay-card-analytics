@@ -7547,6 +7547,14 @@ def inventory_cards_dashboard():
             
             resetAndFillSelect(yearFilter, uniqueValues(1));
             resetAndFillSelect(productFilter, uniqueValues(3));
+            
+            console.log("inventory rows:", rows.length);
+            console.log(
+                "first row data:",
+                rows[0]?.dataset.action,
+                rows[0]?.dataset.parallel
+            );
+            
             resetAndFillSelect(
                 parallelFilter,
                 [...new Set(
