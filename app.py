@@ -5676,6 +5676,51 @@ def inventory_actions_page():
                 margin-top: 3px;
             }}
 
+            .actions-table {{
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+                font-size: 12px;
+            }}
+            
+            .actions-table th {{
+                text-align: left;
+                padding: 5px 6px;
+                border-bottom: 2px solid #d1d5db;
+                font-size: 11px;
+                white-space: nowrap;
+            }}
+            
+            .actions-table td {{
+                padding: 5px 6px;
+                border-bottom: 1px solid #e5e7eb;
+                vertical-align: middle;
+                line-height: 1.2;
+            }}
+            
+            .actions-table th:nth-child(1) {{ width: 12%; }}
+            .actions-table th:nth-child(2) {{ width: 30%; }}
+            .actions-table th:nth-child(3) {{ width: 10%; }}
+            .actions-table th:nth-child(4) {{ width: 11%; }}
+            .actions-table th:nth-child(5) {{ width: 15%; }}
+            .actions-table th:nth-child(6) {{ width: 9%; }}
+            .actions-table th:nth-child(7) {{ width: 13%; }}
+            
+            .signal-bad {{
+                color: #c62828;
+                font-weight: 700;
+            }}
+            
+            .signal-so-so {{
+                color: #b77900;
+                font-weight: 700;
+            }}
+            
+            .signal-good {{
+                color: #16803a;
+                font-weight: 700;
+            }}
+
             .market-placeholder {{
                 margin-top: 18px;
                 padding: 14px;
@@ -5721,16 +5766,14 @@ def inventory_actions_page():
         <div class="page">
 
             <div class="header">
-                <h1>Bowman Inventory</h1>
+                <h1>Action Queue</h1>
 
                 <a class="scan" href="/scan-card">
                     + Scan Card
                 </a>
             </div>
 
-            <h2 id="action-queue" style="margin-top:10px;">
-                Action Queue
-            </h2>
+           
             
             <div style="
                 margin-bottom:20px;
@@ -5741,7 +5784,7 @@ def inventory_actions_page():
             </div>
             
             <div>
-                <table class="inventory-table">
+                <table class="actions-table">
                     <thead>
                         <tr>
                             <th>Player</th>
@@ -6099,6 +6142,24 @@ def inventory_cards_dashboard():
         
         if disposition_action:
             actions.add(str(disposition_action))
+
+        if gain_loss_pct is None:
+            gain_loss_class = ""
+        elif gain_loss_pct < -10:
+            gain_loss_class = "signal-bad"
+        elif gain_loss_pct < 0:
+            gain_loss_class = "signal-so-so"
+        else:
+            gain_loss_class = "signal-good"
+        
+        if price_trend_pct is None:
+            trend_class = ""
+        elif price_trend_pct < -10:
+            trend_class = "signal-bad"
+        elif price_trend_pct < 0:
+            trend_class = "signal-so-so"
+        else:
+            trend_class = "signal-good"
             
         inventory_items.append({
             "priority": action_priority,
@@ -6227,8 +6288,13 @@ def inventory_cards_dashboard():
                 <td>{grade_display}</td>
                 <td>{price_display}</td>
                 <td>{market_value_display}</td>
-                <td>{gain_loss_display}</td>
-                <td>{trend_display}</td>
+                <td class="{gain_loss_class}">
+                    {gain_loss_display}
+                </td>
+                
+                <td class="{trend_class}">
+                    {trend_display}
+                </td>
                 <td>{disposition_action}</td>
             </tr>
             """
