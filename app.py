@@ -4383,7 +4383,7 @@ def scan_card():
         sport_response.ok
         or ocr_response.ok
     )
-    
+    needs_review = True
     best_resolution = cardhedge_resolution.get("best")
 
     if best_resolution:
