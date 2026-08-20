@@ -6,7 +6,7 @@ import psycopg
 import re
 import unicodedata
 import base64
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, redirect
 from cardsightai import CardSightAI
 
 app = Flask(__name__)
