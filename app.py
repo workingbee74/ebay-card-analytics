@@ -22,8 +22,8 @@ CARDHEDGE_API_KEY = os.environ.get("CARDHEDGE_API_KEY", "")
 
 NAV_HTML = """
 <nav class="app-nav">
-    <a href="/inventory/actions">Inventory</a>
-    <a href="/inventory">Actions</a>
+    <a href="/inventory">Inventory</a>
+    <a href="/inventory/actions">Actions</a>
     <a href="/scan-card">Scan</a>
     <a href="/auction-watch">Auction Watch</a>
     <a href="/deals-dashboard-v2">Bowman Deals</a>
@@ -4488,7 +4488,33 @@ def scan_card():
             background: #f3f4f6;
             color: #111;
         }}
-        
+
+
+        .app-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        display: flex;
+        gap: 6px;
+        padding: 10px 16px;
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .app-nav a {
+        display: inline-block;
+        padding: 10px 14px;
+        color: #222;
+        text-decoration: none;
+        font-weight: 700;
+    }
+    
+    .app-nav a:hover {
+        background: #f3f4f6;
+        border-radius: 8px;
+    }
             body {{
                 font-family: Arial, sans-serif;
                 max-width: 650px;
@@ -4949,6 +4975,20 @@ def inventory_add():
 
     <body style="
         font-family:Arial;
+        margin:0;
+        padding:0;
+        background:#f5f6f8;
+    ">
+    
+    <div class="app-nav">
+        <a href="/inventory">Inventory</a>
+        <a href="/inventory/actions">Actions</a>
+        <a href="/scan-card">Scan</a>
+        <a href="/auction-watch">Auction Watch</a>
+        <a href="/deals">Bowman Deals</a>
+    </div>
+    
+    <div style="
         max-width:600px;
         margin:40px auto;
         padding:20px;
@@ -4994,7 +5034,7 @@ def inventory_add():
         >
             Scan Next Card
         </a>
-
+    </div>
     </body>
     </html>
     """
