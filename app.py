@@ -5733,6 +5733,20 @@ def inventory_actions_page():
                 justify-content: space-between;
             }}
 
+
+            .refresh-button {{
+                padding: 10px 14px;
+                border: 1px solid #2563eb;
+                border-radius: 7px;
+                background: white;
+                color: #2563eb;
+                font-weight: 700;
+                cursor: pointer;
+            }}
+            
+            .refresh-button:hover {{
+                background: #eff6ff;
+            }}
             .decision-placeholder {{
                 margin-top: 10px;
                 padding: 14px;
@@ -5770,7 +5784,11 @@ def inventory_actions_page():
 
             <div class="header">
                 <h1>Action Queue</h1>
-
+                <form method="POST" action="/inventory/actions/refresh" style="margin:0;">
+                    <button type="submit" class="refresh-button">
+                        Refresh Intelligence
+                    </button>
+                </form>
                 <a class="scan" href="/scan-card">
                     + Scan Card
                 </a>
