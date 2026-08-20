@@ -6291,7 +6291,7 @@ def inventory_cards_dashboard():
                 border-bottom: 2px solid #d1d5db;
                 white-space: nowrap;
                 position: sticky;
-                top: 55px;
+                top: 0;
                 z-index: 10;
             }}
 
