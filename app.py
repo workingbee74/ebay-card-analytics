@@ -5892,12 +5892,7 @@ def inventory_cards_dashboard():
         if parallel:
             parallels.add(str(parallel))
         
-        if grade_display:
-            grades.add(str(grade_display))
-        
-        if disposition_action:
-            actions.add(str(disposition_action))
-        
+         
         # Large market movement versus cost deserves attention.
         if gain_loss_pct is not None:
             if gain_loss_pct >= 25:
@@ -5996,6 +5991,18 @@ def inventory_cards_dashboard():
 
         if card_year:
             years.add(str(card_year))
+
+        if product:
+            products.add(str(product))
+        
+        if parallel:
+            parallels.add(str(parallel))
+
+        if grade_display:
+            grades.add(str(grade_display))
+        
+        if disposition_action:
+            actions.add(str(disposition_action))
             
         inventory_items.append({
             "priority": action_priority,
