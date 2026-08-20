@@ -6277,13 +6277,14 @@ def inventory_cards_dashboard():
                 margin-bottom: 3px;
             }}
 
-            .inventory-table {{
+           .inventory-table {{
                 width: 100%;
                 border-collapse: collapse;
                 background: white;
                 font-size: 14px;
+                table-layout: fixed;
             }}
-            
+
             .inventory-table th {{
                 text-align: left;
                 padding: 10px 8px;
@@ -6321,10 +6322,11 @@ def inventory_cards_dashboard():
             }}
             
             .inventory-table td {{
-                padding: 9px 8px;
+                padding: 8px 6px;
                 border-bottom: 1px solid #e5e7eb;
                 vertical-align: middle;
-                white-space: nowrap;
+                white-space: normal;
+                overflow-wrap: anywhere;
             }}
             
             .inventory-table tbody tr:hover {{
@@ -6534,7 +6536,7 @@ def inventory_cards_dashboard():
                 All Inventory
             </h2>
             
-            <div style="overflow-x:auto;">
+            <div>
                 <table class="inventory-table">
                     <thead>
                         <tr>
