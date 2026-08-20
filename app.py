@@ -6572,8 +6572,9 @@ def inventory_action_ebay_draft(inventory_id):
                     serial_numbered_to,
                     grade_company,
                     grade,
-                    purchase_price
-                FROM inventory_cards
+                    purchase_price,
+                    market_value
+                    FROM inventory_cards
                 WHERE id = %s
             """, (inventory_id,))
 
@@ -6582,6 +6583,80 @@ def inventory_action_ebay_draft(inventory_id):
     if not card:
         return "Inventory card not found", 404
 
+        market_value = card[11]
+        
+        recommended_start_price = None
+        
+        if market_value is not None:
+            recommended_start_price = max(
+                0.99,
+                float(market_value) * 0.50
+            )
+        
+        recommended_start_display = (
+            f"{recommended_start_price:.2f}"
+            if recommended_start_price is not None
+            else ""
+        )
+
+        player_name = card[1] or ""
+        card_year = str(card[2] or "")
+        product = card[3] or ""
+        card_number = card[4] or ""
+        parallel = card[5] or "Base"
+        serial_number = card[6]
+        serial_numbered_to = card[7]
+        grade_company = card[8] or ""
+        grade = card[9]
+
+        condition_value = "graded" if grade_company else "raw"
+        
+        title_parts = [
+            card_year,
+            player_name,
+            product,
+            parallel,
+        ]
+        
+        if card_number:
+            title_parts.append(f"#{card_number}")
+        
+        if serial_numbered_to:
+            title_parts.append(f"/{serial_numbered_to}")
+        
+        if grade_company:
+            if grade is not None:
+                title_parts.append(f"{grade_company} {grade}")
+            else:
+                title_parts.append(grade_company)
+        
+        listing_title = " ".join(
+            part.strip()
+            for part in title_parts
+            if str(part).strip()
+        )
+        
+        listing_title = listing_title[:80]
+        listing_description = (
+            f"{card_year} {player_name} {product}\n"
+            f"Card #{card_number}\n"
+            f"Parallel: {parallel}\n"
+        )
+        
+        if serial_numbered_to:
+            listing_description += (
+                f"Serial Numbered: {serial_number or ''}/{serial_numbered_to}\n"
+            )
+        
+        if grade_company:
+            listing_description += (
+                f"Grade: {grade_company} {grade or ''}\n"
+            )
+        
+        listing_description += (
+            "\nPlease review photos for exact card condition. "
+            "Card pictured is the card you will receive."
+        )
     return f"""
     <html>
     <head>
@@ -6599,6 +6674,197 @@ def inventory_action_ebay_draft(inventory_id):
             {card[5] or "Base"}
         </p>
 
+        <div style="
+            margin-top:20px;
+            padding:16px;
+            background:#fff;
+            border:1px solid #e5e7eb;
+            border-radius:10px;
+        ">
+
+            <div style="
+                font-size:12px;
+                color:#666;
+                margin-bottom:6px;
+            ">
+                Proposed eBay Title
+            </div>
+        
+            <input
+                type="text"
+                name="listing_title"
+                value="{listing_title}"
+                maxlength="80"
+                style="
+                    width:100%;
+                    padding:10px;
+                    font-size:16px;
+                    font-weight:700;
+                    border:1px solid #d1d5db;
+                    border-radius:6px;
+                "
+            >
+        </div>
+        <div style="
+            margin-top:16px;
+            padding:16px;
+            background:#fff;
+            border:1px solid #e5e7eb;
+            border-radius:10px;
+        ">
+            <div style="
+                font-size:12px;
+                color:#666;
+                margin-bottom:6px;
+            ">
+            Starting Bid
+            </div>
+            <input
+                type="number"
+                name="starting_bid"
+                step="0.01"
+                min="0.99"
+                value="{recommended_start_display}"
+                placeholder="0.99"
+                style="
+                    width:180px;
+                    padding:10px;
+                    font-size:16px;
+                    font-weight:700;
+                    border:1px solid #d1d5db;
+                    border-radius:6px;
+                "
+            >
+        </div>
+
+        <div style="
+            margin-top:16px;
+            padding:16px;
+            background:#fff;
+            border:1px solid #e5e7eb;
+            border-radius:10px;
+        ">
+    
+
+            <div style="
+                font-size:12px;
+                color:#666;
+                margin-bottom:6px;
+            ">
+            Auction Duration
+            </div>
+
+            <select
+                name="auction_duration"
+                style="
+                    width:180px;
+                    padding:10px;
+                    font-size:16px;
+                    border:1px solid #d1d5db;
+                    border-radius:6px;
+                    background:white;
+                "
+            >
+                <option value="3">3 days</option>
+                <option value="5">5 days</option>
+                <option value="7" selected>7 days</option>
+                <option value="10">10 days</option>
+            </select>
+            </div>
+
+            <div style="
+                margin-top:16px;
+                padding:16px;
+                background:#fff;
+                border:1px solid #e5e7eb;
+                border-radius:10px;
+            ">
+           
+
+            <div style="
+                font-size:12px;
+                color:#666;
+                margin-bottom:6px;
+            ">
+                Recommended Ending Window
+            </div>
+
+
+            <div style="
+                font-size:16px;
+                font-weight:700;
+            ">
+                Sunday 7:00 PM - 10:00 PM
+            </div>
+            <div style="
+                margin-top:16px;
+                padding:16px;
+                background:#fff;
+                border:1px solid #e5e7eb;
+                border-radius:10px;
+            ">
+           
+
+            <div style="
+                font-size:12px;
+                color:#666;
+                margin-bottom:6px;
+            ">
+                Condition
+            </div>
+            <select
+                name="condition"
+                style="
+                    width:220px;
+                    padding:10px;
+                    font-size:16px;
+                    border:1px solid #d1d5db;
+                    border-radius:6px;
+                    background:white;
+                "
+                
+            >
+            <option value="graded" {"selected" if condition_value == "graded" else ""}>
+                Graded
+            </option>
+
+            <option value="raw" {"selected" if condition_value == "raw" else ""}>
+                Raw / Ungraded
+            </option>
+            
+            </select>     
+        </div>    
+
+        <div style="
+            margin-top:16px;
+            padding:16px;
+            background:#fff;
+            border:1px solid #e5e7eb;
+            border-radius:10px;
+        ">
+        </div>
+        <div style="
+            font-size:12px;
+            color:#666;
+            margin-bottom:6px;
+        ">
+            Listing Description
+        </div>
+
+        <textarea
+            name="listing_description"
+            rows="8"
+            style="
+                width:100%;
+                padding:10px;
+                font-size:14px;
+                line-height:1.5;
+                border:1px solid #d1d5db;
+                border-radius:6px;
+                resize:vertical;
+            "
+        >{listing_description}</textarea>
+        </div>
         <p>
             Draft workflow is connected.
         </p>
@@ -7555,27 +7821,7 @@ def inventory_cards_dashboard():
             resetAndFillSelect(yearFilter, uniqueValues(1));
             resetAndFillSelect(productFilter, uniqueValues(3));
             
-            console.log("inventory rows:", rows.length);
-            console.log(
-                "first row data:",
-                rows[0]?.dataset.action,
-                rows[0]?.dataset.parallel
-            );
-            
-            resetAndFillSelect(
-                parallelFilter,
-                [...new Set(
-                    rows
-                        .map(row => row.dataset.parallel)
-                        .filter(Boolean)
-                )].sort()
-            );
-
-            console.log(
-                "parallel options:",
-                [...parallelFilter.options].map(option => option.textContent)
-            );
-            
+                        
             resetAndFillSelect(gradeFilter, uniqueValues(5));
             resetAndFillSelect(
                 actionFilter,
