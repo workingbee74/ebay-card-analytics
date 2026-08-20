@@ -7579,6 +7579,10 @@ def inventory_cards_dashboard():
                 )].sort()
             );
             
+            console.log(
+                "action options:",
+                [...actionFilter.options].map(option => option.textContent)
+            );
             playerFilter.addEventListener("input", applyFilters);
         
             [
