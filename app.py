@@ -1,7 +1,7 @@
 import os
 import hashlib
 import base64
-import requests
+import requests{parallel}
 import psycopg
 import re
 import unicodedata
@@ -4539,8 +4539,18 @@ def scan_card():
             </div>
     
         <div class="field">
-            <div class="label">Parallel</div>
-            {parallel}
+        <div class="label">Parallel</div>
+    
+            <input
+                type="text"
+                name="parallel"
+                value="{parallel}"
+                style="
+                    width:220px;
+                    padding:8px;
+                    font-size:18px;
+                "
+            >
         </div>
     
         <div class="field">
@@ -4677,7 +4687,6 @@ def scan_card():
     <input type="hidden" name="player_name" value="{player}">
     <input type="hidden" name="card_year" value="{year}">
     <input type="hidden" name="product" value="{product}">
-    <input type="hidden" name="parallel" value="{parallel}">
     <input type="hidden" name="cardhedge_id" value="{cardhedge_id}">
     <input type="hidden" name="scanner_source" value="Ximilar + Card Hedge">
     <input type="hidden" name="resolver_score" value="{resolver_score}">
