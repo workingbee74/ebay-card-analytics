@@ -6440,19 +6440,7 @@ def inventory_actions_page():
                 </a>
             </div>
 
-            <h2 id="action-queue" style="margin-top:10px;">
-                Action Queue
-            </h2>
-            
-            <div style="
-                margin-bottom:20px;
-                color:#666;
-                font-size:14px;
-            ">
-                Cards with the highest current attention priority.
-            </div>
-            
-            {action_queue_html}
+   
 
 
             <div class="inventory-filters">
