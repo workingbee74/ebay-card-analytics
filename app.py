@@ -7563,6 +7563,12 @@ def inventory_cards_dashboard():
                         .filter(Boolean)
                 )].sort()
             );
+
+            console.log(
+                "parallel options:",
+                [...parallelFilter.options].map(option => option.textContent)
+            );
+            
             resetAndFillSelect(gradeFilter, uniqueValues(5));
             resetAndFillSelect(
                 actionFilter,
