@@ -2167,7 +2167,14 @@ def ebay_search():
                         ADD COLUMN IF NOT EXISTS scanner_confidence NUMERIC(5,2),
                         ADD COLUMN IF NOT EXISTS external_card_id TEXT,
                         ADD COLUMN IF NOT EXISTS front_image_url TEXT,
-                        ADD COLUMN IF NOT EXISTS back_image_url TEXT;
+                        ADD COLUMN IF NOT EXISTS back_image_url TEXT
+                        ADD COLUMN IF NOT EXISTS market_value NUMERIC(12,2),
+                        ADD COLUMN IF NOT EXISTS price_trend TEXT,
+                        ADD COLUMN IF NOT EXISTS trend_pct NUMERIC(8,2),
+                        ADD COLUMN IF NOT EXISTS trend_confidence TEXT,
+                        ADD COLUMN IF NOT EXISTS disposition_action TEXT,
+                        ADD COLUMN IF NOT EXISTS action_priority INTEGER,
+                        ADD COLUMN IF NOT EXISTS market_updated_at TIMESTAMP;
                     """)
                     for item in items:
                         title = item.get("title", "")
@@ -5063,8 +5070,12 @@ def inventory_actions_page():
                     purchase_date,
                     purchase_source,
                     quantity,
-                    external_card_id
-                FROM inventory_cards
+                    external_card_id,
+                    market_value,
+                    price_trend,
+                    trend_pct,
+                    trend_confidence
+                    FROM inventory_cards
                 WHERE player_name IS NOT NULL
                 ORDER BY created_at DESC
             """)
@@ -5094,28 +5105,19 @@ def inventory_actions_page():
             purchase_source,
             quantity,
             cardhedge_id,
-        ) = row
+            saved_market_value,
+            saved_price_trend,
+            saved_trend_pct,
+            saved_trend_confidence,
+            ) = row
 
-        market = get_inventory_market_data(
-            cardhedge_id,
-            grade_company,
-            grade
-        )
-
-        trend_data = get_cardhedge_price_trend(
-            cardhedge_id,
-            grade_company,
-            grade
-        )
-
-        
-        price_trend = trend_data["trend"]
-        price_trend_pct = trend_data["trend_pct"]
-        price_trend_confidence = trend_data["trend_confidence"]
+        market_value = saved_market_value
+        price_trend = saved_price_trend or "UNKNOWN"
+        price_trend_pct = saved_trend_pct
+        price_trend_confidence = saved_trend_confidence or "LOW"
         history_points = trend_data["history_points"]
         
-        market_value = market["market_value"]
-        sales_7day = market["sales_7day"]
+       sales_7day = market["sales_7day"]
         sales_30day = market["sales_30day"]
         market_gain = market["market_gain"]
         
@@ -5808,6 +5810,61 @@ def inventory_actions_page():
     </body>
     </html>
     """
+@app.route("/inventory/actions/refresh", methods=["POST"])
+def refresh_inventory_actions():
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT
+                    id,
+                    grade_company,
+                    grade,
+                    external_card_id
+                FROM inventory_cards
+                WHERE external_card_id IS NOT NULL
+            """)
+
+            rows = cur.fetchall()
+
+            for inventory_id, grade_company, grade, cardhedge_id in rows:
+                market = get_inventory_market_data(
+                    cardhedge_id,
+                    grade_company,
+                    grade
+                )
+
+                trend_data = get_cardhedge_price_trend(
+                    cardhedge_id,
+                    grade_company,
+                    grade
+                )
+
+                market_value = market["market_value"]
+                price_trend = trend_data["trend"]
+                trend_pct = trend_data["trend_pct"]
+                trend_confidence = trend_data["trend_confidence"]
+
+                cur.execute("""
+                    UPDATE inventory_cards
+                    SET
+                        market_value = %s,
+                        price_trend = %s,
+                        trend_pct = %s,
+                        trend_confidence = %s,
+                        market_updated_at = NOW()
+                    WHERE id = %s
+                """, (
+                    market_value,
+                    price_trend,
+                    trend_pct,
+                    trend_confidence,
+                    inventory_id
+                ))
+
+        conn.commit()
+
+    return redirect("/inventory/actions")
+                
 @app.route("/inventory/action/<int:inventory_id>", methods=["GET"])
 def inventory_action_detail(inventory_id):
     with psycopg.connect(DATABASE_URL) as conn:
@@ -5824,7 +5881,7 @@ def inventory_action_detail(inventory_id):
                     serial_numbered_to,
                     grade_company,
                     grade,
-                    purchase_price
+                    purchase_price,
                     external_card_id
                 FROM inventory_cards
                 WHERE id = %s
