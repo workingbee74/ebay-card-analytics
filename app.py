@@ -7018,8 +7018,11 @@ def inventory_cards_dashboard():
             </div>
             """,
     
-           "compact_html": f"""
-            <tr>
+            "compact_html": f"""
+            <tr
+                data-action="{disposition_action}"
+                data-parallel="{parallel or "Base"}"
+            >
                 <td>{player_name}</td>
                 <td>{card_year or ""}</td>
                 <td>#{card_number or ""}</td>
@@ -7544,9 +7547,23 @@ def inventory_cards_dashboard():
             
             resetAndFillSelect(yearFilter, uniqueValues(1));
             resetAndFillSelect(productFilter, uniqueValues(3));
-            resetAndFillSelect(parallelFilter, uniqueValues(4));
+            resetAndFillSelect(
+                parallelFilter,
+                [...new Set(
+                    rows
+                        .map(row => row.dataset.parallel)
+                        .filter(Boolean)
+                )].sort()
+            );
             resetAndFillSelect(gradeFilter, uniqueValues(5));
-            resetAndFillSelect(actionFilter, uniqueValues(11));
+            resetAndFillSelect(
+                actionFilter,
+                [...new Set(
+                    rows
+                        .map(row => row.dataset.action)
+                        .filter(Boolean)
+                )].sort()
+            );
             
             playerFilter.addEventListener("input", applyFilters);
         
