@@ -1,7 +1,7 @@
 import os
 import hashlib
 import base64
-import requests{parallel}
+import requests
 import psycopg
 import re
 import unicodedata
