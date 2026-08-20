@@ -5439,7 +5439,7 @@ def inventory_actions_page():
     ]
     
     action_queue_html = "".join(
-        item["html"]
+        item["compact_html"]
         for item in action_items
     )
 
@@ -5714,8 +5714,29 @@ def inventory_actions_page():
                 Cards with the highest current attention priority.
             </div>
             
-            {action_queue_html}
-            
+            <div>
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>Year</th>
+                            <th>Card #</th>
+                            <th>Product</th>
+                            <th>Parallel</th>
+                            <th>Grade</th>
+                            <th>Qty</th>
+                            <th>Cost</th>
+                            <th>Market</th>
+                            <th>P/L</th>
+                            <th>Trend</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {action_queue_html}
+                    </tbody>
+                </table>
+            </div>
            </div>
 
     </body>
@@ -6481,16 +6502,12 @@ def inventory_cards_dashboard():
         <div class="page">
 
             <div class="header">
-                <h1>Bowman Inventory</h1>
+                <h1>Actions</h1>
 
                 <a class="scan" href="/scan-card">
                     + Scan Card
                 </a>
             </div>
-
-   
-
-
             <div class="inventory-filters">
                 <input
                     type="text"
