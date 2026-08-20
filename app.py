@@ -5835,7 +5835,7 @@ def inventory_action_detail(inventory_id):
     return f"""
     <html>
     <head>
-        <title>Sell — Auction</title>
+        <title>Sell - Auction</title>
     
         <meta
             name="viewport"
@@ -5843,7 +5843,7 @@ def inventory_action_detail(inventory_id):
 return f"""
 <html>
 <head>
-    <title>Sell — Auction</title>
+    <title>Sell - Auction</title>
 
     <meta
         name="viewport"
@@ -6041,7 +6041,7 @@ return f"""
 
         <div class="header">
             <div>
-                <h1>Sell — Auction</h1>
+                <h1>Sell - Auction</h1>
 
                 <div class="player">
                     {card[1]}
@@ -6057,7 +6057,7 @@ return f"""
             </div>
 
             <div class="status">
-                SELL — AUCTION
+                SELL - AUCTION
             </div>
         </div>
 
@@ -6066,19 +6066,19 @@ return f"""
 
             <div class="summary-item">
                 <div class="summary-label">Market Value</div>
-                <div class="summary-value">—</div>
+                <div class="summary-value">-</div>
             </div>
 
             <div class="summary-item">
                 <div class="summary-label">Your Cost</div>
                 <div class="summary-value">
-                    {f"${float(card[10]):,.2f}" if card[10] is not None else "—"}
+                    {f"${float(card[10]):,.2f}" if card[10] is not None else "-"}
                 </div>
             </div>
 
             <div class="summary-item">
                 <div class="summary-label">P/L</div>
-                <div class="summary-value">—</div>
+                <div class="summary-value">-</div>
             </div>
 
             <div class="summary-item">
