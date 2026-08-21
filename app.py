@@ -6937,14 +6937,33 @@ def inventory_action_ebay_draft(inventory_id):
                 Market Intelligence
             </div>
         
-            <div>
-                Market Value: <strong>{market_value_display}</strong><br>
-                Recommended Start: <strong>${recommended_start_display}</strong><br>
-                Start / Market: <strong>{start_market_pct_display}</strong><br>
-                Purchase Cost: <strong>{purchase_price_display}</strong><br>
-                Unrealized P/L: <strong>{gain_loss_display} ({gain_loss_pct_display})</strong><br>
-                Trend: <strong>{price_trend}</strong><br>
-                Confidence: <strong>{trend_confidence}</strong>
+            <div style="
+                display:grid;
+                grid-template-columns:180px 1fr;
+                gap:8px 20px;
+                font-size:15px;
+                line-height:1.4;
+            ">
+                <div>Market Value</div>
+                <div><strong>{market_value_display}</strong></div>
+            
+                <div>Recommended Start</div>
+                <div><strong>${recommended_start_display}</strong></div>
+            
+                <div>Start / Market</div>
+                <div><strong>{start_market_pct_display}</strong></div>
+            
+                <div>Purchase Cost</div>
+                <div><strong>{purchase_price_display}</strong></div>
+            
+                <div>Unrealized P/L</div>
+                <div><strong>{gain_loss_display} ({gain_loss_pct_display})</strong></div>
+            
+                <div>Trend</div>
+                <div><strong>{price_trend}</strong></div>
+            
+                <div>Confidence</div>
+                <div><strong>{trend_confidence}</strong></div>
             </div>
         </div>
 
