@@ -7049,7 +7049,7 @@ def inventory_cards_dashboard():
                     f" ({gain_loss_pct:+.1f}%)"
                 )
 
-        disposition_action = saved_disposition_action or "HOLD"
+       
         disposition_score = None
         disposition_liquidity = "UNKNOWN"
         disposition_reasons = []
