@@ -6846,9 +6846,61 @@ def inventory_action_ebay_draft(inventory_id):
     <html>
     <head>
         <title>eBay Auction Draft</title>
+
+        <style>
+            * {{
+                box-sizing: border-box;
+            }}
+        
+            body {{
+                margin: 0;
+                background: #f5f6f8;
+                font-family: Arial, Helvetica, sans-serif;
+                color: #111827;
+            }}
+        
+            .page {{
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 28px 32px 60px;
+            }}
+        
+            h1 {{
+                margin: 0 0 8px;
+                font-size: 34px;
+                line-height: 1.15;
+            }}
+        
+            h2 {{
+                margin: 24px 0 6px;
+                font-size: 22px;
+            }}
+        
+            .card-summary {{
+                margin-bottom: 22px;
+                color: #4b5563;
+                line-height: 1.5;
+            }}
+        
+            input,
+            select,
+            textarea {{
+                font-family: inherit;
+            }}
+        
+            input:focus,
+            select:focus,
+            textarea:focus {{
+                outline: 2px solid #2563eb;
+                outline-offset: 1px;
+            }}
+        </style>
+        
     </head>
 
     <body>
+    <div class="page">
+    
         <h1>eBay Auction Draft</h1>
 
         <h2>{card[1]}</h2>
@@ -7103,6 +7155,7 @@ def inventory_action_ebay_draft(inventory_id):
         <a href="/inventory/action/{inventory_id}">
             ← Back to Action Detail
         </a>
+        </div>
     </body>
     </html>
     """
