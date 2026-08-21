@@ -6376,11 +6376,11 @@ def inventory_action_detail(inventory_id):
             }}
     
             .page {{
-                max-width: 1200px;
+                max-width: 1400px;
                 margin: 0 auto;
-                padding: 28px 24px 60px;
+                padding: 16px 24px 24px;
             }}
-    
+        
             .header {{
                 display: flex;
                 justify-content: space-between;
@@ -6866,14 +6866,14 @@ def inventory_action_ebay_draft(inventory_id):
             }}
         
             h1 {{
-                margin: 0 0 8px;
-                font-size: 34px;
-                line-height: 1.15;
+                margin: 0 0 4px;
+                font-size: 28px;
+                line-height: 1.1;
             }}
         
             h2 {{
-                margin: 24px 0 6px;
-                font-size: 22px;
+                margin: 10px 0 2px;
+                font-size: 19px;
             }}
         
             .card-summary {{
@@ -6894,7 +6894,21 @@ def inventory_action_ebay_draft(inventory_id):
                 outline: 2px solid #2563eb;
                 outline-offset: 1px;
             }}
+
+            body {{
+            font-size: 14px;
+        }}
+
+        .compact-grid {{
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            align-items: start;
+        }}
+        
         </style>
+
+        
         
     </head>
 
@@ -6949,6 +6963,9 @@ def inventory_action_ebay_draft(inventory_id):
             border:1px solid #e5e7eb;
             border-radius:10px;
         ">
+
+            <div class="compact-grid">
+        
             <div style="
                 font-size:12px;
                 color:#666;
@@ -7117,15 +7134,8 @@ def inventory_action_ebay_draft(inventory_id):
             
             </select>     
         </div>    
-
-        <div style="
-            margin-top:16px;
-            padding:16px;
-            background:#fff;
-            border:1px solid #e5e7eb;
-            border-radius:10px;
-        ">
         </div>
+        
         <div style="
             font-size:12px;
             color:#666;
@@ -7136,7 +7146,7 @@ def inventory_action_ebay_draft(inventory_id):
 
         <textarea
             name="listing_description"
-            rows="8"
+            rows="5"
             style="
                 width:100%;
                 padding:10px;
