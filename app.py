@@ -6102,18 +6102,18 @@ def refresh_inventory_actions():
                     serial_numbered_to
                 )
 
-    disposition_action = disposition["action"]
-    disposition_liquidity = disposition["liquidity"]
-    gain_loss_pct = disposition["gain_loss_pct"]
-
-
-    action_priority = calculate_action_priority(
-    disposition_action,
-    disposition_liquidity,
-    gain_loss_pct,
-    price_trend,
-    trend_confidence
-)
+                disposition_action = disposition["action"]
+                disposition_liquidity = disposition["liquidity"]
+                gain_loss_pct = disposition["gain_loss_pct"]
+            
+            
+                action_priority = calculate_action_priority(
+                disposition_action,
+                disposition_liquidity,
+                gain_loss_pct,
+                price_trend,
+                trend_confidence
+                )
 
                 cur.execute("""
                     UPDATE inventory_cards
