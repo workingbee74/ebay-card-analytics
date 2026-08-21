@@ -6634,8 +6634,10 @@ def inventory_action_ebay_draft(inventory_id):
 
     if not card:
         return "Inventory card not found", 404
-
-        market_value = card[11]
+    
+    listing_title = ""
+    
+    market_value = card[11]
         
         recommended_start_price = None
         
