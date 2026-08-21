@@ -6728,6 +6728,61 @@ def inventory_action_ebay_draft(inventory_id):
             if recommended_start_price is not None
             else ""
         )
+        
+        purchase_price = card[10]
+        
+        market_value_display = (
+            f"${float(market_value):,.2f}"
+            if market_value is not None
+            else "-"
+        )
+        
+        purchase_price_display = (
+            f"${float(purchase_price):,.2f}"
+            if purchase_price is not None
+            else "-"
+        )
+        
+        start_market_pct = None
+        gain_loss = None
+        gain_loss_pct = None
+        
+        if market_value is not None and recommended_start_price is not None:
+            if float(market_value) != 0:
+                start_market_pct = (
+                    float(recommended_start_price)
+                    / float(market_value)
+                ) * 100
+        
+        if market_value is not None and purchase_price is not None:
+            gain_loss = float(market_value) - float(purchase_price)
+        
+            if float(purchase_price) != 0:
+                gain_loss_pct = (
+                    gain_loss / float(purchase_price)
+                ) * 100
+        
+        start_market_pct_display = (
+            f"{start_market_pct:.1f}%"
+            if start_market_pct is not None
+            else "-"
+        )
+        
+        gain_loss_display = (
+            f"${gain_loss:+,.2f}"
+            if gain_loss is not None
+            else "-"
+        )
+        
+        gain_loss_pct_display = (
+            f"{gain_loss_pct:+.1f}%"
+            if gain_loss_pct is not None
+            else "-"
+        )
+        
+        price_trend = card[12] or "UNKNOWN"
+        trend_confidence = card[13] or "LOW"
+
 
         player_name = card[1] or ""
         card_year = str(card[2] or "")
@@ -6866,6 +6921,33 @@ def inventory_action_ebay_draft(inventory_id):
                 "
             >
         </div>
+
+        <div style="
+            margin-top:16px;
+            padding:16px;
+            background:#fff;
+            border:1px solid #e5e7eb;
+            border-radius:10px;
+        ">
+            <div style="
+                font-size:12px;
+                color:#666;
+                margin-bottom:10px;
+            ">
+                Market Intelligence
+            </div>
+        
+            <div>
+                Market Value: <strong>{market_value_display}</strong><br>
+                Recommended Start: <strong>${recommended_start_display}</strong><br>
+                Start / Market: <strong>{start_market_pct_display}</strong><br>
+                Purchase Cost: <strong>{purchase_price_display}</strong><br>
+                Unrealized P/L: <strong>{gain_loss_display} ({gain_loss_pct_display})</strong><br>
+                Trend: <strong>{price_trend}</strong><br>
+                Confidence: <strong>{trend_confidence}</strong>
+            </div>
+        </div>
+
 
         <div style="
             margin-top:16px;
