@@ -6662,7 +6662,7 @@ def inventory_action_ebay_draft(inventory_id):
         grade = card[9]
 
         condition_value = "graded" if grade_company else "raw"
-        
+        listing_title = ""
         title_parts = [
             card_year,
             player_name,
