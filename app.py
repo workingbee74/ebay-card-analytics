@@ -6956,6 +6956,9 @@ def inventory_action_ebay_draft(inventory_id):
                 "
             >
         </div>
+
+        <div class="compact-grid">
+        
         <div style="
             margin-top:16px;
             padding:16px;
@@ -6964,7 +6967,7 @@ def inventory_action_ebay_draft(inventory_id):
             border-radius:10px;
         ">
 
-            <div class="compact-grid">
+            
         
             <div style="
                 font-size:12px;
