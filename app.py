@@ -1055,6 +1055,86 @@ def calculate_action_priority(
     return min(action_priority, 100)
 
 
+def calculate_auction_start_price(
+    market_value,
+    purchase_price=None,
+    serial_numbered_to=None,
+    grade_company=None,
+    grade=None,
+    price_trend=None,
+    trend_confidence=None
+):
+    if market_value is None:
+        return None
+
+    market_value = float(market_value)
+
+    if market_value <= 0:
+        return None
+
+    # Base protection level.
+    start_pct = 0.70
+
+    # Scarcer cards deserve stronger downside protection.
+    if serial_numbered_to:
+        if serial_numbered_to <= 25:
+            start_pct += 0.10
+        elif serial_numbered_to <= 50:
+            start_pct += 0.07
+        elif serial_numbered_to <= 99:
+            start_pct += 0.05
+        elif serial_numbered_to <= 150:
+            start_pct += 0.03
+
+    # High-grade cards generally deserve a stronger opening floor.
+    if grade_company and grade is not None:
+        try:
+            numeric_grade = float(grade)
+
+            if numeric_grade >= 10:
+                start_pct += 0.05
+            elif numeric_grade >= 9:
+                start_pct += 0.03
+        except (TypeError, ValueError):
+            pass
+
+    # Protect more aggressively when the market is falling.
+    if price_trend == "FALLING":
+        if trend_confidence == "HIGH":
+            start_pct += 0.07
+        elif trend_confidence == "MEDIUM":
+            start_pct += 0.04
+        else:
+            start_pct += 0.02
+
+    # Strong rising markets can tolerate a slightly lower opening bid
+    # to encourage bidding activity.
+    elif price_trend == "RISING":
+        if trend_confidence == "HIGH":
+            start_pct -= 0.05
+        elif trend_confidence == "MEDIUM":
+            start_pct -= 0.03
+
+    # Keep the model within sensible boundaries.
+    start_pct = max(0.60, min(start_pct, 0.90))
+
+    recommended_start = market_value * start_pct
+
+    # Never intentionally recommend selling below cost.
+    if purchase_price is not None:
+        try:
+            recommended_start = max(
+                recommended_start,
+                float(purchase_price)
+            )
+        except (TypeError, ValueError):
+            pass
+
+    # eBay-friendly pricing.
+    recommended_start = round(recommended_start, 2)
+
+    return max(0.99, recommended_start)
+
 @app.route("/cardhedge-history-test", methods=["GET"])
 def cardhedge_history_test():
     card_id = request.args.get("card_id")
@@ -6639,13 +6719,15 @@ def inventory_action_ebay_draft(inventory_id):
         
         market_value = card[11]
         
-        recommended_start_price = None
-        
-        if market_value is not None:
-            recommended_start_price = max(
-                0.99,
-                float(market_value) * 0.50
-            )
+        recommended_start_price = calculate_auction_start_price(
+            market_value,
+            card[10],
+            card[7],
+            card[8],
+            card[9],
+            None,
+            None
+        )
         
         recommended_start_display = (
             f"{recommended_start_price:.2f}"
