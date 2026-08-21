@@ -5228,6 +5228,7 @@ def inventory_actions_page():
        
 
         action_priority = saved_action_priority or 0
+        disposition_action = saved_disposition_action or "HOLD"
         disposition_reasons = []
                 
         reasons_html = "".join(
