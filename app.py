@@ -6697,7 +6697,9 @@ def inventory_action_ebay_draft(inventory_id):
                     grade_company,
                     grade,
                     purchase_price,
-                    market_value
+                    market_value,
+                    price_trend,
+                    trend_confidence
                     FROM inventory_cards
                 WHERE id = %s
             """, (inventory_id,))
@@ -6717,8 +6719,8 @@ def inventory_action_ebay_draft(inventory_id):
             card[7],
             card[8],
             card[9],
-            None,
-            None
+            card[12],
+            card[13]
         )
         
         recommended_start_display = (
