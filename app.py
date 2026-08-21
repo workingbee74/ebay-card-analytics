@@ -6950,23 +6950,24 @@ def inventory_cards_dashboard():
                     rookie_card,
                     grade_company,
                     grade,
-                    purchase_price,
                     purchase_date,
                     purchase_source,
-                    external_card_id
-                FROM inventory_cards
+                    external_card_id,
+                    disposition_action,
+                    action_priority
+                    FROM inventory_cards
                 WHERE player_name IS NOT NULL
                 ORDER BY created_at DESC
             """)
 
             rows = cur.fetchall()
 
-    inventory_items = []
-    years = set()
-    products = set()
-    parallels = set()
-    grades = set()
-    actions = set()
+            inventory_items = []
+            years = set()
+            products = set()
+            parallels = set()
+            grades = set()
+            actions = set()
     
     for row in rows:
         (
@@ -6988,7 +6989,9 @@ def inventory_cards_dashboard():
             purchase_date,
             purchase_source,
             cardhedge_id,
-        ) = row
+            saved_disposition_action,
+            saved_action_priority,
+            ) = row
 
         market = get_inventory_market_data(
             cardhedge_id,
@@ -7050,17 +7053,12 @@ def inventory_cards_dashboard():
                 )
 
        
+        disposition_action = saved_disposition_action or "HOLD"
+        action_priority = saved_action_priority or 0
+        
         disposition_score = None
         disposition_liquidity = "UNKNOWN"
         disposition_reasons = []
-
-        action_priority = calculate_action_priority(
-            disposition_action,
-            disposition_liquidity,
-            gain_loss_pct,
-            price_trend,
-            price_trend_confidence
-        )
 
   
                 
