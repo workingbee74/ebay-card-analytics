@@ -1120,15 +1120,7 @@ def calculate_auction_start_price(
 
     recommended_start = market_value * start_pct
 
-    # Never intentionally recommend selling below cost.
-    if purchase_price is not None:
-        try:
-            recommended_start = max(
-                recommended_start,
-                float(purchase_price)
-            )
-        except (TypeError, ValueError):
-            pass
+    
 
     # eBay-friendly pricing.
     recommended_start = round(recommended_start, 2)
