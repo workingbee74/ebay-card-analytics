@@ -5228,7 +5228,7 @@ def inventory_actions_page():
        
 
         action_priority = saved_action_priority or 0
-
+        disposition_reasons = []
                 
         reasons_html = "".join(
             f"<li>{reason}</li>"
