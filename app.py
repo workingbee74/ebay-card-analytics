@@ -990,6 +990,71 @@ def calculate_disposition(
         "gain_loss_pct": gain_loss_pct,
     }
 
+
+@app.route("/cardhedge-history-test", methods=["GET"])
+def calculate_action_priority(
+    disposition_action,
+    disposition_liquidity,
+    gain_loss_pct,
+    price_trend,
+    price_trend_confidence
+):
+    action_priority = 0
+
+    if disposition_action and "AUCTION" in disposition_action:
+        action_priority += 90
+
+    elif disposition_action and "BIN" in disposition_action:
+        action_priority += 80
+
+    elif disposition_action == "REVIEW":
+        action_priority += 70
+
+    elif disposition_action == "HOLD":
+        action_priority += 30
+
+    # Strong liquidity makes an action more executable.
+    if disposition_liquidity == "HIGH":
+        action_priority += 15
+
+    elif disposition_liquidity == "MODERATE":
+        action_priority += 8
+
+    # Large market movement versus cost deserves attention.
+    if gain_loss_pct is not None:
+        if gain_loss_pct >= 25:
+            action_priority += 15
+
+        elif gain_loss_pct >= 10:
+            action_priority += 8
+
+        elif gain_loss_pct <= -25:
+            action_priority += 10
+
+    # Trend strength adds urgency.
+    if price_trend == "FALLING":
+        if price_trend_confidence == "HIGH":
+            action_priority += 20
+
+        elif price_trend_confidence == "MEDIUM":
+            action_priority += 12
+
+        else:
+            action_priority += 6
+
+    elif price_trend == "RISING":
+        if price_trend_confidence == "HIGH":
+            action_priority += 15
+
+        elif price_trend_confidence == "MEDIUM":
+            action_priority += 10
+
+        else:
+            action_priority += 5
+
+    return min(action_priority, 100)
+
+
 @app.route("/cardhedge-history-test", methods=["GET"])
 def cardhedge_history_test():
     card_id = request.args.get("card_id")
@@ -5074,7 +5139,9 @@ def inventory_actions_page():
                     market_value,
                     price_trend,
                     trend_pct,
-                    trend_confidence
+                    trend_confidence,
+                    disposition_action,
+                    action_priority
                     FROM inventory_cards
                 WHERE player_name IS NOT NULL
                 ORDER BY created_at DESC
@@ -5106,10 +5173,12 @@ def inventory_actions_page():
             quantity,
             cardhedge_id,
             saved_market_value,
-            saved_price_trend,
-            saved_trend_pct,
-            saved_trend_confidence,
-            ) = row
+    saved_price_trend,
+    saved_trend_pct,
+    saved_trend_confidence,
+    saved_disposition_action,
+    saved_action_priority,
+    ) = row
 
         market_value = saved_market_value
         price_trend = saved_price_trend or "UNKNOWN"
@@ -5156,80 +5225,11 @@ def inventory_actions_page():
                     f" ({gain_loss_pct:+.1f}%)"
                 )
 
-        disposition = calculate_disposition(
-            market_value,
-            purchase_price,
-            sales_7day,
-            sales_30day,
-            prospect_card,
-            first_bowman,
-            autograph,
-            grade_company,
-            grade,
-            serial_numbered_to
-        )
-        
-        disposition_action = disposition["action"]
-        disposition_score = disposition["score"]
-        disposition_liquidity = disposition["liquidity"]
-        disposition_reasons = disposition["reasons"]
+       
 
-        # Action priority determines dashboard sorting.
-        # Higher number = card deserves attention sooner.
-        
-        action_priority = 0
-        
-        if disposition_action == "SELL — AUCTION":
-            action_priority += 90
-        
-        elif disposition_action == "SELL — BIN + BEST OFFER":
-            action_priority += 80
-        
-        elif disposition_action == "REVIEW":
-            action_priority += 70
-        
-        elif disposition_action == "HOLD":
-            action_priority += 30
-        
-        # Strong liquidity makes an action more executable.
-        if disposition_liquidity == "HIGH":
-            action_priority += 15
-        
-        elif disposition_liquidity == "MODERATE":
-            action_priority += 8
-        
-        # Large market movement versus cost deserves attention.
-        if gain_loss_pct is not None:
-            if gain_loss_pct >= 25:
-                action_priority += 15
-        
-            elif gain_loss_pct >= 10:
-                action_priority += 8
-        
-            elif gain_loss_pct <= -25:
-                action_priority += 10
-        
-        # Cap at 100 for display.
-        action_priority = min(action_priority, 100)
+        action_priority = saved_action_priority or 0
 
-        if price_trend == "FALLING":
-            if price_trend_confidence == "HIGH":
-                action_priority += 20
-            elif price_trend_confidence == "MEDIUM":
-                action_priority += 12
-            else:
-                action_priority += 6
-        
-        elif price_trend == "RISING":
-            if price_trend_confidence == "HIGH":
-                action_priority += 15
-            elif price_trend_confidence == "MEDIUM":
-                action_priority += 10
-            else:
-                action_priority += 5
-
-        action_priority = min(action_priority, 100)
-        
+                
         reasons_html = "".join(
             f"<li>{reason}</li>"
             for reason in disposition_reasons
@@ -6045,14 +6045,29 @@ def refresh_inventory_actions():
                     id,
                     grade_company,
                     grade,
-                    external_card_id
+                    external_card_id,
+                    purchase_price,
+                    prospect_card,
+                    first_bowman,
+                    autograph,
+                    serial_numbered_to
                 FROM inventory_cards
                 WHERE external_card_id IS NOT NULL
             """)
 
             rows = cur.fetchall()
 
-            for inventory_id, grade_company, grade, cardhedge_id in rows:
+            for (
+                inventory_id,
+                grade_company,
+                grade,
+                cardhedge_id,
+                purchase_price,
+                prospect_card,
+                first_bowman,
+                autograph,
+                serial_numbered_to
+            ) in rows:
                 market = get_inventory_market_data(
                     cardhedge_id,
                     grade_company,
@@ -6070,6 +6085,36 @@ def refresh_inventory_actions():
                 trend_pct = trend_data["trend_pct"]
                 trend_confidence = trend_data["trend_confidence"]
 
+                sales_7day = market["sales_7day"]
+                sales_30day = market["sales_30day"]
+
+
+                disposition = calculate_disposition(
+                    market_value,
+                    purchase_price,
+                    sales_7day,
+                    sales_30day,
+                    prospect_card,
+                    first_bowman,
+                    autograph,
+                    grade_company,
+                    grade,
+                    serial_numbered_to
+                )
+
+    disposition_action = disposition["action"]
+    disposition_liquidity = disposition["liquidity"]
+    gain_loss_pct = disposition["gain_loss_pct"]
+
+
+    action_priority = calculate_action_priority(
+    disposition_action,
+    disposition_liquidity,
+    gain_loss_pct,
+    price_trend,
+    trend_confidence
+)
+
                 cur.execute("""
                     UPDATE inventory_cards
                     SET
@@ -6077,14 +6122,21 @@ def refresh_inventory_actions():
                         price_trend = %s,
                         trend_pct = %s,
                         trend_confidence = %s,
+                        disposition_action = %s,
+                        action_priority = %s,
                         market_updated_at = NOW()
                     WHERE id = %s
-                """, (
+                """, 
+                (
+                
                     market_value,
                     price_trend,
                     trend_pct,
                     trend_confidence,
+                    disposition_action,
+                    action_priority,
                     inventory_id
+            
                 ))
 
         conn.commit()
@@ -6996,80 +7048,21 @@ def inventory_cards_dashboard():
                     f" ({gain_loss_pct:+.1f}%)"
                 )
 
-        disposition = calculate_disposition(
-            market_value,
-            purchase_price,
-            sales_7day,
-            sales_30day,
-            prospect_card,
-            first_bowman,
-            autograph,
-            grade_company,
-            grade,
-            serial_numbered_to
+        disposition_action = saved_disposition_action or "HOLD"
+        disposition_score = None
+        disposition_liquidity = "UNKNOWN"
+        disposition_reasons = []
+
+        action_priority = calculate_action_priority(
+            disposition_action,
+            disposition_liquidity,
+            gain_loss_pct,
+            price_trend,
+            price_trend_confidence
         )
-        
-        disposition_action = disposition["action"]
-        disposition_score = disposition["score"]
-        disposition_liquidity = disposition["liquidity"]
-        disposition_reasons = disposition["reasons"]
 
-        # Action priority determines dashboard sorting.
-        # Higher number = card deserves attention sooner.
-        
-        action_priority = 0
-        
-        if disposition_action == "SELL — AUCTION":
-            action_priority += 90
-        
-        elif disposition_action == "SELL — BIN + BEST OFFER":
-            action_priority += 80
-        
-        elif disposition_action == "REVIEW":
-            action_priority += 70
-        
-        elif disposition_action == "HOLD":
-            action_priority += 30
-        
-        # Strong liquidity makes an action more executable.
-        if disposition_liquidity == "HIGH":
-            action_priority += 15
-        
-        elif disposition_liquidity == "MODERATE":
-            action_priority += 8
-
-        # Large market movement versus cost deserves attention.
-        if gain_loss_pct is not None:
-            if gain_loss_pct >= 25:
-                action_priority += 15
-        
-            elif gain_loss_pct >= 10:
-                action_priority += 8
-        
-            elif gain_loss_pct <= -25:
-                action_priority += 10
-        
-        # Cap at 100 for display.
-        action_priority = min(action_priority, 100)
-
-        if price_trend == "FALLING":
-            if price_trend_confidence == "HIGH":
-                action_priority += 20
-            elif price_trend_confidence == "MEDIUM":
-                action_priority += 12
-            else:
-                action_priority += 6
-        
-        elif price_trend == "RISING":
-            if price_trend_confidence == "HIGH":
-                action_priority += 15
-            elif price_trend_confidence == "MEDIUM":
-                action_priority += 10
-            else:
-                action_priority += 5
-
-        action_priority = min(action_priority, 100)
-        
+  
+                
         reasons_html = "".join(
             f"<li>{reason}</li>"
             for reason in disposition_reasons
