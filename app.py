@@ -6950,6 +6950,7 @@ def inventory_cards_dashboard():
                     rookie_card,
                     grade_company,
                     grade,
+                    purchase_price,
                     purchase_date,
                     purchase_source,
                     external_card_id,
