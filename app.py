@@ -6632,12 +6632,12 @@ def inventory_action_ebay_draft(inventory_id):
 
             card = cur.fetchone()
 
-    if not card:
-        return "Inventory card not found", 404
-    
-    listing_title = ""
-    
-    market_value = card[11]
+        if not card:
+            return "Inventory card not found", 404
+        
+        listing_title = ""
+        
+        market_value = card[11]
         
         recommended_start_price = None
         
