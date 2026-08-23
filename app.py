@@ -6951,7 +6951,7 @@ def inventory_action_ebay_draft(inventory_id):
             align-items: start;
         }}
         
-        </style>
+       
 
                 
         .bottom-grid {{
