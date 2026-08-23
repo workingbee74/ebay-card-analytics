@@ -6826,8 +6826,16 @@ def inventory_action_ebay_draft(inventory_id):
         ]
 
         if parallel and parallel.lower() != "base":
-            if parallel.lower() not in product.lower():
-                title_parts.append(parallel)
+            title_parallel = parallel
+        
+            if (
+                title_product.lower().endswith("chrome")
+                and title_parallel.lower().startswith("chrome ")
+            ):
+                title_parallel = title_parallel[7:].strip()
+        
+            if title_parallel.lower() not in title_product.lower():
+                title_parts.append(title_parallel)
         
         if card_number:
             title_parts.append(f"#{card_number}")
