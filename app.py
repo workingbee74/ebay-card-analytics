@@ -7152,6 +7152,7 @@ def inventory_action_ebay_draft(inventory_id):
             </select>     
         </div>    
         </div>
+        </div>
         <div class="bottom-grid">
 
         <div style="
