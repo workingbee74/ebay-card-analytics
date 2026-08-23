@@ -3545,16 +3545,17 @@ def auction_watch():
                 font-family: Arial, sans-serif;
                 background: #f4f5f7;
                 margin: 0;
-                padding: 20px;
+                padding: 10px;
             }
 
             h1 {
+                font-size: 28px;
                 margin-bottom: 5px;
             }
 
             .subtitle {
                 color: #555;
-                margin-bottom: 25px;
+                margin-bottom: 10px;
             }
 
             table {
@@ -4669,7 +4670,7 @@ def scan_card():
     
             .card {{
                 background: white;
-                padding: 24px;
+                padding: 12px;
                 border-radius: 14px;
             }}
     
@@ -4678,8 +4679,8 @@ def scan_card():
             }}
     
             .field {{
-                margin: 12px 0;
-                font-size: 18px;
+                margin: 6px 0;
+                font-size: 14px;
             }}
     
             .label {{
@@ -4688,16 +4689,16 @@ def scan_card():
             }}
     
             .confidence {{
-                font-size: 20px;
+                font-size: 16px;
                 font-weight: bold;
-                margin: 20px 0;
+                margin: 8px 0;
             }}
     
             button, a {{
                 display: block;
                 box-sizing: border-box;
                 width: 100%;
-                padding: 16px;
+                padding: 9px;
                 margin-top: 12px;
                 border-radius: 10px;
                 text-align: center;
@@ -6925,10 +6926,12 @@ def inventory_action_ebay_draft(inventory_id):
             }}
         
             input,
-            select,
-            textarea {{
-                font-family: inherit;
-            }}
+                select,
+                textarea {{
+                    font-family: inherit;
+                    font-size: 14px;
+                    padding: 7px;
+                }}
         
             input:focus,
             select:focus,
@@ -7219,12 +7222,12 @@ def inventory_action_ebay_draft(inventory_id):
 
         <textarea
             name="listing_description"
-            rows="5"
+            rows="3"
             style="
                 width:100%;
-                padding:10px;
+                padding:6px;
                 font-size:14px;
-                line-height:1.5;
+                line-height:1.25;
                 border:1px solid #d1d5db;
                 border-radius:6px;
                 resize:vertical;
