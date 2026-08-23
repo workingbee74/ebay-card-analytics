@@ -6796,10 +6796,33 @@ def inventory_action_ebay_draft(inventory_id):
 
         condition_value = "graded" if grade_company else "raw"
         listing_title = ""
+
+
+        title_product = product
+        
+        # Remove duplicate year from product
+        if card_year:
+            title_product = re.sub(
+                rf"^\s*{re.escape(card_year)}\s+",
+                "",
+                title_product,
+                flags=re.IGNORECASE
+            )
+        
+        # "Baseball" is unnecessary in an 80-character eBay title
+        title_product = re.sub(
+            r"\bBASEBALL\b",
+            "",
+            title_product,
+            flags=re.IGNORECASE
+        )
+        
+        title_product = re.sub(r"\s+", " ", title_product).strip()
+        
         title_parts = [
             card_year,
             player_name,
-            product,
+            title_product,
         ]
 
         if parallel and parallel.lower() != "base":
