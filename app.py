@@ -6908,7 +6908,21 @@ def inventory_action_ebay_draft(inventory_id):
         
         </style>
 
+        .compact-grid {{
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            align-items: start;
+        }}
         
+        .bottom-grid {{
+            display: grid;
+            grid-template-columns: 3fr 2fr;
+            gap: 12px;
+            align-items: start;
+        }}
+    
+        </style>
         
     </head>
 
@@ -7011,7 +7025,7 @@ def inventory_action_ebay_draft(inventory_id):
         
             <div style="
                 display:grid;
-                grid-template-columns:180px 1fr;
+                grid-template-columns:145px 100px;
                 gap:8px 20px;
                 font-size:15px;
                 line-height:1.4;
@@ -7138,6 +7152,14 @@ def inventory_action_ebay_draft(inventory_id):
             </select>     
         </div>    
         </div>
+        <div class="bottom-grid">
+
+        <div style="
+            padding:12px;
+            background:#fff;
+            border:1px solid #e5e7eb;
+            border-radius:10px;
+        ">
         
         <div style="
             font-size:12px;
@@ -7160,6 +7182,38 @@ def inventory_action_ebay_draft(inventory_id):
                 resize:vertical;
             "
         >{listing_description}</textarea>
+        </div>
+
+        <div style="
+            padding:12px;
+            background:#fff;
+            border:1px solid #e5e7eb;
+            border-radius:10px;
+        ">
+            <div style="
+                font-size:12px;
+                color:#666;
+                margin-bottom:8px;
+            ">
+                Listing Photos
+            </div>
+
+            <input
+                type="file"
+                id="listingPhotos"
+                name="listing_photos"
+                accept="image/*"
+                multiple
+                style="
+                    width:100%;
+                    padding:10px;
+                    border:1px dashed #9ca3af;
+                    border-radius:6px;
+                    background:#f9fafb;
+                "
+            >
+            
+            </div>
         </div>
         <p>
             Draft workflow is connected.
