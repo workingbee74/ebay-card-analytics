@@ -5167,7 +5167,7 @@ def inventory_add():
             href="/scan-card"
             style="
                 display:block;
-                padding:16px;
+                padding:10px;
                 background:#2563eb;
                 color:white;
                 text-decoration:none;
@@ -6941,7 +6941,7 @@ def inventory_action_ebay_draft(inventory_id):
 
         <div style="
             margin-top:20px;
-            padding:16px;
+            padding:10px;
             background:#fff;
             border:1px solid #e5e7eb;
             border-radius:10px;
@@ -6975,7 +6975,7 @@ def inventory_action_ebay_draft(inventory_id):
         
         <div style="
             margin-top:16px;
-            padding:16px;
+            padding:10px;
             background:#fff;
             border:1px solid #e5e7eb;
             border-radius:10px;
@@ -7010,7 +7010,7 @@ def inventory_action_ebay_draft(inventory_id):
 
         <div style="
             margin-top:16px;
-            padding:16px;
+            padding:10px;
             background:#fff;
             border:1px solid #e5e7eb;
             border-radius:10px;
@@ -7056,7 +7056,7 @@ def inventory_action_ebay_draft(inventory_id):
 
         <div style="
             margin-top:16px;
-            padding:16px;
+            padding:10px;
             background:#fff;
             border:1px solid #e5e7eb;
             border-radius:10px;
@@ -7091,7 +7091,7 @@ def inventory_action_ebay_draft(inventory_id):
 
             <div style="
                 margin-top:16px;
-                padding:16px;
+                padding:10px;
                 background:#fff;
                 border:1px solid #e5e7eb;
                 border-radius:10px;
@@ -7115,7 +7115,7 @@ def inventory_action_ebay_draft(inventory_id):
             </div>
             <div style="
                 margin-top:16px;
-                padding:16px;
+                padding:10px;
                 background:#fff;
                 border:1px solid #e5e7eb;
                 border-radius:10px;
