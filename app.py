@@ -7153,7 +7153,12 @@ def inventory_action_ebay_draft(inventory_id):
         </div>    
         </div>
         </div>
-        <div class="bottom-grid">
+        <div style="
+            display:grid;
+            grid-template-columns:minmax(0, 3fr) minmax(0, 2fr);
+            gap:12px;
+            align-items:start;
+        ">
 
         <div style="
             padding:12px;
