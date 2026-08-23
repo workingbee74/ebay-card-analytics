@@ -6845,7 +6845,15 @@ def inventory_action_ebay_draft(inventory_id):
         
         if grade_company:
             if grade is not None:
-                title_parts.append(f"{grade_company} {grade}")
+                grade_title = (
+                    str(int(grade))
+                    if float(grade).is_integer()
+                    else str(grade)
+                )
+        
+                title_parts.append(
+                    f"{grade_company} {grade_title}"
+                )
             else:
                 title_parts.append(grade_company)
         
