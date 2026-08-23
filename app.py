@@ -6800,8 +6800,11 @@ def inventory_action_ebay_draft(inventory_id):
             card_year,
             player_name,
             product,
-            parallel,
         ]
+
+        if parallel and parallel.lower() != "base":
+            if parallel.lower() not in product.lower():
+                title_parts.append(parallel)
         
         if card_number:
             title_parts.append(f"#{card_number}")
