@@ -6,6 +6,7 @@ import psycopg
 import re
 import unicodedata
 import base64
+import urllib.parse
 from flask import Flask, request, jsonify, redirect
 from cardsightai import CardSightAI
 
@@ -6680,7 +6681,30 @@ def inventory_action_detail(inventory_id):
     </body>
     </html>
     """
+@app.route("/ebay/oauth/start")
+def ebay_oauth_start():
+    scopes = " ".join([
+        "https://api.ebay.com/oauth/api_scope",
+        "https://api.ebay.com/oauth/api_scope/sell.inventory",
+        "https://api.ebay.com/oauth/api_scope/sell.account",
+        "https://api.ebay.com/oauth/api_scope/sell.fulfillment",
+        "https://api.ebay.com/oauth/api_scope/sell.listing",
+    ])
 
+    params = {
+        "client_id": EBAY_CLIENT_ID,
+        "redirect_uri": os.environ["EBAY_RUNAME"],
+        "response_type": "code",
+        "scope": scopes,
+    }
+
+    auth_url = (
+        "https://auth.ebay.com/oauth2/authorize?"
+        + urllib.parse.urlencode(params)
+    )
+
+    return redirect(auth_url)
+    
 @app.route(
     "/inventory/action/<int:inventory_id>/ebay-draft",
     methods=["GET", "POST"]
