@@ -6900,7 +6900,7 @@ def inventory_action_ebay_draft(inventory_id):
                 background: #f4f5f7;
                 color: #111;
                 font-family: Arial, sans-serif;
-                font-size: 14px;
+                font-size: 12px;
             }}
 
             .page {{
@@ -6919,7 +6919,7 @@ def inventory_action_ebay_draft(inventory_id):
 
             h1 {{
                 margin: 0 0 10px;
-                font-size: 28px;
+                font-size: 16px;
                 line-height: 1.1;
             }}
 
@@ -6931,7 +6931,7 @@ def inventory_action_ebay_draft(inventory_id):
             .card-summary {{
                 margin: 0;
                 line-height: 1.35;
-                font-size: 15px;
+                font-size: 12px;
             }}
 
             .panel {{
