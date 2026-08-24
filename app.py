@@ -6681,6 +6681,43 @@ def inventory_action_detail(inventory_id):
     </body>
     </html>
     """
+
+@app.route("/privacy", methods=["GET"])
+def privacy_policy():
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>JacksJunkbox Privacy Policy</title>
+    </head>
+    <body style="font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:20px;">
+        <h1>JacksJunkbox Privacy Policy</h1>
+
+        <p>
+            JacksJunkbox uses eBay account authorization only to provide
+            inventory management and listing functionality requested by
+            the account owner.
+        </p>
+
+        <p>
+            eBay account information and authorization credentials are
+            used only to communicate with eBay services on behalf of the
+            authorized user.
+        </p>
+
+        <p>
+            JacksJunkbox does not sell personal information or eBay
+            account information to third parties.
+        </p>
+
+        <p>
+            Authorization may be revoked through the user's eBay account
+            or application authorization settings.
+        </p>
+    </body>
+    </html>
+    """
+    
 @app.route("/ebay/oauth/start")
 def ebay_oauth_start():
     scopes = "https://api.ebay.com/oauth/api_scope"
