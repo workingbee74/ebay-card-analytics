@@ -6734,7 +6734,7 @@ def ebay_oauth_start():
         + urllib.parse.urlencode(params)
     )
 
-   return redirect(auth_url)
+    return redirect(auth_url)
     
 @app.route(
     "/inventory/action/<int:inventory_id>/ebay-draft",
