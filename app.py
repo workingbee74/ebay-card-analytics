@@ -7000,6 +7000,53 @@ def inventory_action_ebay_draft(inventory_id):
         <div class="top-right">
 
         <div style="
+            margin-top:16px;
+            padding:10px;
+            background:#fff;
+            border:1px solid #e5e7eb;
+            border-radius:10px;
+        ">
+            <div style="
+                font-size:12px;
+                color:#666;
+                margin-bottom:10px;
+            ">
+                Market Intelligence
+            </div>
+        
+            <div style="
+                display:grid;
+                grid-template-columns:120px 90px 120px 90px;
+                gap:8px 20px;
+                font-size:15px;
+                line-height:1.4;
+            ">
+                <div>Market Value</div>
+            <div><strong>{market_value_display}</strong></div>
+            
+            <div>Recommended Start</div>
+            <div><strong>${recommended_start_display}</strong></div>
+            
+            <div>Start / Market</div>
+            <div><strong>{start_market_pct_display}</strong></div>
+            
+            <div>Purchase Cost</div>
+            <div><strong>{purchase_price_display}</strong></div>
+            
+            <div>Unrealized P/L</div>
+            <div><strong>{gain_loss_display} ({gain_loss_pct_display})</strong></div>
+            
+            <div>Trend</div>
+            <div><strong>{price_trend}</strong></div>
+            
+            <div>Confidence</div>
+            <div><strong>{trend_confidence}</strong></div>
+            
+            <div></div>
+            <div></div>
+
+
+        <div style="
             margin-top:20px;
             padding:10px;
             background:#fff;
@@ -7068,52 +7115,7 @@ def inventory_action_ebay_draft(inventory_id):
             >
         </div>
 
-        <div style="
-            margin-top:16px;
-            padding:10px;
-            background:#fff;
-            border:1px solid #e5e7eb;
-            border-radius:10px;
-        ">
-            <div style="
-                font-size:12px;
-                color:#666;
-                margin-bottom:10px;
-            ">
-                Market Intelligence
-            </div>
         
-            <div style="
-                display:grid;
-                grid-template-columns:120px 90px 120px 90px;
-                gap:8px 20px;
-                font-size:15px;
-                line-height:1.4;
-            ">
-                <div>Market Value</div>
-            <div><strong>{market_value_display}</strong></div>
-            
-            <div>Recommended Start</div>
-            <div><strong>${recommended_start_display}</strong></div>
-            
-            <div>Start / Market</div>
-            <div><strong>{start_market_pct_display}</strong></div>
-            
-            <div>Purchase Cost</div>
-            <div><strong>{purchase_price_display}</strong></div>
-            
-            <div>Unrealized P/L</div>
-            <div><strong>{gain_loss_display} ({gain_loss_pct_display})</strong></div>
-            
-            <div>Trend</div>
-            <div><strong>{price_trend}</strong></div>
-            
-            <div>Confidence</div>
-            <div><strong>{trend_confidence}</strong></div>
-            
-            <div></div>
-            <div></div>
-
         <div style="
             margin-top:16px;
             padding:10px;
