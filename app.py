@@ -7005,6 +7005,7 @@ def inventory_action_ebay_draft(inventory_id):
             background:#fff;
             border:1px solid #e5e7eb;
             border-radius:10px;
+            position:relative;
         ">
             <div style="
                 font-size:12px;
@@ -7017,6 +7018,7 @@ def inventory_action_ebay_draft(inventory_id):
             <div style="
                 display:grid;
                 grid-template-columns:120px 90px 120px 90px;
+                width:65%;
                 gap:8px 20px;
                 font-size:15px;
                 line-height:1.4;
@@ -7046,12 +7048,17 @@ def inventory_action_ebay_draft(inventory_id):
             <div></div>
             </div> 
             </div> 
-                   <div style="
-            margin-top:16px;
+            
+            <div style="
+            margin-top:0px;
             padding:10px;
             background:#fff;
             border:1px solid #e5e7eb;
             border-radius:10px;
+            position:absolute;
+            top:10px;
+            right:10px;
+            width:30%;
         ">
     
 
