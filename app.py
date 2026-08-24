@@ -6687,27 +6687,27 @@ def inventory_action_detail(inventory_id):
 )
 def inventory_action_ebay_draft(inventory_id):
     if request.method == "POST":
-    photos = request.files.getlist("listing_photos")
-
-    upload_dir = f"/tmp/ebay_draft_{inventory_id}"
-    os.makedirs(upload_dir, exist_ok=True)
-
-    saved_photos = []
-
-    for photo in photos:
-        if photo and photo.filename:
-            safe_name = os.path.basename(photo.filename)
-            save_path = os.path.join(upload_dir, safe_name)
-
-            photo.save(save_path)
-            saved_photos.append(save_path)
-
-    return jsonify({
-        "success": True,
-        "inventory_id": inventory_id,
-        "photos_saved": len(saved_photos),
-        "upload_dir": upload_dir
-    })
+        photos = request.files.getlist("listing_photos")
+    
+        upload_dir = f"/tmp/ebay_draft_{inventory_id}"
+        os.makedirs(upload_dir, exist_ok=True)
+    
+        saved_photos = []
+    
+        for photo in photos:
+            if photo and photo.filename:
+                safe_name = os.path.basename(photo.filename)
+                save_path = os.path.join(upload_dir, safe_name)
+    
+                photo.save(save_path)
+                saved_photos.append(save_path)
+    
+        return jsonify({
+            "success": True,
+            "inventory_id": inventory_id,
+            "photos_saved": len(saved_photos),
+            "upload_dir": upload_dir
+        })
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
