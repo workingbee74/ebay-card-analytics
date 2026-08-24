@@ -6960,6 +6960,22 @@ def inventory_action_ebay_draft(inventory_id):
             gap: 12px;
             align-items: start;
         }}
+
+        .top-grid {{
+            display: grid;
+            grid-template-columns: 1fr 1.35fr;
+            gap: 16px;
+            align-items: start;
+            margin-bottom: 12px;
+        }}
+        
+        .top-left {{
+            min-width: 0;
+        }}
+        
+        .top-right {{
+            min-width: 0;
+        }}
     
         </style>
         
