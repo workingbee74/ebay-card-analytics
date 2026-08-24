@@ -7044,7 +7044,8 @@ def inventory_action_ebay_draft(inventory_id):
             
             <div></div>
             <div></div>
-
+                </div>  <!-- top-right -->
+            </div>      <!-- top-grid -->
 
         <div style="
             margin-top:20px;
