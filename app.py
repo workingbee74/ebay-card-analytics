@@ -6976,7 +6976,13 @@ def inventory_action_ebay_draft(inventory_id):
         .top-right {{
             min-width: 0;
         }}
-    
+
+        .market-layout {{
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(180px, 1fr) minmax(220px, 1fr);
+        gap: 12px;
+        align-items: start;
+    }}
         </style>
         
     </head>
@@ -6998,7 +7004,7 @@ def inventory_action_ebay_draft(inventory_id):
         </p>
         </div>
         <div class="top-right">
-
+        <div class="market-layout">
         <div style="
             margin-top:16px;
             padding:10px;
@@ -7146,12 +7152,13 @@ def inventory_action_ebay_draft(inventory_id):
                 Raw / Ungraded
             </option>
             
-            </select>     
+        </select>     
         </div>    
         </div>
         </div>
-            </div>  <!-- top-right -->
-            </div>  <!-- top-grid -->
+        </div>  <!-- market-layout -->
+        </div>  <!-- top-right -->
+        </div>  <!-- top-grid -->
             
         <div style="
             margin-top:20px;
