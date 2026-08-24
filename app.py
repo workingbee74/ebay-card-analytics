@@ -6697,12 +6697,7 @@ def ebay_oauth_start():
         + urllib.parse.urlencode(params)
     )
 
-    return jsonify({
-        "client_id": EBAY_CLIENT_ID,
-        "redirect_uri": os.environ["EBAY_RUNAME"],
-        "scope": scopes,
-        "auth_url": auth_url
-    })
+   return redirect(auth_url)
     
 @app.route(
     "/inventory/action/<int:inventory_id>/ebay-draft",
