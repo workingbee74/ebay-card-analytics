@@ -6812,6 +6812,14 @@ def inventory_action_ebay_draft(inventory_id):
                     "image_url": upload_json.get("imageUrl"),
                     "max_dimension_image_url": upload_json.get("maxDimensionImageUrl"),
                 })
+
+
+                ebay_image_urls = [
+                    result["image_url"]
+                    for result in ebay_upload_results
+                    if result.get("status_code") == 201
+                    and result.get("image_url")
+                ]
         
         return jsonify({
             "success": True,
@@ -6819,6 +6827,7 @@ def inventory_action_ebay_draft(inventory_id):
             "photos_saved": len(saved_photos),
             "upload_dir": upload_dir,
             "ebay_upload_results": ebay_upload_results,
+            "ebay_image_urls": ebay_image_urls,
         })   
         
     with psycopg.connect(DATABASE_URL) as conn:
