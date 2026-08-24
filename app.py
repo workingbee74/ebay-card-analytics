@@ -7215,14 +7215,14 @@ def inventory_action_ebay_draft(inventory_id):
         </div>
     
         <script>
-        const photoInput = document.getElementById("listing_photos");
-        const preview = document.getElementById("photo_preview");
-    
-        photoInput.addEventListener("change", function () {
-            preview.innerHTML = "";
-    
-            Array.from(this.files).forEach(function (file) {
-                const img = document.createElement("img");
+            const photoInput = document.getElementById("listing_photos");
+            const preview = document.getElementById("photo_preview");
+        
+            photoInput.addEventListener("change", function () {{
+                preview.innerHTML = "";
+        
+                Array.from(this.files).forEach(function (file) {{
+                    const img = document.createElement("img");
     
                 img.src = URL.createObjectURL(file);
     
@@ -7235,8 +7235,8 @@ def inventory_action_ebay_draft(inventory_id):
                 img.style.background = "#fff";
     
                 preview.appendChild(img);
-            });
-        });
+            }});
+        }});
     </script>
     
     </body>
