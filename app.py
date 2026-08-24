@@ -991,6 +991,10 @@ def calculate_disposition(
         "gain_loss_pct": gain_loss_pct,
     }
 
+@app.route("/privacy-policy.html", methods=["GET"])
+def privacy_policy_html():
+    return privacy_policy()
+    
 
 @app.route("/cardhedge-history-test", methods=["GET"])
 def calculate_action_priority(
