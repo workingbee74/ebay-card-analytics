@@ -7023,8 +7023,8 @@ def inventory_action_ebay_draft(inventory_id):
         
             <div style="
                 display:grid;
-                grid-template-columns:120px 90px 120px 90px;
-                width:65%;
+                grid-template-columns: 1fr 90px;
+                width:100%;
                 gap:8px 20px;
                 font-size:15px;
                 line-height:1.4;
