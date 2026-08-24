@@ -6967,6 +6967,9 @@ def inventory_action_ebay_draft(inventory_id):
 
     <body>
     <div class="page">
+
+    <div class="top-grid">
+        <div class="top-left">
     
         <h1>eBay Auction Draft</h1>
 
@@ -6977,6 +6980,8 @@ def inventory_action_ebay_draft(inventory_id):
             #{card[4] or ""}<br>
             {card[5] or "Base"}
         </p>
+        </div>
+        <div class="top-right">
 
         <div style="
             margin-top:20px;
