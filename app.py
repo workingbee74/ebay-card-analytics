@@ -6787,30 +6787,32 @@ def inventory_action_ebay_draft(inventory_id):
         ebay_upload_results = []
 
         if ebay_token and saved_photos:
-            test_photo_path = saved_photos[0]
-
-            with open(test_photo_path, "rb") as image_file:
-                upload_response = requests.post(
-                    "https://apim.ebay.com/commerce/media/v1_beta/image/create_image_from_file",
-                    headers={
-                        "Authorization": f"Bearer {ebay_token}",
-                        "Accept": "application/json",
-                    },
-                    files={
-                        "image": (
-                            os.path.basename(test_photo_path),
-                            image_file,
-                        )
-                    },
-                    timeout=30,
-                )
-
-            ebay_upload_results.append({
-                "status_code": upload_response.status_code,
-                "response": upload_response.text,
-                "location": upload_response.headers.get("Location"),
-            })
-
+            for photo_path in saved_photos:
+                with open(photo_path, "rb") as image_file:
+                    upload_response = requests.post(
+                        "https://apim.ebay.com/commerce/media/v1_beta/image/create_image_from_file",
+                        headers={
+                            "Authorization": f"Bearer {ebay_token}",
+                            "Accept": "application/json",
+                        },
+                        files={
+                            "image": (
+                                os.path.basename(photo_path),
+                                image_file,
+                            )
+                        },
+                        timeout=30,
+                    )
+        
+                upload_json = upload_response.json() if upload_response.content else {}
+        
+                ebay_upload_results.append({
+                    "status_code": upload_response.status_code,
+                    "location": upload_response.headers.get("Location"),
+                    "image_url": upload_json.get("imageUrl"),
+                    "max_dimension_image_url": upload_json.get("maxDimensionImageUrl"),
+                })
+        
         return jsonify({
             "success": True,
             "inventory_id": inventory_id,
