@@ -6911,7 +6911,7 @@ def inventory_action_ebay_draft(inventory_id):
 
             .top-grid {{
                 display: grid;
-                grid-template-columns: 0.8fr 1.4fr;
+                grid-template-columns: 0.65fr 1.6fr;
                 gap: 18px;
                 align-items: start;
                 margin-bottom: 14px;
