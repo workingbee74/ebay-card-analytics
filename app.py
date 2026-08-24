@@ -6722,6 +6722,15 @@ def privacy_policy():
     </html>
     """
 
+@app.route("/ebay/user-token-check")
+def ebay_user_token_check():
+    token = os.environ.get("EBAY_USER_ACCESS_TOKEN")
+
+    return jsonify({
+        "configured": bool(token),
+        "length": len(token) if token else 0
+    })
+
 @app.route("/ebay/oauth/callback", methods=["GET"])
 def ebay_oauth_callback():
     code = request.args.get("code")
