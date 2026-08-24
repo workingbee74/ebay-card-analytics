@@ -7055,10 +7055,8 @@ def inventory_action_ebay_draft(inventory_id):
             background:#fff;
             border:1px solid #e5e7eb;
             border-radius:10px;
-            position:absolute;
-            top:10px;
-            right:10px;
-            width:30%;
+            position:relative;
+            
         ">
     
 
