@@ -6681,8 +6681,22 @@ def inventory_action_detail(inventory_id):
     </html>
     """
 
-@app.route("/inventory/action/<int:inventory_id>/ebay-draft", methods=["GET"])
+@app.route(
+    "/inventory/action/<int:inventory_id>/ebay-draft",
+    methods=["GET", "POST"]
+)
 def inventory_action_ebay_draft(inventory_id):
+    if request.method == "POST":
+        photos = request.files.getlist("listing_photos")
+
+        return jsonify({
+            "success": True,
+            "inventory_id": inventory_id,
+            "photos_received": len([
+                photo for photo in photos
+                if photo and photo.filename
+            ])
+        })
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
@@ -7053,7 +7067,7 @@ def inventory_action_ebay_draft(inventory_id):
 
     <body>
         <div class="page">
-
+        <form method="POST" enctype="multipart/form-data">
             <div class="top-grid">
 
                 <div>
@@ -7213,6 +7227,10 @@ def inventory_action_ebay_draft(inventory_id):
             </div>
 
         </div>
+        <button type="submit">
+            Save Draft & Upload Photos
+        </button>
+        </form>
     
         <script>
             const photoInput = document.getElementById("listing_photos");
