@@ -6721,7 +6721,20 @@ def privacy_policy():
     </body>
     </html>
     """
-    
+
+@app.route("/ebay/oauth/callback", methods=["GET"])
+def ebay_oauth_callback():
+    code = request.args.get("code")
+    error = request.args.get("error")
+
+    if error:
+        return f"eBay authorization declined or failed: {error}", 400
+
+    if not code:
+        return "No eBay authorization code received.", 400
+
+    return f"eBay authorization code received successfully."
+
 @app.route("/ebay/oauth/start")
 def ebay_oauth_start():
     scopes = "https://api.ebay.com/oauth/api_scope"
