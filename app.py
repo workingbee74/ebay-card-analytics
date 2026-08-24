@@ -6894,418 +6894,320 @@ def inventory_action_ebay_draft(inventory_id):
             * {{
                 box-sizing: border-box;
             }}
-        
+
             body {{
                 margin: 0;
-                background: #f5f6f8;
-                font-family: Arial, Helvetica, sans-serif;
-                color: #111827;
+                background: #f4f5f7;
+                color: #111;
+                font-family: Arial, sans-serif;
+                font-size: 14px;
             }}
-        
+
             .page {{
-                max-width: 1200px;
+                max-width: 1400px;
                 margin: 0 auto;
-                padding: 28px 32px 60px;
+                padding: 18px 24px 28px;
             }}
-        
+
+            .top-grid {{
+                display: grid;
+                grid-template-columns: 0.8fr 1.4fr;
+                gap: 18px;
+                align-items: start;
+                margin-bottom: 14px;
+            }}
+
             h1 {{
-                margin: 0 0 4px;
+                margin: 0 0 10px;
                 font-size: 28px;
                 line-height: 1.1;
             }}
-        
+
             h2 {{
-                margin: 10px 0 2px;
-                font-size: 19px;
+                margin: 0 0 14px;
+                font-size: 20px;
             }}
-        
+
             .card-summary {{
-                margin-bottom: 22px;
-                color: #4b5563;
-                line-height: 1.5;
+                margin: 0;
+                line-height: 1.35;
+                font-size: 15px;
             }}
-        
+
+            .panel {{
+                background: white;
+                border: 1px solid #dfe3e8;
+                border-radius: 10px;
+                padding: 12px;
+            }}
+
+            .label {{
+                color: #666;
+                font-size: 12px;
+                margin-bottom: 6px;
+            }}
+
+            .market-layout {{
+                display: grid;
+                grid-template-columns: minmax(360px, 2fr) minmax(180px, 0.8fr);
+                gap: 16px;
+                align-items: start;
+            }}
+
+            .market-metrics {{
+                display: grid;
+                grid-template-columns: 130px 100px 130px 110px;
+                gap: 8px 16px;
+                align-items: start;
+                line-height: 1.35;
+                font-size: 15px;
+            }}
+
+            .market-metrics strong {{
+                font-weight: 700;
+            }}
+
+            .timing {{
+                border-left: 1px solid #dfe3e8;
+                padding-left: 16px;
+            }}
+
+            .timing-block {{
+                margin-bottom: 12px;
+            }}
+
+            .timing-value {{
+                font-size: 17px;
+                font-weight: 700;
+                line-height: 1.3;
+            }}
+
+            .title-row {{
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) 240px;
+                gap: 12px;
+                margin-bottom: 12px;
+            }}
+
+            .bottom-grid {{
+                display: grid;
+                grid-template-columns: minmax(0, 3fr) minmax(260px, 1fr);
+                gap: 12px;
+                align-items: start;
+            }}
+
             input,
-                select,
-                textarea {{
-                    font-family: inherit;
-                    font-size: 14px;
-                    padding: 7px;
-                }}
-        
-            input:focus,
-            select:focus,
-            textarea:focus {{
-                outline: 2px solid #2563eb;
-                outline-offset: 1px;
+            select,
+            textarea {{
+                width: 100%;
+                font: inherit;
+                border: 1px solid #cfd5dc;
+                border-radius: 6px;
+                background: white;
+                padding: 8px;
             }}
 
-            body {{
-            font-size: 14px;
-        }}
+            .title-input {{
+                font-size: 16px;
+                font-weight: 700;
+            }}
 
-        .compact-grid {{
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            align-items: start;
-        }}
-        
-       
+            textarea {{
+                line-height: 1.3;
+                resize: vertical;
+            }}
 
-                
-        .bottom-grid {{
-            display: grid;
-            grid-template-columns: 3fr 2fr;
-            gap: 12px;
-            align-items: start;
-        }}
+            .status-row {{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                margin-top: 10px;
+            }}
 
-        .top-grid {{
-            display: grid;
-            grid-template-columns: 1fr 1.35fr;
-            gap: 16px;
-            align-items: start;
-            margin-bottom: 12px;
-        }}
-        
-        .top-left {{
-            min-width: 0;
-        }}
-        
-        .top-right {{
-            min-width: 0;
-        }}
+            .status {{
+                color: #555;
+            }}
 
-        .market-layout {{
-        display: grid;
-        grid-template-columns: minmax(0, 2fr) minmax(180px, 1fr) minmax(220px, 1fr);
-        gap: 12px;
-        align-items: start;
-    }}
+            @media (max-width: 900px) {{
+                .top-grid,
+                .market-layout,
+                .title-row,
+                .bottom-grid {{
+                    grid-template-columns: 1fr;
+                }}
+
+                .market-metrics {{
+                    grid-template-columns: 1fr 100px;
+                }}
+
+                .timing {{
+                    border-left: 0;
+                    border-top: 1px solid #dfe3e8;
+                    padding-left: 0;
+                    padding-top: 12px;
+                }}
+            }}
         </style>
-        
     </head>
 
     <body>
-    <div class="page">
+        <div class="page">
 
-    <div class="top-grid">
-        <div class="top-left">
-    
-        <h1>eBay Auction Draft</h1>
+            <div class="top-grid">
 
-        <h2>{card[1]}</h2>
+                <div>
+                    <h1>eBay Auction Draft</h1>
+                    <h2>{player_name}</h2>
 
-        <p>
-            {card[2] or ""} {card[3] or ""}<br>
-            #{card[4] or ""}<br>
-            {card[5] or "Base"}
-        </p>
-        </div>
-        <div class="top-right">
-        <div class="market-layout">
-        <div style="
-            margin-top:16px;
-            padding:10px;
-            background:#fff;
-            border:1px solid #e5e7eb;
-            border-radius:10px;
-            position:relative;
-        ">
-            <div style="
-                font-size:12px;
-                color:#666;
-                margin-bottom:10px;
-            ">
-                Market Intelligence
-            </div>
-        
-            <div style="
-                display:grid;
-                grid-template-columns: 1fr 90px;
-                width:100%;
-                gap:8px 20px;
-                font-size:15px;
-                line-height:1.4;
-            ">
-                <div>Market Value</div>
-            <div><strong>{market_value_display}</strong></div>
-            
-            <div>Recommended Start</div>
-            <div><strong>${recommended_start_display}</strong></div>
-            
-            <div>Start / Market</div>
-            <div><strong>{start_market_pct_display}</strong></div>
-            
-            <div>Purchase Cost</div>
-            <div><strong>{purchase_price_display}</strong></div>
-            
-            <div>Unrealized P/L</div>
-            <div><strong>{gain_loss_display} ({gain_loss_pct_display})</strong></div>
-            
-            <div>Trend</div>
-            <div><strong>{price_trend}</strong></div>
-            
-            <div>Confidence</div>
-            <div><strong>{trend_confidence}</strong></div>
-            
-            <div></div>
-            <div></div>
-            </div> 
-            </div> 
-            
-            <div style="
-            margin-top:0px;
-            padding:10px;
-            background:#fff;
-            border:1px solid #e5e7eb;
-            border-radius:10px;
-            position:relative;
-            
-        ">
-    
+                    <p class="card-summary">
+                        {card_year} {product}<br>
+                        #{card_number}<br>
+                        {parallel or "Base"}
+                    </p>
+                </div>
 
-            <div style="
-                font-size:12px;
-                color:#666;
-                margin-bottom:6px;
-            ">
-            Auction Duration
-            </div>
+                <div class="panel">
+                    <div class="label">Market Intelligence</div>
 
-            <select
-                name="auction_duration"
-                style="
-                    width:180px;
-                    padding:10px;
-                    font-size:16px;
-                    border:1px solid #d1d5db;
-                    border-radius:6px;
-                    background:white;
-                "
-            >
-                <option value="3">3 days</option>
-                <option value="5">5 days</option>
-                <option value="7" selected>7 days</option>
-                <option value="10">10 days</option>
-            </select>
+                    <div class="market-layout">
+
+                        <div class="market-metrics">
+                            <div>Market Value</div>
+                            <div><strong>{market_value_display}</strong></div>
+
+                            <div>Recommended Start</div>
+                            <div><strong>${recommended_start_display}</strong></div>
+
+                            <div>Start / Market</div>
+                            <div><strong>{start_market_pct_display}</strong></div>
+
+                            <div>Purchase Cost</div>
+                            <div><strong>{purchase_price_display}</strong></div>
+
+                            <div>Unrealized P/L</div>
+                            <div>
+                                <strong>
+                                    {gain_loss_display}
+                                    ({gain_loss_pct_display})
+                                </strong>
+                            </div>
+
+                            <div>Trend</div>
+                            <div><strong>{price_trend}</strong></div>
+
+                            <div>Confidence</div>
+                            <div><strong>{trend_confidence}</strong></div>
+
+                            <div></div>
+                            <div></div>
+                        </div>
+
+                        <div class="timing">
+
+                            <div class="timing-block">
+                                <div class="label">Auction Duration</div>
+
+                                <select name="auction_duration">
+                                    <option value="3">3 days</option>
+                                    <option value="5">5 days</option>
+                                    <option value="7" selected>7 days</option>
+                                    <option value="10">10 days</option>
+                                </select>
+                            </div>
+
+                            <div class="timing-block">
+                                <div class="label">
+                                    Recommended Ending Window
+                                </div>
+
+                                <div class="timing-value">
+                                    Sunday 7:00 PM - 10:00 PM
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="label">Condition</div>
+
+                                <select name="condition">
+                                    <option value="graded"
+                                        {"selected" if condition_value == "graded" else ""}>
+                                        Graded
+                                    </option>
+
+                                    <option value="raw"
+                                        {"selected" if condition_value == "raw" else ""}>
+                                        Raw / Ungraded
+                                    </option>
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div style="
-                margin-top:16px;
-                padding:10px;
-                background:#fff;
-                border:1px solid #e5e7eb;
-                border-radius:10px;
-            ">
-           
+            <div class="title-row">
 
-            <div style="
-                font-size:12px;
-                color:#666;
-                margin-bottom:6px;
-            ">
-                Recommended Ending Window
+                <div class="panel">
+                    <div class="label">Proposed eBay Title</div>
+
+                    <input
+                        class="title-input"
+                        type="text"
+                        name="listing_title"
+                        value="{listing_title}"
+                        maxlength="80"
+                    >
+                </div>
+
+                <div class="panel">
+                    <div class="label">Starting Bid</div>
+
+                    <input
+                        type="number"
+                        step="0.01"
+                        name="starting_bid"
+                        value="{recommended_start_display}"
+                        style="font-size:16px;font-weight:700;"
+                    >
+                </div>
+
             </div>
 
+            <div class="bottom-grid">
 
-            <div style="
-                font-size:16px;
-                font-weight:700;
-            ">
-                Sunday 7:00 PM - 10:00 PM
-            </div>
-            <div style="
-                margin-top:16px;
-                padding:10px;
-                background:#fff;
-                border:1px solid #e5e7eb;
-                border-radius:10px;
-            ">
-           
+                <div class="panel">
+                    <div class="label">Listing Description</div>
 
-            <div style="
-                font-size:12px;
-                color:#666;
-                margin-bottom:6px;
-            ">
-                Condition
-            </div>
-            <select
-                name="condition"
-                style="
-                    width:220px;
-                    padding:10px;
-                    font-size:16px;
-                    border:1px solid #d1d5db;
-                    border-radius:6px;
-                    background:white;
-                "
-                
-            >
-            <option value="graded" {"selected" if condition_value == "graded" else ""}>
-                Graded
-            </option>
+                    <textarea
+                        name="listing_description"
+                        rows="7"
+                    >{listing_description}</textarea>
+                </div>
 
-            <option value="raw" {"selected" if condition_value == "raw" else ""}>
-                Raw / Ungraded
-            </option>
-            
-        </select>     
-        </div>    
-        </div>
-        </div>
-        </div>  <!-- market-layout -->
-        </div>  <!-- top-right -->
-        </div>  <!-- top-grid -->
-            
-        <div style="
-            margin-top:20px;
-            padding:10px;
-            background:#fff;
-            border:1px solid #e5e7eb;
-            border-radius:10px;
-        ">
+                <div class="panel">
+                    <div class="label">Listing Photos</div>
 
-            <div style="
-                font-size:12px;
-                color:#666;
-                margin-bottom:6px;
-            ">
-                Proposed eBay Title
-            </div>
-        
-            <input
-                type="text"
-                name="listing_title"
-                value="{listing_title}"
-                maxlength="80"
-                style="
-                    width:100%;
-                    padding:10px;
-                    font-size:16px;
-                    font-weight:700;
-                    border:1px solid #d1d5db;
-                    border-radius:6px;
-                "
-            >
-        </div>
+                    <input
+                        type="file"
+                        name="listing_photos"
+                        multiple
+                    >
+                </div>
 
-        <div class="compact-grid">
-        
-        <div style="
-            margin-top:16px;
-            padding:10px;
-            background:#fff;
-            border:1px solid #e5e7eb;
-            border-radius:10px;
-        ">
-
-            
-        
-            <div style="
-                font-size:12px;
-                color:#666;
-                margin-bottom:6px;
-            ">
-            Starting Bid
-            </div>
-            <input
-                type="number"
-                name="starting_bid"
-                step="0.01"
-                min="0.99"
-                value="{recommended_start_display}"
-                placeholder="0.99"
-                style="
-                    width:180px;
-                    padding:10px;
-                    font-size:16px;
-                    font-weight:700;
-                    border:1px solid #d1d5db;
-                    border-radius:6px;
-                "
-            >
-        </div>
-
-        
- 
-        <div style="
-            display:grid;
-            grid-template-columns:minmax(0, 3fr) minmax(0, 2fr);
-            gap:12px;
-            align-items:start;
-        ">
-
-        <div style="
-            padding:12px;
-            background:#fff;
-            border:1px solid #e5e7eb;
-            border-radius:10px;
-        ">
-        
-        <div style="
-            font-size:12px;
-            color:#666;
-            margin-bottom:6px;
-        ">
-            Listing Description
-        </div>
-
-        <textarea
-            name="listing_description"
-            rows="3"
-            style="
-                width:100%;
-                padding:6px;
-                font-size:14px;
-                line-height:1.25;
-                border:1px solid #d1d5db;
-                border-radius:6px;
-                resize:vertical;
-            "
-        >{listing_description}</textarea>
-        </div>
-
-        <div style="
-            padding:12px;
-            background:#fff;
-            border:1px solid #e5e7eb;
-            border-radius:10px;
-        ">
-            <div style="
-                font-size:12px;
-                color:#666;
-                margin-bottom:8px;
-            ">
-                Listing Photos
             </div>
 
-            <input
-                type="file"
-                id="listingPhotos"
-                name="listing_photos"
-                accept="image/*"
-                multiple
-                style="
-                    width:100%;
-                    padding:10px;
-                    border:1px dashed #9ca3af;
-                    border-radius:6px;
-                    background:#f9fafb;
-                "
-            >
-            
-            </div>
-        </div>
-        <p>
-            Draft workflow is connected.
-        </p>
+            <div class="status-row">
+                <div class="status">
+                    Draft workflow is connected.
+                </div>
 
-        <a href="/inventory/action/{inventory_id}">
-            ← Back to Action Detail
-        </a>
+                <a href="/inventory/action/{inventory_id}">
+                    ← Back to Action Detail
+                </a>
+            </div>
+
         </div>
     </body>
     </html>
