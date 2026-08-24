@@ -7046,81 +7046,7 @@ def inventory_action_ebay_draft(inventory_id):
             <div></div>
             </div> 
             </div> 
-            
-            </div>  <!-- top-right -->
-            </div>  <!-- top-grid -->
-            
-        <div style="
-            margin-top:20px;
-            padding:10px;
-            background:#fff;
-            border:1px solid #e5e7eb;
-            border-radius:10px;
-        ">
-
-            <div style="
-                font-size:12px;
-                color:#666;
-                margin-bottom:6px;
-            ">
-                Proposed eBay Title
-            </div>
-        
-            <input
-                type="text"
-                name="listing_title"
-                value="{listing_title}"
-                maxlength="80"
-                style="
-                    width:100%;
-                    padding:10px;
-                    font-size:16px;
-                    font-weight:700;
-                    border:1px solid #d1d5db;
-                    border-radius:6px;
-                "
-            >
-        </div>
-
-        <div class="compact-grid">
-        
-        <div style="
-            margin-top:16px;
-            padding:10px;
-            background:#fff;
-            border:1px solid #e5e7eb;
-            border-radius:10px;
-        ">
-
-            
-        
-            <div style="
-                font-size:12px;
-                color:#666;
-                margin-bottom:6px;
-            ">
-            Starting Bid
-            </div>
-            <input
-                type="number"
-                name="starting_bid"
-                step="0.01"
-                min="0.99"
-                value="{recommended_start_display}"
-                placeholder="0.99"
-                style="
-                    width:180px;
-                    padding:10px;
-                    font-size:16px;
-                    font-weight:700;
-                    border:1px solid #d1d5db;
-                    border-radius:6px;
-                "
-            >
-        </div>
-
-        
-        <div style="
+                   <div style="
             margin-top:16px;
             padding:10px;
             background:#fff;
@@ -7219,6 +7145,80 @@ def inventory_action_ebay_draft(inventory_id):
         </div>    
         </div>
         </div>
+            </div>  <!-- top-right -->
+            </div>  <!-- top-grid -->
+            
+        <div style="
+            margin-top:20px;
+            padding:10px;
+            background:#fff;
+            border:1px solid #e5e7eb;
+            border-radius:10px;
+        ">
+
+            <div style="
+                font-size:12px;
+                color:#666;
+                margin-bottom:6px;
+            ">
+                Proposed eBay Title
+            </div>
+        
+            <input
+                type="text"
+                name="listing_title"
+                value="{listing_title}"
+                maxlength="80"
+                style="
+                    width:100%;
+                    padding:10px;
+                    font-size:16px;
+                    font-weight:700;
+                    border:1px solid #d1d5db;
+                    border-radius:6px;
+                "
+            >
+        </div>
+
+        <div class="compact-grid">
+        
+        <div style="
+            margin-top:16px;
+            padding:10px;
+            background:#fff;
+            border:1px solid #e5e7eb;
+            border-radius:10px;
+        ">
+
+            
+        
+            <div style="
+                font-size:12px;
+                color:#666;
+                margin-bottom:6px;
+            ">
+            Starting Bid
+            </div>
+            <input
+                type="number"
+                name="starting_bid"
+                step="0.01"
+                min="0.99"
+                value="{recommended_start_display}"
+                placeholder="0.99"
+                style="
+                    width:180px;
+                    padding:10px;
+                    font-size:16px;
+                    font-weight:700;
+                    border:1px solid #d1d5db;
+                    border-radius:6px;
+                "
+            >
+        </div>
+
+        
+ 
         <div style="
             display:grid;
             grid-template-columns:minmax(0, 3fr) minmax(0, 2fr);
