@@ -6783,12 +6783,42 @@ def inventory_action_ebay_draft(inventory_id):
                 photo.save(save_path)
                 saved_photos.append(save_path)
     
-        return jsonify({
-            "success": True,
-            "inventory_id": inventory_id,
-            "photos_saved": len(saved_photos),
-            "upload_dir": upload_dir
-        })
+            return jsonify({
+                "success": True,
+                "inventory_id": inventory_id,
+                "photos_saved": len(saved_photos),
+                "upload_dir": upload_dir,
+                "ebay_upload_results": ebay_upload_results
+            })
+ebay_token = os.environ.get("EBAY_USER_ACCESS_TOKEN")
+
+ebay_upload_results = []
+
+if ebay_token and saved_photos:
+    test_photo_path = saved_photos[0]
+
+    with open(test_photo_path, "rb") as image_file:
+        upload_response = requests.post(
+            "https://api.ebay.com/commerce/media/v1_beta/image/create_image_from_file",
+            headers={
+                "Authorization": f"Bearer {ebay_token}",
+                "Accept": "application/json",
+            },
+            files={
+                "image": (
+                    os.path.basename(test_photo_path),
+                    image_file,
+                )
+            },
+            timeout=30,
+        )
+
+    ebay_upload_results.append({
+        "status_code": upload_response.status_code,
+        "response": upload_response.text,
+        "location": upload_response.headers.get("Location"),
+    })
+        
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
