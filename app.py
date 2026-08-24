@@ -6683,13 +6683,7 @@ def inventory_action_detail(inventory_id):
     """
 @app.route("/ebay/oauth/start")
 def ebay_oauth_start():
-    scopes = " ".join([
-        "https://api.ebay.com/oauth/api_scope",
-        "https://api.ebay.com/oauth/api_scope/sell.inventory",
-        "https://api.ebay.com/oauth/api_scope/sell.account",
-        "https://api.ebay.com/oauth/api_scope/sell.fulfillment",
-        "https://api.ebay.com/oauth/api_scope/sell.listing",
-    ])
+    scopes = "https://api.ebay.com/oauth/api_scope"
 
     params = {
         "client_id": EBAY_CLIENT_ID,
