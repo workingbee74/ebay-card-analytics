@@ -991,6 +991,34 @@ def calculate_disposition(
         "gain_loss_pct": gain_loss_pct,
     }
 
+@app.route("/ebay/shipping-services", methods=["GET"])
+def ebay_shipping_services():
+    token = os.environ.get("EBAY_USER_ACCESS_TOKEN")
+
+    xml_body = """<?xml version="1.0" encoding="utf-8"?>
+<GeteBayDetailsRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+    <RequesterCredentials>
+        <eBayAuthToken>{}</eBayAuthToken>
+    </RequesterCredentials>
+    <DetailName>ShippingServiceDetails</DetailName>
+</GeteBayDetailsRequest>
+""".format(token)
+
+    response = requests.post(
+        "https://api.ebay.com/ws/api.dll",
+        headers={
+            "X-EBAY-API-CALL-NAME": "GeteBayDetails",
+            "X-EBAY-API-SITEID": "0",
+            "X-EBAY-API-COMPATIBILITY-LEVEL": "1475",
+            "Content-Type": "text/xml",
+        },
+        data=xml_body,
+        timeout=30,
+    )
+
+    return response.text, response.status_code, {
+        "Content-Type": "text/xml"
+    }
 
 @app.route("/ebay/create-fulfillment-policy", methods=["GET"])
 def ebay_create_fulfillment_policy():
