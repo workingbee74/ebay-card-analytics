@@ -7190,7 +7190,28 @@ def ebay_oauth_refresh_test():
         "error_description": token_json.get("error_description"),
     })
 
-    
+
+
+@app.route("/ebay/account/privileges-test")
+def ebay_account_privileges_test():
+    token = get_ebay_user_access_token()
+
+    response = requests.get(
+        "https://api.ebay.com/sell/account/v1/privilege",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+        },
+        timeout=30,
+    )
+
+    data = response.json() if response.content else {}
+
+    return jsonify({
+        "status_code": response.status_code,
+        "response": data,
+    })
+
 @app.route(
     "/inventory/action/<int:inventory_id>/ebay-draft",
     methods=["GET", "POST"]
