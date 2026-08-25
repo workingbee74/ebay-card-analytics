@@ -1005,6 +1005,40 @@ def calculate_disposition(
     }
 
 
+@app.route("/ebay/oauth/introspect-test")
+def ebay_oauth_introspect_test():
+    token = get_ebay_user_access_token()
+
+    client_id = os.environ.get("EBAY_CLIENT_ID")
+    client_secret = os.environ.get("EBAY_CLIENT_SECRET")
+
+    credentials = f"{client_id}:{client_secret}"
+    encoded_credentials = base64.b64encode(
+        credentials.encode("utf-8")
+    ).decode("utf-8")
+
+    response = requests.post(
+        "https://api.ebay.com/identity/v1/oauth2/token/introspect",
+        headers={
+            "Authorization": f"Basic {encoded_credentials}",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        data={
+            "token": token,
+            "token_type_hint": "access_token",
+        },
+        timeout=30,
+    )
+
+    data = response.json() if response.content else {}
+
+    return jsonify({
+        "status_code": response.status_code,
+        "active": data.get("active"),
+        "scope": data.get("scope"),
+        "token_type": data.get("token_type"),
+    })
+
 @app.route("/ebay/oauth/exchange-code", methods=["GET", "POST"])
 def ebay_exchange_code():
     auth_code = urllib.parse.unquote(
