@@ -1091,6 +1091,23 @@ def ebay_oauth_introspect_refresh():
         "token_type": data.get("token_type"),
     })
 
+
+@app.route("/ebay/oauth/manual")
+def ebay_oauth_manual():
+    return """
+    <h2>Complete eBay Authorization</h2>
+    <form method="POST" action="/ebay/oauth/exchange-code">
+        <label>Authorization code:</label><br><br>
+        <input
+            type="password"
+            name="code"
+            style="width:700px;"
+            autocomplete="off"
+        ><br><br>
+        <button type="submit">Exchange Code</button>
+    </form>
+    """
+
 @app.route("/ebay/oauth/exchange-code", methods=["GET", "POST"])
 def ebay_exchange_code():
     auth_code = urllib.parse.unquote(
