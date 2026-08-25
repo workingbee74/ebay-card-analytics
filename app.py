@@ -7129,6 +7129,34 @@ def ebay_oauth_scope_test():
         "has_sell_account": "sell.account" in scopes,
     })
 
+
+@app.route("/ebay/oauth/start-debug")
+def ebay_oauth_start_debug():
+    scopes = (
+        "https://api.ebay.com/oauth/api_scope "
+        "https://api.ebay.com/oauth/api_scope/sell.account"
+    )
+
+    params = {
+        "client_id": EBAY_CLIENT_ID,
+        "redirect_uri": os.environ["EBAY_RUNAME"],
+        "response_type": "code",
+        "scope": scopes,
+    }
+
+    auth_url = (
+        "https://auth.ebay.com/oauth2/authorize?"
+        + urllib.parse.urlencode(params)
+    )
+
+    parsed = urllib.parse.urlparse(auth_url)
+    query = urllib.parse.parse_qs(parsed.query)
+
+    return jsonify({
+        "scope_received": query.get("scope", []),
+        "has_sell_account": "sell.account" in query.get("scope", [""])[0],
+    })
+
 @app.route("/ebay/oauth/status")
 def ebay_oauth_status():
     ensure_ebay_oauth_table()
