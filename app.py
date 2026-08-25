@@ -7080,6 +7080,60 @@ def ebay_oauth_status():
         "updated_at": row[2].isoformat() if row and row[2] else None,
     })
 
+@app.route("/ebay/oauth/refresh-test")
+def ebay_oauth_refresh_test():
+    ensure_ebay_oauth_table()
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT refresh_token
+                FROM ebay_oauth_tokens
+                WHERE id = 1
+            """)
+            row = cur.fetchone()
+
+    if not row or not row[0]:
+        return jsonify({
+            "success": False,
+            "error": "No saved refresh token"
+        }), 400
+
+    refresh_token = row[0]
+
+    client_id = os.environ.get("EBAY_CLIENT_ID")
+    client_secret = os.environ.get("EBAY_CLIENT_SECRET")
+
+    credentials = f"{client_id}:{client_secret}"
+    encoded_credentials = base64.b64encode(
+        credentials.encode("utf-8")
+    ).decode("utf-8")
+
+    response = requests.post(
+        "https://api.ebay.com/identity/v1/oauth2/token",
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": f"Basic {encoded_credentials}",
+        },
+        data={
+            "grant_type": "refresh_token",
+            "refresh_token": refresh_token,
+            "scope": "https://api.ebay.com/oauth/api_scope",
+        },
+        timeout=30,
+    )
+
+    token_json = response.json() if response.content else {}
+
+    return jsonify({
+        "success": response.ok,
+        "status_code": response.status_code,
+        "has_access_token": bool(token_json.get("access_token")),
+        "expires_in": token_json.get("expires_in"),
+        "error": token_json.get("error"),
+        "error_description": token_json.get("error_description"),
+    })
+
     
 @app.route(
     "/inventory/action/<int:inventory_id>/ebay-draft",
