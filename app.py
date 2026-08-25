@@ -7116,6 +7116,19 @@ def ebay_oauth_start():
 
     return redirect(auth_url)
 
+
+@app.route("/ebay/oauth/scope-test")
+def ebay_oauth_scope_test():
+    scopes = (
+        "https://api.ebay.com/oauth/api_scope "
+        "https://api.ebay.com/oauth/api_scope/sell.account"
+    )
+
+    return jsonify({
+        "scope": scopes,
+        "has_sell_account": "sell.account" in scopes,
+    })
+
 @app.route("/ebay/oauth/status")
 def ebay_oauth_status():
     ensure_ebay_oauth_table()
