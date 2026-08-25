@@ -994,8 +994,9 @@ def calculate_disposition(
 
 @app.route("/ebay/oauth/exchange-code", methods=["POST"])
 def ebay_exchange_code():
-    auth_code = request.form.get("code", "").strip()
-
+    auth_code = urllib.parse.unquote(
+        request.form.get("code", "").strip()
+    )
     if not auth_code:
         return jsonify({
             "success": False,
