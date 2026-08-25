@@ -21,6 +21,19 @@ CARDSIGHT_API_KEY = os.environ.get("CARDSIGHT_API_KEY", "")
 XIMILAR_API_TOKEN = os.environ.get("XIMILAR_API_TOKEN", "")
 CARDHEDGE_API_KEY = os.environ.get("CARDHEDGE_API_KEY", "")
 
+def ensure_ebay_oauth_table():
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS ebay_oauth_tokens (
+                    id INTEGER PRIMARY KEY,
+                    refresh_token TEXT NOT NULL,
+                    scope TEXT,
+                    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+        conn.commit()
+
 NAV_HTML = """
 <nav class="app-nav">
     <a href="/inventory">Inventory</a>
@@ -1027,6 +1040,37 @@ def ebay_exchange_code():
     )
 
     token_json = token_response.json() if token_response.content else {}
+
+if token_response.ok and token_json.get("refresh_token"):
+    ensure_ebay_oauth_table()
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO ebay_oauth_tokens (
+                    id,
+                    refresh_token,
+                    scope,
+                    updated_at
+                )
+                VALUES (
+                    1,
+                    %s,
+                    %s,
+                    CURRENT_TIMESTAMP
+                )
+                ON CONFLICT (id)
+                DO UPDATE SET
+                    refresh_token = EXCLUDED.refresh_token,
+                    scope = EXCLUDED.scope,
+                    updated_at = CURRENT_TIMESTAMP
+            """, (
+                token_json["refresh_token"],
+                token_json.get("scope"),
+            ))
+
+        conn.commit()
+    
 
     return jsonify({
         "success": token_response.ok,
