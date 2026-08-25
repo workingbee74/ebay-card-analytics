@@ -991,6 +991,53 @@ def calculate_disposition(
         "gain_loss_pct": gain_loss_pct,
     }
 
+
+@app.route("/ebay/oauth/exchange-code", methods=["POST"])
+def ebay_exchange_code():
+    auth_code = request.form.get("code", "").strip()
+
+    if not auth_code:
+        return jsonify({
+            "success": False,
+            "error": "Missing authorization code"
+        }), 400
+
+    client_id = os.environ.get("EBAY_CLIENT_ID")
+    client_secret = os.environ.get("EBAY_CLIENT_SECRET")
+    runame = os.environ.get("EBAY_RUNAME")
+
+    credentials = f"{client_id}:{client_secret}"
+    encoded_credentials = base64.b64encode(
+        credentials.encode("utf-8")
+    ).decode("utf-8")
+
+    token_response = requests.post(
+        "https://api.ebay.com/identity/v1/oauth2/token",
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": f"Basic {encoded_credentials}",
+        },
+        data={
+            "grant_type": "authorization_code",
+            "code": auth_code,
+            "redirect_uri": runame,
+        },
+        timeout=30,
+    )
+
+    token_json = token_response.json() if token_response.content else {}
+
+    return jsonify({
+        "success": token_response.ok,
+        "status_code": token_response.status_code,
+        "has_access_token": bool(token_json.get("access_token")),
+        "has_refresh_token": bool(token_json.get("refresh_token")),
+        "expires_in": token_json.get("expires_in"),
+        "refresh_token_expires_in": token_json.get("refresh_token_expires_in"),
+        "error": token_json.get("error"),
+        "error_description": token_json.get("error_description"),
+    })
+
 @app.route("/ebay/create-return-policy", methods=["GET"])
 def ebay_create_return_policy():
     token = os.environ.get("EBAY_USER_ACCESS_TOKEN")
