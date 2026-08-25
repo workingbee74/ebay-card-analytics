@@ -1014,7 +1014,6 @@ def ebay_create_return_policy():
             "returnsAccepted": False
         },
                     
-                },
                 timeout=30,
             )
         
