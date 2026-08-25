@@ -1069,19 +1069,19 @@ if token_response.ok and token_json.get("refresh_token"):
                 token_json.get("scope"),
             ))
 
-        conn.commit()
+            conn.commit()
+        
     
-
-        return jsonify({
-            "success": token_response.ok,
-            "status_code": token_response.status_code,
-            "has_access_token": bool(token_json.get("access_token")),
-            "has_refresh_token": bool(token_json.get("refresh_token")),
-            "expires_in": token_json.get("expires_in"),
-            "refresh_token_expires_in": token_json.get("refresh_token_expires_in"),
-            "error": token_json.get("error"),
-            "error_description": token_json.get("error_description"),
-        })
+            return jsonify({
+                "success": token_response.ok,
+                "status_code": token_response.status_code,
+                "has_access_token": bool(token_json.get("access_token")),
+                "has_refresh_token": bool(token_json.get("refresh_token")),
+                "expires_in": token_json.get("expires_in"),
+                "refresh_token_expires_in": token_json.get("refresh_token_expires_in"),
+                "error": token_json.get("error"),
+                "error_description": token_json.get("error_description"),
+            })
 
 @app.route("/ebay/create-return-policy", methods=["GET"])
 def ebay_create_return_policy():
