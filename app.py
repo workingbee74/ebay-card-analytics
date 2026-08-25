@@ -7208,7 +7208,6 @@ def get_ebay_user_access_token():
         data={
             "grant_type": "refresh_token",
             "refresh_token": refresh_token,
-            "scope": "https://api.ebay.com/oauth/api_scope",
         },
         timeout=30,
     )
