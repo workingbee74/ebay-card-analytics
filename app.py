@@ -1085,8 +1085,7 @@ def ebay_exchange_code():
 
 @app.route("/ebay/create-return-policy", methods=["GET"])
 def ebay_create_return_policy():
-    token = os.environ.get("EBAY_USER_ACCESS_TOKEN")
-
+    token = get_ebay_user_access_token()
     response = requests.post(
         "https://api.ebay.com/sell/account/v1/return_policy",
         headers={
