@@ -2402,8 +2402,8 @@ def ebay_search():
             CURRENT_TIMESTAMP
         )
                 
-                              ON CONFLICT (ebay_item_id)
-                            DO UPDATE SET
+                            ON CONFLICT (ebay_item_id)
+                                DO UPDATE SET
                                 title = EXCLUDED.title,
                                 asking_price = EXCLUDED.asking_price,
                                 seller_name = EXCLUDED.seller_name,
@@ -6827,6 +6827,36 @@ def inventory_action_ebay_draft(inventory_id):
                     and result.get("image_url")
                 ]
 
+                ebay_category_id = None
+        
+                with psycopg.connect(DATABASE_URL) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute("""
+                            SELECT player_name
+                            FROM inventory_cards
+                            WHERE id = %s
+                        """, (inventory_id,))
+        
+                        inventory_row = cur.fetchone()
+        
+                        if inventory_row and inventory_row[0]:
+                            player_name_for_category = inventory_row[0]
+        
+                            cur.execute("""
+                                SELECT category_id, COUNT(*) AS category_count
+                                FROM ebay_listings
+                                WHERE category_id IS NOT NULL
+                                  AND player_name = %s
+                                GROUP BY category_id
+                                ORDER BY category_count DESC
+                                LIMIT 1
+                            """, (player_name_for_category,))
+        
+                            category_row = cur.fetchone()
+        
+                            if category_row:
+                                ebay_category_id = category_row[0]
+
                 ebay_listing_payload = {
                     "inventory_id": inventory_id,
                     "title": listing_title,
@@ -6844,6 +6874,7 @@ def inventory_action_ebay_draft(inventory_id):
         return jsonify({
             "success": True,
             "inventory_id": inventory_id,
+            "category_id": ebay_category_id,
             "photos_saved": len(saved_photos),
             "upload_dir": upload_dir,
             "ebay_upload_results": ebay_upload_results,
