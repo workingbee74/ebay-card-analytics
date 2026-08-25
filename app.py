@@ -1017,10 +1017,10 @@ def ebay_create_return_policy():
                 timeout=30,
             )
         
-            return jsonify({
-                "status_code": response.status_code,
-                "response": response.json() if response.content else {}
-            })
+        return jsonify({
+            "status_code": response.status_code,
+            "response": response.json() if response.content else {}
+        })
 
 @app.route("/ebay/create-payment-policy", methods=["GET"])
 def ebay_create_payment_policy():
