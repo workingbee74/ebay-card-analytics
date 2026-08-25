@@ -7506,11 +7506,45 @@ def inventory_action_ebay_draft(inventory_id):
 
             
                              
+sku = f"inventory-{inventory_id}"
 
+inventory_payload = {
+    "availability": {
+        "shipToLocationAvailability": {
+            "quantity": 1
+        }
+    },
+    "condition": "LIKE_NEW",
+    "product": {
+        "title": listing_title,
+        "description": listing_description,
+        "imageUrls": ebay_image_urls,
+    }
+}
+
+inventory_response = requests.put(
+    f"https://api.ebay.com/sell/inventory/v1/inventory_item/{sku}",
+    headers={
+        "Authorization": f"Bearer {ebay_token}",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Content-Language": "en-US",
+    },
+    json=inventory_payload,
+    timeout=30,
+)
+
+inventory_response_json = (
+    inventory_response.json()
+    if inventory_response.content
+    else {}
+)
                
         return jsonify({
             "success": True,
             "inventory_id": inventory_id,
+            "ebay_inventory_status": inventory_response.status_code,
+            "ebay_inventory_response": inventory_response_json,
             "category_id": "261328",
             "photos_saved": len(saved_photos),
             "upload_dir": upload_dir,
