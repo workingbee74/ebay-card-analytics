@@ -994,7 +994,28 @@ def calculate_disposition(
 @app.route("/privacy-policy.html", methods=["GET"])
 def privacy_policy_html():
     return privacy_policy()
-    
+
+@app.route("/ebay/opt-in-business-policies", methods=["GET"])
+def ebay_opt_in_business_policies():
+    token = os.environ.get("EBAY_USER_ACCESS_TOKEN")
+
+    response = requests.post(
+        "https://api.ebay.com/sell/account/v1/program/opt_in",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+        json={
+            "programType": "SELLING_POLICY_MANAGEMENT"
+        },
+        timeout=30,
+    )
+
+    return jsonify({
+        "status_code": response.status_code,
+        "response": response.json() if response.content else {}
+    })
 
 @app.route("/cardhedge-history-test", methods=["GET"])
 def calculate_action_priority(
