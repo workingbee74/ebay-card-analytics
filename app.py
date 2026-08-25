@@ -991,6 +991,41 @@ def calculate_disposition(
         "gain_loss_pct": gain_loss_pct,
     }
 
+@app.route("/ebay/create-return-policy", methods=["GET"])
+def ebay_create_return_policy():
+    token = os.environ.get("EBAY_USER_ACCESS_TOKEN")
+
+    response = requests.post(
+        "https://api.ebay.com/sell/account/v1/return_policy",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+        json={
+            "name": "JackStation 30 Day Returns",
+            "description": "30 day returns for JackStation listings",
+            "marketplaceId": "EBAY_US",
+            "categoryTypes": [
+                {
+                    "name": "ALL_EXCLUDING_MOTORS_VEHICLES"
+                }
+            ],
+            "returnsAccepted": True,
+            "returnPeriod": {
+                "value": 30,
+                "unit": "DAY"
+            },
+            "returnShippingCostPayer": "BUYER"
+        },
+        timeout=30,
+    )
+
+    return jsonify({
+        "status_code": response.status_code,
+        "response": response.json() if response.content else {}
+    })
+
 @app.route("/ebay/create-payment-policy", methods=["GET"])
 def ebay_create_payment_policy():
     token = os.environ.get("EBAY_USER_ACCESS_TOKEN")
