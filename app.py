@@ -1144,6 +1144,31 @@ def ebay_exchange_code():
 
     token_json = token_response.json() if token_response.content else {}
 
+
+access_token = token_json.get("access_token")
+
+introspect_data = {}
+
+if access_token:
+    introspect_response = requests.post(
+        "https://api.ebay.com/identity/v1/oauth2/token/introspect",
+        headers={
+            "Authorization": f"Basic {encoded_credentials}",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        data={
+            "token": access_token,
+            "token_type_hint": "access_token",
+        },
+        timeout=30,
+    )
+
+    introspect_data = (
+        introspect_response.json()
+        if introspect_response.content
+        else {}
+    )
+    
     if token_response.ok and token_json.get("refresh_token"):
         ensure_ebay_oauth_table()
     
@@ -1180,6 +1205,7 @@ def ebay_exchange_code():
                     "status_code": token_response.status_code,
                     "has_access_token": bool(token_json.get("access_token")),
                     "has_refresh_token": bool(token_json.get("refresh_token")),
+                    "original_access_token_scope": introspect_data.get("scope"),
                     "expires_in": token_json.get("expires_in"),
                     "refresh_token_expires_in": token_json.get("refresh_token_expires_in"),
                     "error": token_json.get("error"),
