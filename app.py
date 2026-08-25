@@ -7094,7 +7094,10 @@ def get_ebay_user_access_token():
 
 @app.route("/ebay/oauth/start")
 def ebay_oauth_start():
-    scopes = "https://api.ebay.com/oauth/api_scope"
+    scopes = (
+        "https://api.ebay.com/oauth/api_scope "
+        "https://api.ebay.com/oauth/api_scope/sell.account"
+    )
 
     params = {
         "client_id": EBAY_CLIENT_ID,
