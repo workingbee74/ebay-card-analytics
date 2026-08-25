@@ -6858,7 +6858,7 @@ def inventory_action_ebay_draft(inventory_id):
 
                 ebay_listing_payload = {
                     "inventory_id": inventory_id,
-                    category_id": "261328"
+                    "category_id": "261328"
                     "condition_id": "2750",
                     "condition_descriptors": {
                         "professional_grader": "PSA",
