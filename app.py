@@ -1003,28 +1003,25 @@ def ebay_create_return_policy():
             "Accept": "application/json",
         },
         json={
-            "name": "JackStation 30 Day Returns",
-            "description": "30 day returns for JackStation listings",
+            "name": "JackStation No Returns",
+            "description": "No returns accepted for JackStation listings",
             "marketplaceId": "EBAY_US",
             "categoryTypes": [
                 {
                     "name": "ALL_EXCLUDING_MOTORS_VEHICLES"
                 }
             ],
-            "returnsAccepted": True,
-            "returnPeriod": {
-                "value": 30,
-                "unit": "DAY"
-            },
-            "returnShippingCostPayer": "BUYER"
+            "returnsAccepted": False
         },
-        timeout=30,
-    )
-
-    return jsonify({
-        "status_code": response.status_code,
-        "response": response.json() if response.content else {}
-    })
+                    
+                },
+                timeout=30,
+            )
+        
+            return jsonify({
+                "status_code": response.status_code,
+                "response": response.json() if response.content else {}
+            })
 
 @app.route("/ebay/create-payment-policy", methods=["GET"])
 def ebay_create_payment_policy():
