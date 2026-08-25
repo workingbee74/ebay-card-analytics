@@ -6846,11 +6846,10 @@ def inventory_action_ebay_draft(inventory_id):
                                 SELECT category_id, COUNT(*) AS category_count
                                 FROM ebay_listings
                                 WHERE category_id IS NOT NULL
-                                  AND player_name = %s
                                 GROUP BY category_id
                                 ORDER BY category_count DESC
                                 LIMIT 1
-                            """, (player_name_for_category,))
+                            """,
         
                             category_row = cur.fetchone()
         
