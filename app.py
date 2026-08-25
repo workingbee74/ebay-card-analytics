@@ -6780,6 +6780,8 @@ def inventory_action_ebay_draft(inventory_id):
         os.makedirs(upload_dir, exist_ok=True)
     
         saved_photos = []
+        ebay_upload_results = []
+        ebay_image_urls = []
     
         for photo in photos:
             if photo and photo.filename:
@@ -6790,7 +6792,7 @@ def inventory_action_ebay_draft(inventory_id):
                 saved_photos.append(save_path)
     
         ebay_token = os.environ.get("EBAY_USER_ACCESS_TOKEN")
-        ebay_upload_results = []
+        
 
         if ebay_token and saved_photos:
             for photo_path in saved_photos:
