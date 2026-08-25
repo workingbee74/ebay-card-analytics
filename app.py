@@ -7227,7 +7227,8 @@ def get_ebay_user_access_token():
 def ebay_oauth_start():
     scopes = (
         "https://api.ebay.com/oauth/api_scope "
-        "https://api.ebay.com/oauth/api_scope/sell.account"
+        "https://api.ebay.com/oauth/api_scope/sell.account "
+        "https://api.ebay.com/oauth/api_scope/sell.inventory"
     )
 
     params = {
