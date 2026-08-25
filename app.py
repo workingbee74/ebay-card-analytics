@@ -1039,6 +1039,58 @@ def ebay_oauth_introspect_test():
         "token_type": data.get("token_type"),
     })
 
+
+@app.route("/ebay/oauth/introspect-refresh")
+def ebay_oauth_introspect_refresh():
+    ensure_ebay_oauth_table()
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT refresh_token
+                FROM ebay_oauth_tokens
+                WHERE id = 1
+            """)
+            row = cur.fetchone()
+
+    if not row or not row[0]:
+        return jsonify({
+            "success": False,
+            "error": "No saved refresh token"
+        }), 400
+
+    refresh_token = row[0]
+
+    client_id = os.environ.get("EBAY_CLIENT_ID")
+    client_secret = os.environ.get("EBAY_CLIENT_SECRET")
+
+    credentials = f"{client_id}:{client_secret}"
+    encoded_credentials = base64.b64encode(
+        credentials.encode("utf-8")
+    ).decode("utf-8")
+
+    response = requests.post(
+        "https://api.ebay.com/identity/v1/oauth2/token/introspect",
+        headers={
+            "Authorization": f"Basic {encoded_credentials}",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        data={
+            "token": refresh_token,
+            "token_type_hint": "refresh_token",
+        },
+        timeout=30,
+    )
+
+    data = response.json() if response.content else {}
+
+    return jsonify({
+        "status_code": response.status_code,
+        "active": data.get("active"),
+        "scope": data.get("scope"),
+        "token_type": data.get("token_type"),
+    })
+
 @app.route("/ebay/oauth/exchange-code", methods=["GET", "POST"])
 def ebay_exchange_code():
     auth_code = urllib.parse.unquote(
