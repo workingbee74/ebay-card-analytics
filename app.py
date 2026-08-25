@@ -6768,6 +6768,12 @@ def ebay_oauth_start():
 )
 def inventory_action_ebay_draft(inventory_id):
     if request.method == "POST":
+        listing_title = request.form.get("listing_title", "").strip()
+        listing_description = request.form.get("listing_description", "").strip()
+        starting_bid = request.form.get("starting_bid", "").strip()
+        auction_duration = request.form.get("auction_duration", "7").strip()
+        condition_value = request.form.get("condition", "graded").strip()
+    
         photos = request.files.getlist("listing_photos")
     
         upload_dir = f"/tmp/ebay_draft_{inventory_id}"
@@ -6828,7 +6834,12 @@ def inventory_action_ebay_draft(inventory_id):
             "upload_dir": upload_dir,
             "ebay_upload_results": ebay_upload_results,
             "ebay_image_urls": ebay_image_urls,
-        })   
+            "listing_title": listing_title,
+            "listing_description": listing_description,
+            "starting_bid": starting_bid,
+            "auction_duration": auction_duration,
+            "condition": condition_value,
+                    })   
         
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
