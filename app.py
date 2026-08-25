@@ -7042,6 +7042,57 @@ def ebay_oauth_callback():
 
     return f"eBay authorization code received successfully."
 
+
+def get_ebay_user_access_token():
+    ensure_ebay_oauth_table()
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT refresh_token
+                FROM ebay_oauth_tokens
+                WHERE id = 1
+            """)
+            row = cur.fetchone()
+
+    if not row or not row[0]:
+        raise RuntimeError("No saved eBay refresh token")
+
+    refresh_token = row[0]
+
+    client_id = os.environ.get("EBAY_CLIENT_ID")
+    client_secret = os.environ.get("EBAY_CLIENT_SECRET")
+
+    credentials = f"{client_id}:{client_secret}"
+    encoded_credentials = base64.b64encode(
+        credentials.encode("utf-8")
+    ).decode("utf-8")
+
+    response = requests.post(
+        "https://api.ebay.com/identity/v1/oauth2/token",
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": f"Basic {encoded_credentials}",
+        },
+        data={
+            "grant_type": "refresh_token",
+            "refresh_token": refresh_token,
+            "scope": "https://api.ebay.com/oauth/api_scope",
+        },
+        timeout=30,
+    )
+
+    token_json = response.json() if response.content else {}
+
+    if not response.ok or not token_json.get("access_token"):
+        raise RuntimeError(
+            token_json.get("error_description")
+            or token_json.get("error")
+            or "Unable to refresh eBay access token"
+        )
+
+    return token_json["access_token"]
+
 @app.route("/ebay/oauth/start")
 def ebay_oauth_start():
     scopes = "https://api.ebay.com/oauth/api_scope"
