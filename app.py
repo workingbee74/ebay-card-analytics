@@ -6879,16 +6879,7 @@ def inventory_action_ebay_draft(inventory_id):
                                 ebay_category_id = category_row[0]
 
             
-                    "title": listing_title,
-                    "description": listing_description,
-                    "starting_bid": starting_bid,
-                    "auction_duration_days": auction_duration,
-                    "condition": condition_value,
-                    "image_urls": ebay_image_urls,
-                    "quantity": 1,
-                    "format": "AUCTION",
-                    "marketplace": "EBAY_US",
-                
+                             
 
                
         return jsonify({
