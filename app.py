@@ -1005,7 +1005,7 @@ def calculate_disposition(
     }
 
 
-@app.route("/ebay/oauth/exchange-code", methods=["POST"])
+@app.route("/ebay/oauth/exchange-code", methods=["GET", "POST"])
 def ebay_exchange_code():
     auth_code = urllib.parse.unquote(
         request.form.get("code", "").strip()
