@@ -7059,6 +7059,27 @@ def ebay_oauth_start():
     )
 
     return redirect(auth_url)
+
+@app.route("/ebay/oauth/status")
+def ebay_oauth_status():
+    ensure_ebay_oauth_table()
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT refresh_token, scope, updated_at
+                FROM ebay_oauth_tokens
+                WHERE id = 1
+            """)
+            row = cur.fetchone()
+
+    return jsonify({
+        "saved": bool(row),
+        "has_refresh_token": bool(row and row[0]),
+        "scope": row[1] if row else None,
+        "updated_at": row[2].isoformat() if row and row[2] else None,
+    })
+
     
 @app.route(
     "/inventory/action/<int:inventory_id>/ebay-draft",
