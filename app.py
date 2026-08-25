@@ -6766,11 +6766,15 @@ def privacy_policy():
 
 @app.route("/ebay/user-token-check")
 def ebay_user_token_check():
-    token = os.environ.get("EBAY_USER_ACCESS_TOKEN")
+    token = os.environ.get("EBAY_USER_ACCESS_TOKEN", "")
 
     return jsonify({
         "configured": bool(token),
-        "length": len(token) if token else 0
+        "length": len(token),
+        "starts_with_bearer": token.lower().startswith("bearer "),
+        "has_leading_space": token != token.lstrip(),
+        "has_trailing_space": token != token.rstrip(),
+        "has_quotes": token.startswith(("'", '"')) or token.endswith(("'", '"')),
     })
 
 @app.route("/ebay/oauth/callback", methods=["GET"])
