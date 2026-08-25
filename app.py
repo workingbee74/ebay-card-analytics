@@ -6849,7 +6849,7 @@ def inventory_action_ebay_draft(inventory_id):
                                 GROUP BY category_id
                                 ORDER BY category_count DESC
                                 LIMIT 1
-                            """
+                            """)
         
                             category_row = cur.fetchone()
         
