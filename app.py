@@ -1041,47 +1041,47 @@ def ebay_exchange_code():
 
     token_json = token_response.json() if token_response.content else {}
 
-if token_response.ok and token_json.get("refresh_token"):
-    ensure_ebay_oauth_table()
-
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                INSERT INTO ebay_oauth_tokens (
-                    id,
-                    refresh_token,
-                    scope,
-                    updated_at
-                )
-                VALUES (
-                    1,
-                    %s,
-                    %s,
-                    CURRENT_TIMESTAMP
-                )
-                ON CONFLICT (id)
-                DO UPDATE SET
-                    refresh_token = EXCLUDED.refresh_token,
-                    scope = EXCLUDED.scope,
-                    updated_at = CURRENT_TIMESTAMP
-            """, (
-                token_json["refresh_token"],
-                token_json.get("scope"),
-            ))
-
-            conn.commit()
-        
+    if token_response.ok and token_json.get("refresh_token"):
+        ensure_ebay_oauth_table()
     
-            return jsonify({
-                "success": token_response.ok,
-                "status_code": token_response.status_code,
-                "has_access_token": bool(token_json.get("access_token")),
-                "has_refresh_token": bool(token_json.get("refresh_token")),
-                "expires_in": token_json.get("expires_in"),
-                "refresh_token_expires_in": token_json.get("refresh_token_expires_in"),
-                "error": token_json.get("error"),
-                "error_description": token_json.get("error_description"),
-            })
+        with psycopg.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO ebay_oauth_tokens (
+                        id,
+                        refresh_token,
+                        scope,
+                        updated_at
+                    )
+                    VALUES (
+                        1,
+                        %s,
+                        %s,
+                        CURRENT_TIMESTAMP
+                    )
+                    ON CONFLICT (id)
+                    DO UPDATE SET
+                        refresh_token = EXCLUDED.refresh_token,
+                        scope = EXCLUDED.scope,
+                        updated_at = CURRENT_TIMESTAMP
+                """, (
+                    token_json["refresh_token"],
+                    token_json.get("scope"),
+                ))
+    
+                conn.commit()
+            
+        
+                return jsonify({
+                    "success": token_response.ok,
+                    "status_code": token_response.status_code,
+                    "has_access_token": bool(token_json.get("access_token")),
+                    "has_refresh_token": bool(token_json.get("refresh_token")),
+                    "expires_in": token_json.get("expires_in"),
+                    "refresh_token_expires_in": token_json.get("refresh_token_expires_in"),
+                    "error": token_json.get("error"),
+                    "error_description": token_json.get("error_description"),
+                })
 
 @app.route("/ebay/create-return-policy", methods=["GET"])
 def ebay_create_return_policy():
