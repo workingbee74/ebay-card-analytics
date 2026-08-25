@@ -1051,7 +1051,7 @@ def ebay_create_fulfillment_policy():
                     "shippingServices": [
                         {
                             "shippingCarrierCode": "USPS",
-                            "shippingServiceCode": "USPSGroundAdvantage",
+                            "shippingServiceCode": "USPSParcel",
                             "shippingCost": {
                                 "value": "5.50",
                                 "currency": "USD"
