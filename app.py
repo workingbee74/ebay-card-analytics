@@ -991,6 +991,35 @@ def calculate_disposition(
         "gain_loss_pct": gain_loss_pct,
     }
 
+@app.route("/ebay/create-payment-policy", methods=["GET"])
+def ebay_create_payment_policy():
+    token = os.environ.get("EBAY_USER_ACCESS_TOKEN")
+
+    response = requests.post(
+        "https://api.ebay.com/sell/account/v1/payment_policy",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+        json={
+            "name": "JackStation Payment Policy",
+            "description": "Standard payment policy for JackStation listings",
+            "marketplaceId": "EBAY_US",
+            "categoryTypes": [
+                {
+                    "name": "ALL_EXCLUDING_MOTORS_VEHICLES"
+                }
+            ]
+        },
+        timeout=30,
+    )
+
+    return jsonify({
+        "status_code": response.status_code,
+        "response": response.json() if response.content else {}
+    })
+
 @app.route("/ebay/shipping-services", methods=["GET"])
 def ebay_shipping_services():
     token = os.environ.get("EBAY_USER_ACCESS_TOKEN")
