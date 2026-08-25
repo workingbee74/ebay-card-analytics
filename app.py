@@ -2188,7 +2188,10 @@ def ebay_exact_comp_search():
         },
         data={
             "grant_type": "client_credentials",
-            "scope": "https://api.ebay.com/oauth/api_scope",
+            "scope": (
+                "https://api.ebay.com/oauth/api_scope "
+                "https://api.ebay.com/oauth/api_scope/sell.account"
+            ),
         },
         timeout=20,
     )
