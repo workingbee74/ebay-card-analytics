@@ -6826,7 +6826,21 @@ def inventory_action_ebay_draft(inventory_id):
                     if result.get("status_code") == 201
                     and result.get("image_url")
                 ]
-        
+
+                ebay_listing_payload = {
+                    "inventory_id": inventory_id,
+                    "title": listing_title,
+                    "description": listing_description,
+                    "starting_bid": starting_bid,
+                    "auction_duration_days": auction_duration,
+                    "condition": condition_value,
+                    "image_urls": ebay_image_urls,
+                    "quantity": 1,
+                    "format": "AUCTION",
+                    "marketplace": "EBAY_US",
+                }
+
+               
         return jsonify({
             "success": True,
             "inventory_id": inventory_id,
@@ -6839,7 +6853,8 @@ def inventory_action_ebay_draft(inventory_id):
             "starting_bid": starting_bid,
             "auction_duration": auction_duration,
             "condition": condition_value,
-                    })   
+            "ebay_listing_payload": ebay_listing_payload,
+        })   
         
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
