@@ -6888,7 +6888,7 @@ def inventory_action_ebay_draft(inventory_id):
                     "quantity": 1,
                     "format": "AUCTION",
                     "marketplace": "EBAY_US",
-                }
+                
 
                
         return jsonify({
