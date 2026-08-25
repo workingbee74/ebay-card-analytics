@@ -6879,7 +6879,7 @@ def inventory_action_ebay_draft(inventory_id):
         return jsonify({
             "success": True,
             "inventory_id": inventory_id,
-            "category_id": ebay_category_id,
+            "category_id": "261328",
             "photos_saved": len(saved_photos),
             "upload_dir": upload_dir,
             "ebay_upload_results": ebay_upload_results,
