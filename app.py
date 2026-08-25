@@ -7436,7 +7436,7 @@ def inventory_action_ebay_draft(inventory_id):
                 photo.save(save_path)
                 saved_photos.append(save_path)
     
-        ebay_token = os.environ.get("EBAY_USER_ACCESS_TOKEN")
+        ebay_token = get_ebay_user_access_token()
         
 
         if ebay_token and saved_photos:
