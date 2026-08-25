@@ -6782,6 +6782,26 @@ def inventory_action_ebay_draft(inventory_id):
         saved_photos = []
         ebay_upload_results = []
         ebay_image_urls = []
+
+
+        ebay_listing_payload = {
+            "inventory_id": inventory_id,
+            "category_id": "261328",
+            "condition_id": "2750",
+            "condition_descriptors": {
+                "professional_grader": "PSA",
+                "grade": "10",
+            },
+            "title": listing_title,
+            "description": listing_description,
+            "starting_bid": starting_bid,
+            "auction_duration_days": auction_duration,
+            "condition": condition_value,
+            "image_urls": ebay_image_urls,
+            "quantity": 1,
+            "format": "AUCTION",
+            "marketplace": "EBAY_US",
+        }
     
         for photo in photos:
             if photo and photo.filename:
@@ -6858,14 +6878,7 @@ def inventory_action_ebay_draft(inventory_id):
                             if category_row:
                                 ebay_category_id = category_row[0]
 
-                ebay_listing_payload = {
-                    "inventory_id": inventory_id,
-                    "category_id": "261328",
-                    "condition_id": "2750",
-                    "condition_descriptors": {
-                        "professional_grader": "PSA",
-                        "grade": "10",
-                    },
+            
                     "title": listing_title,
                     "description": listing_description,
                     "starting_bid": starting_bid,
