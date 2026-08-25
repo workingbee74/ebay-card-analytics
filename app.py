@@ -1132,6 +1132,48 @@ def calculate_auction_start_price(
 
     return max(0.99, recommended_start)
 
+
+@app.route("/ebay/policies", methods=["GET"])
+def ebay_policies():
+    token = os.environ.get("EBAY_USER_ACCESS_TOKEN")
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json",
+    }
+
+    base_url = "https://api.ebay.com/sell/account/v1"
+
+    fulfillment = requests.get(
+        f"{base_url}/fulfillment_policy",
+        headers=headers,
+        params={"marketplace_id": "EBAY_US"},
+        timeout=30,
+    )
+
+    payment = requests.get(
+        f"{base_url}/payment_policy",
+        headers=headers,
+        params={"marketplace_id": "EBAY_US"},
+        timeout=30,
+    )
+
+    returns = requests.get(
+        f"{base_url}/return_policy",
+        headers=headers,
+        params={"marketplace_id": "EBAY_US"},
+        timeout=30,
+    )
+
+    return jsonify({
+        "fulfillment_status": fulfillment.status_code,
+        "fulfillment": fulfillment.json() if fulfillment.content else {},
+        "payment_status": payment.status_code,
+        "payment": payment.json() if payment.content else {},
+        "return_status": returns.status_code,
+        "returns": returns.json() if returns.content else {},
+    })
+
 @app.route("/cardhedge-history-test", methods=["GET"])
 def cardhedge_history_test():
     card_id = request.args.get("card_id")
