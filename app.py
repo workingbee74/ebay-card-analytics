@@ -991,6 +991,57 @@ def calculate_disposition(
         "gain_loss_pct": gain_loss_pct,
     }
 
+
+@app.route("/ebay/create-fulfillment-policy", methods=["GET"])
+def ebay_create_fulfillment_policy():
+    token = os.environ.get("EBAY_USER_ACCESS_TOKEN")
+
+    response = requests.post(
+        "https://api.ebay.com/sell/account/v1/fulfillment_policy",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+        json={
+            "name": "JackStation Graded Card Shipping",
+            "description": "Buyer-paid shipping for graded trading cards",
+            "marketplaceId": "EBAY_US",
+            "categoryTypes": [
+                {
+                    "name": "ALL_EXCLUDING_MOTORS_VEHICLES"
+                }
+            ],
+            "handlingTime": {
+                "value": 1,
+                "unit": "DAY"
+            },
+            "shippingOptions": [
+                {
+                    "optionType": "DOMESTIC",
+                    "costType": "FLAT_RATE",
+                    "shippingServices": [
+                        {
+                            "shippingCarrierCode": "USPS",
+                            "shippingServiceCode": "USPSGroundAdvantage",
+                            "shippingCost": {
+                                "value": "5.50",
+                                "currency": "USD"
+                            },
+                            "sortOrder": 1
+                        }
+                    ]
+                }
+            ]
+        },
+        timeout=30,
+    )
+
+    return jsonify({
+        "status_code": response.status_code,
+        "response": response.json() if response.content else {}
+    })
+
 @app.route("/privacy-policy.html", methods=["GET"])
 def privacy_policy_html():
     return privacy_policy()
