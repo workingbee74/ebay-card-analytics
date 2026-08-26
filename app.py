@@ -9199,6 +9199,27 @@ def ximilar_test():
         "ximilar": response.json()
     }), response.status_code
 
+
+@app.route("/ebay/inventory-item/<sku>", methods=["GET"])
+def ebay_inventory_item_detail(sku):
+    token = get_ebay_user_access_token()
+
+    response = requests.get(
+        f"https://api.ebay.com/sell/inventory/v1/inventory_item/{sku}",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+        },
+        timeout=30,
+    )
+
+    data = response.json() if response.content else {}
+
+    return jsonify({
+        "status_code": response.status_code,
+        "inventory_item": data,
+    })
+
 @app.route("/deals-dashboard-v2", methods=["GET"])
 def deals_dashboard_v2():
     player_filter = request.args.get("player", "").strip()
