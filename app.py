@@ -9526,9 +9526,7 @@ def ebay_draft_review(offer_id):
                 style="width:100%; padding:10px; margin:8px 0 20px 0;"
             >
     
-            <div>
-                {image_html}
-            </div>
+            
 
             <h3>Listing Photos</h3>
             
