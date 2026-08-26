@@ -9353,20 +9353,21 @@ def ebay_draft_review(offer_id):
                         ),
                     }), 400
             
-                offer_update = {
-                    "sku": sku,
-                    "marketplaceId": offer.get("marketplaceId"),
-                    "format": offer.get("format"),
-                    "categoryId": offer.get("categoryId"),
-                    "listingDescription": description,
-                    "listingPolicies": offer.get("listingPolicies"),
-                    "pricingSummary": {
-                        "auctionStartPrice": {
-                            "value": starting_bid,
-                            "currency": "USD",
-                        }
-                    },
-                    "listingDuration": auction_duration,
+                offer_update = dict(offer)
+
+                # Remove read-only fields returned by eBay
+                offer_update.pop("offerId", None)
+                offer_update.pop("status", None)
+                
+                # Apply the user's draft edits
+                offer_update["listingDescription"] = description
+                offer_update["listingDuration"] = auction_duration
+                
+                offer_update["pricingSummary"] = {
+                    "auctionStartPrice": {
+                        "value": starting_bid,
+                        "currency": "USD",
+                    }
                 }
             
                 update_offer_response = requests.put(
