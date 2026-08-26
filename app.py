@@ -1016,6 +1016,33 @@ def calculate_disposition(
             "gain_loss_pct": gain_loss_pct,
         }
 
+@app.route("/ebay/withdraw-offer/<offer_id>", methods=["GET"])
+def ebay_withdraw_offer(offer_id):
+    ebay_token = get_ebay_user_access_token()
+
+    response = requests.post(
+        f"https://api.ebay.com/sell/inventory/v1/offer/{offer_id}/withdraw",
+        headers={
+            "Authorization": f"Bearer {ebay_token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+        timeout=30,
+    )
+
+    response_json = (
+        response.json()
+        if response.content
+        else {}
+    )
+
+    return jsonify({
+        "success": response.status_code in (200, 204),
+        "offer_id": offer_id,
+        "status_code": response.status_code,
+        "response": response_json,
+    })
+
 
 @app.route("/ebay/oauth/introspect-test")
 def ebay_oauth_introspect_test():
