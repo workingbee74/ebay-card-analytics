@@ -9310,52 +9310,44 @@ def ebay_draft_review(offer_id):
     policies = offer.get("listingPolicies", {})
 
     image_urls = product.get("imageUrls", [])
+    
     image_html = "".join(
-    f"""
-    <div style="
-        display:inline-block;
-        vertical-align:top;
-        width:220px;
-        margin-right:16px;
-        margin-bottom:20px;
-        padding:10px;
-        border:1px solid #ddd;
-        border-radius:8px;
-        background:#fff;
-    ">
-        <img
-            src="{url}"
+        f"""
+        <div
+            class="photo-card"
+            data-kind="existing"
+            data-url="{url}"
             style="
-                width:100%;
-                max-height:300px;
-                object-fit:contain;
-                display:block;
-                margin-bottom:10px;
+                width:220px;
+                padding:10px;
+                border:1px solid #ddd;
+                border-radius:8px;
+                background:#fff;
             "
         >
-
-        <label style="display:block; margin-bottom:8px;">
-            <input
-                type="radio"
-                name="primary_photo"
-                value="{url}"
-                {"checked" if i == 0 else ""}
+            <img
+                src="{url}"
+                style="
+                    width:100%;
+                    height:280px;
+                    object-fit:contain;
+                    display:block;
+                    margin-bottom:10px;
+                "
             >
-            Primary Photo
-        </label>
-
-        <label style="display:block;">
-            <input
-                type="checkbox"
-                name="remove_photo"
-                value="{url}"
-            >
-            Remove
-        </label>
-    </div>
-    """
-    for i, url in enumerate(image_urls)
-)    
+    
+            <div class="photo-status" style="font-weight:bold; margin-bottom:8px;"></div>
+    
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button type="button" class="make-primary">Primary</button>
+                <button type="button" class="move-left">←</button>
+                <button type="button" class="move-right">→</button>
+                <button type="button" class="remove-photo">Remove</button>
+            </div>
+        </div>
+        """
+        for url in image_urls
+    )    
     return f"""
     <html>
     <head>
@@ -9382,28 +9374,57 @@ def ebay_draft_review(offer_id):
                 {image_html}
             </div>
 
-    <h3>Photos</h3>
-
-    <div style="
-        border:2px dashed #ccc;
-        border-radius:8px;
-        padding:18px;
-        margin:10px 0 24px 0;
-        background:#fafafa;
-    ">
-        <strong>Add Photos</strong>
-    
-        <p style="margin:8px 0 12px 0; color:#666;">
-            Add front, back, or detail images to this draft.
-        </p>
-    
-        <input
-            type="file"
-            name="listing_photos"
-            accept="image/*"
-            multiple
-        >
-    </div>
+            <h3>Listing Photos</h3>
+            
+            <div id="photo-manager">
+            
+                <div
+                    id="photo-list"
+                    style="
+                        display:flex;
+                        gap:16px;
+                        flex-wrap:wrap;
+                        margin-bottom:18px;
+                    "
+                >
+                    {image_html}
+                </div>
+            
+                <div style="
+                    border:2px dashed #ccc;
+                    border-radius:8px;
+                    padding:18px;
+                    background:#fafafa;
+                    margin-bottom:20px;
+                ">
+                    <strong>Add Photos</strong>
+            
+                    <p style="margin:8px 0 12px 0; color:#666;">
+                        Add front, back, or detail images. New photos will appear above immediately.
+                    </p>
+            
+                    <input
+                        id="listing-photo-input"
+                        type="file"
+                        name="listing_photos"
+                        accept="image/*"
+                        multiple
+                    >
+                </div>
+            
+                <input
+                    type="hidden"
+                    id="photo_order"
+                    name="photo_order"
+                >
+            
+                <input
+                    type="hidden"
+                    id="removed_photos"
+                    name="removed_photos"
+                >
+            
+            </div>
     
             <br>
     
@@ -9524,6 +9545,177 @@ def ebay_draft_review(offer_id):
             </button>
     
         </form>
+
+
+        <script>
+        (function() {{
+            const manager = document.getElementById("photo-manager");
+            const list = document.getElementById("photo-list");
+            const fileInput = document.getElementById("listing-photo-input");
+            const orderInput = document.getElementById("photo_order");
+            const removedInput = document.getElementById("removed_photos");
+        
+            if (!manager || !list || !fileInput) return;
+        
+            let pendingFiles = [];
+            const removedUrls = new Set();
+        
+            function rebuildFileInput() {{
+                const transfer = new DataTransfer();
+        
+                pendingFiles.forEach(item => {{
+                    transfer.items.add(item.file);
+                }});
+        
+                fileInput.files = transfer.files;
+            }}
+        
+            function updateState() {{
+                const cards = Array.from(
+                    list.querySelectorAll(".photo-card")
+                );
+        
+                cards.forEach((card, index) => {{
+                    const status = card.querySelector(".photo-status");
+                    const primaryButton = card.querySelector(".make-primary");
+        
+                    if (index === 0) {{
+                        status.textContent = "Primary Photo";
+                        primaryButton.disabled = true;
+                    }} else {{
+                        status.textContent = `Photo ${{index + 1}}`;
+                        primaryButton.disabled = false;
+                    }}
+                }});
+        
+                const order = cards.map(card => {{
+                    if (card.dataset.kind === "existing") {{
+                        return {{
+                            kind: "existing",
+                            value: card.dataset.url
+                        }};
+                    }}
+        
+                    return {{
+                        kind: "new",
+                        value: card.dataset.fileKey
+                    }};
+                }});
+        
+                orderInput.value = JSON.stringify(order);
+                removedInput.value = JSON.stringify(Array.from(removedUrls));
+            }}
+        
+            function wireCard(card) {{
+                const primary = card.querySelector(".make-primary");
+                const left = card.querySelector(".move-left");
+                const right = card.querySelector(".move-right");
+                const remove = card.querySelector(".remove-photo");
+        
+                primary.addEventListener("click", () => {{
+                    list.insertBefore(card, list.firstChild);
+                    updateState();
+                }});
+        
+                left.addEventListener("click", () => {{
+                    const previous = card.previousElementSibling;
+        
+                    if (previous) {{
+                        list.insertBefore(card, previous);
+                        updateState();
+                    }}
+                }});
+        
+                right.addEventListener("click", () => {{
+                    const next = card.nextElementSibling;
+        
+                    if (next) {{
+                        list.insertBefore(next, card);
+                        updateState();
+                    }}
+                }});
+        
+                remove.addEventListener("click", () => {{
+                    if (card.dataset.kind === "existing") {{
+                        removedUrls.add(card.dataset.url);
+                    }} else {{
+                        pendingFiles = pendingFiles.filter(
+                            item => item.key !== card.dataset.fileKey
+                        );
+        
+                        rebuildFileInput();
+                    }}
+        
+                    card.remove();
+                    updateState();
+                }});
+            }}
+        
+            Array.from(
+                list.querySelectorAll(".photo-card")
+            ).forEach(wireCard);
+        
+            fileInput.addEventListener("change", () => {{
+                const selectedFiles = Array.from(fileInput.files);
+        
+                selectedFiles.forEach(file => {{
+                    const key =
+                        `${{Date.now()}}-${{Math.random()}}-${{file.name}}`;
+        
+                    pendingFiles.push({{
+                        key: key,
+                        file: file
+                    }});
+        
+                    const previewUrl = URL.createObjectURL(file);
+        
+                    const card = document.createElement("div");
+                    card.className = "photo-card";
+                    card.dataset.kind = "new";
+                    card.dataset.fileKey = key;
+        
+                    card.style.width = "220px";
+                    card.style.padding = "10px";
+                    card.style.border = "1px solid #ddd";
+                    card.style.borderRadius = "8px";
+                    card.style.background = "#fff";
+        
+                    card.innerHTML = `
+                        <img
+                            src="${{previewUrl}}"
+                            style="
+                                width:100%;
+                                height:280px;
+                                object-fit:contain;
+                                display:block;
+                                margin-bottom:10px;
+                            "
+                        >
+        
+                        <div
+                            class="photo-status"
+                            style="font-weight:bold; margin-bottom:8px;"
+                        ></div>
+        
+                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                            <button type="button" class="make-primary">Primary</button>
+                            <button type="button" class="move-left">←</button>
+                            <button type="button" class="move-right">→</button>
+                            <button type="button" class="remove-photo">Remove</button>
+                        </div>
+                    `;
+        
+                    list.appendChild(card);
+                    wireCard(card);
+                }});
+        
+                rebuildFileInput();
+                updateState();
+            }});
+        
+            updateState();
+        }})();
+        </script>
     
     </body>
     </html>
