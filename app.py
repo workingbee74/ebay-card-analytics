@@ -7560,6 +7560,46 @@ def inventory_action_ebay_draft(inventory_id):
             if inventory_response.content
             else {}
         )
+
+        offer_payload = {
+            "sku": sku,
+            "marketplaceId": "EBAY_US",
+            "format": "AUCTION",
+            "availableQuantity": 1,
+            "categoryId": "261328",
+            "listingDescription": listing_description,
+            "listingPolicies": {
+                "fulfillmentPolicyId": "294947209015",
+                "paymentPolicyId": "294947292015",
+                "returnPolicyId": "294956239015",
+            },
+            "pricingSummary": {
+                "auctionStartPrice": {
+                    "value": str(starting_bid),
+                    "currency": "USD",
+                }
+            },
+            "listingDuration": f"DAYS_{auction_duration}",
+        }
+        
+        offer_response = requests.post(
+            "https://api.ebay.com/sell/inventory/v1/offer",
+            headers={
+                "Authorization": f"Bearer {ebay_token}",
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Content-Language": "en-US",
+            },
+            json=offer_payload,
+            timeout=30,
+        )
+        
+        offer_response_json = (
+            offer_response.json()
+            if offer_response.content
+            else {}
+        )
+
                    
         return jsonify({
             "success": True,
@@ -7577,6 +7617,8 @@ def inventory_action_ebay_draft(inventory_id):
             "auction_duration": auction_duration,
             "condition": condition_value,
             "ebay_listing_payload": ebay_listing_payload,
+            "ebay_offer_status": offer_response.status_code,
+            "ebay_offer_response": offer_response_json,
         })   
         
     with psycopg.connect(DATABASE_URL) as conn:
