@@ -1016,6 +1016,24 @@ def calculate_disposition(
             "gain_loss_pct": gain_loss_pct,
         }
 
+@app.route("/ebay/oauth/db-scope", methods=["GET"])
+def ebay_oauth_db_scope():
+    ensure_ebay_oauth_table()
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT scope, updated_at
+                FROM ebay_oauth_tokens
+                WHERE id = 1
+            """)
+
+            row = cur.fetchone()
+
+    return jsonify({
+        "scope": row[0] if row else None,
+        "updated_at": row[1].isoformat() if row and row[1] else None,
+    })
 
 @app.route("/ebay/whoami", methods=["GET"])
 def ebay_whoami():
