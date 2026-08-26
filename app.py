@@ -9381,6 +9381,13 @@ def ebay_draft_review(offer_id):
                     json=offer_update,
                     timeout=30,
                 )
+
+
+                print(
+                    "EBAY OFFER UPDATE:",
+                    update_offer_response.status_code,
+                    update_offer_response.text
+                )
             
                 if update_offer_response.status_code not in (200, 204):
                     return jsonify({
