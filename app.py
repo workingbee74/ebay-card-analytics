@@ -4,6 +4,7 @@ import base64
 import requests
 import psycopg
 import re
+import time
 import json
 import unicodedata
 import base64
@@ -9404,6 +9405,8 @@ def ebay_draft_review(offer_id):
                     else {}
                 ),
             }), 400
+
+            time.sleep(1)
         
             return redirect(
                 f"/ebay/draft-review/{offer_id}?saved=1"
