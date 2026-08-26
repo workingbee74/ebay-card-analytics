@@ -1327,6 +1327,7 @@ def ebay_create_return_policy():
             "name": "JackStation No Returns",
             "description": "No returns accepted for JackStation listings",
             "marketplaceId": "EBAY_US",
+            "merchantLocationKey": "jackstation-main",
             "categoryTypes": [
                 {
                     "name": "ALL_EXCLUDING_MOTORS_VEHICLES"
