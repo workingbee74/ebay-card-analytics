@@ -9259,7 +9259,87 @@ def ebay_draft_review(offer_id):
         for url in image_urls
     )
 
+    
     return f"""
+    <html>
+    <head>
+        <title>Review eBay Draft</title>
+    </head>
+    
+    <body style="font-family:Arial; max-width:1000px; margin:40px auto;">
+    
+        <h1>Review eBay Draft</h1>
+    
+        <p><strong>Status:</strong> {offer.get("status")}</p>
+    
+        <form method="POST">
+    
+            <label><strong>Title</strong></label><br>
+            <input
+                type="text"
+                name="title"
+                value="{product.get("title", "")}"
+                style="width:100%; padding:10px; margin:8px 0 20px 0;"
+            >
+    
+            <div>
+                {image_html}
+            </div>
+    
+            <br>
+    
+            <label><strong>Description</strong></label><br>
+            <textarea
+                name="description"
+                rows="8"
+                style="width:100%; padding:10px; margin:8px 0 20px 0;"
+            >{offer.get("listingDescription", "")}</textarea>
+    
+            <label><strong>Starting Bid</strong></label><br>
+            <input
+                type="text"
+                name="starting_bid"
+                value="{auction_price.get("value", "")}"
+                style="width:200px; padding:10px; margin:8px 0 20px 0;"
+            >
+    
+            <br>
+    
+            <label><strong>Auction Duration</strong></label><br>
+            <select
+                name="auction_duration"
+                style="padding:10px; margin:8px 0 20px 0;"
+            >
+                <option value="DAYS_3" {"selected" if offer.get("listingDuration") == "DAYS_3" else ""}>3 days</option>
+                <option value="DAYS_5" {"selected" if offer.get("listingDuration") == "DAYS_5" else ""}>5 days</option>
+                <option value="DAYS_7" {"selected" if offer.get("listingDuration") == "DAYS_7" else ""}>7 days</option>
+                <option value="DAYS_10" {"selected" if offer.get("listingDuration") == "DAYS_10" else ""}>10 days</option>
+            </select>
+    
+            <h3>Policies</h3>
+    
+            <p><strong>Shipping:</strong> JackStation Graded Card Shipping</p>
+            <p><strong>Payment:</strong> JackStation Payment Policy</p>
+            <p><strong>Returns:</strong> No Returns</p>
+    
+            <hr>
+    
+            <p><strong>Offer ID:</strong> {offer_id}</p>
+            <p><strong>SKU:</strong> {sku}</p>
+    
+            <button
+                type="submit"
+                style="padding:12px 20px; font-size:16px;"
+            >
+                Save Draft Changes
+            </button>
+    
+        </form>
+    
+    </body>
+    </html>
+    """
+    
     <html>
     <head>
         <title>Review eBay Draft</title>
