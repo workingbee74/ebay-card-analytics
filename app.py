@@ -1525,7 +1525,7 @@ def calculate_auction_start_price(
 
 @app.route("/ebay/policies", methods=["GET"])
 def ebay_policies():
-    token = os.environ.get("EBAY_USER_ACCESS_TOKEN")
+    token = get_ebay_user_access_token()
 
     headers = {
         "Authorization": f"Bearer {token}",
