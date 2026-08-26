@@ -9311,7 +9311,32 @@ def ebay_draft_review(offer_id):
 
     image_urls = product.get("imageUrls", [])
     image_html = "".join(
-        f'<img src="{url}" style="max-width:300px; margin-right:12px;">'
+        f"""
+        <div style="
+            display:inline-block;
+            vertical-align:top;
+            margin-right:16px;
+            margin-bottom:16px;
+        ">
+            <img
+                src="{url}"
+                style="
+                    max-width:220px;
+                    display:block;
+                    margin-bottom:8px;
+                "
+            >
+    
+            <label>
+                <input
+                    type="checkbox"
+                    name="remove_photo"
+                    value="{url}"
+                >
+                Remove
+            </label>
+        </div>
+        """
         for url in image_urls
     )
 
