@@ -9543,6 +9543,9 @@ def ebay_draft_review(offer_id):
         product["title"] = title
         product["description"] = description
         product["imageUrls"] = final_image_urls
+        aspects = product.get("aspects", {})
+        aspects["Sport"] = ["Baseball"]
+        product["aspects"] = aspects
     
         item["product"] = product
 
