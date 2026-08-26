@@ -9550,6 +9550,11 @@ def ebay_draft_review(offer_id):
         item["product"] = product
 
         app.logger.warning("DRAFT SAVE: about to update inventory item")
+
+        app.logger.warning(
+            "INVENTORY UPDATE PRODUCT: %s",
+            item.get("product", {})
+        )
     
         update_item_response = requests.put(
             f"https://api.ebay.com/sell/inventory/v1/inventory_item/{sku}",
@@ -9561,6 +9566,12 @@ def ebay_draft_review(offer_id):
             },
             json=item,
             timeout=30,
+        )
+
+        app.logger.warning(
+            "INVENTORY UPDATE RESPONSE: status=%s body=%s",
+            update_item_response.status_code,
+            update_item_response.text
         )
     
         if update_item_response.status_code not in (200, 204):
