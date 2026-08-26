@@ -1016,6 +1016,41 @@ def calculate_disposition(
             "gain_loss_pct": gain_loss_pct,
         }
 
+
+@app.route("/ebay/create-test-location", methods=["GET"])
+def ebay_create_test_location():
+    ebay_token = get_ebay_user_access_token()
+
+    merchant_location_key = "jackstation-main"
+
+    response = requests.post(
+        f"https://api.ebay.com/sell/inventory/v1/location/{merchant_location_key}",
+        headers={
+            "Authorization": f"Bearer {ebay_token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Content-Language": "en-US",
+        },
+        json={
+            "name": "JackStation Main Inventory",
+            "location": {
+                "address": {
+                    "postalCode": "76092",
+                    "country": "US",
+                }
+            },
+            "merchantLocationStatus": "ENABLED",
+        },
+        timeout=30,
+    )
+
+    return jsonify({
+        "success": response.status_code in (200, 201, 204),
+        "status_code": response.status_code,
+        "merchant_location_key": merchant_location_key,
+        "response": response.json() if response.content else {},
+    })
+
 @app.route("/ebay/publish-offer/<offer_id>", methods=["GET"])
 def ebay_publish_offer(offer_id):
     ebay_token = get_ebay_user_access_token()
@@ -7477,6 +7512,7 @@ def ebay_create_bin_test(inventory_id):
     offer_payload = {
         "sku": sku,
         "marketplaceId": "EBAY_US",
+        "merchantLocationKey": "jackstation-main",
         "format": "FIXED_PRICE",
         "categoryId": "261328",
         "listingDescription": listing_description,
