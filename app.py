@@ -7526,13 +7526,23 @@ def inventory_action_ebay_draft(inventory_id):
                 }
             },
             "condition": "LIKE_NEW",
+            "conditionDescriptors": [
+                {
+                    "name": "27501",
+                    "values": ["275010"],
+                },
+                {
+                    "name": "27502",
+                    "values": ["275020"],
+                },
+            ],
             "product": {
-                "title": listing_title,
-                "description": listing_description,
-                "imageUrls": ebay_image_urls,
+            "title": listing_title,
+            "description": listing_description,
+            "imageUrls": ebay_image_urls,
             }
-        }
-        
+            }
+    
         inventory_response = requests.put(
             f"https://api.ebay.com/sell/inventory/v1/inventory_item/{sku}",
             headers={
