@@ -9297,95 +9297,95 @@ if request.method == "POST":
         if image_url:
             uploaded_url_by_key[key] = image_url
 
-        final_image_urls = []
-    
-        for photo in photo_order:
-            if photo.get("kind") == "existing":
-                final_image_urls.append(photo.get("value"))
-    
-            elif photo.get("kind") == "new":
-                image_url = uploaded_url_by_key.get(photo.get("value"))
-    
-                if image_url:
-                    final_image_urls.append(image_url)
-    
-        if not final_image_urls:
-            return "At least one listing photo is required.", 400
-    
-        product = item.get("product", {})
-        product["title"] = title
-        product["description"] = description
-        product["imageUrls"] = final_image_urls
-    
-        item["product"] = product
-    
-        update_item_response = requests.put(
-            f"https://api.ebay.com/sell/inventory/v1/inventory_item/{sku}",
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Content-Language": "en-US",
-            },
-            json=item,
-            timeout=30,
-        )
-    
-        if update_item_response.status_code not in (200, 204):
-            return jsonify({
-                "success": False,
-                "stage": "inventory_item_update",
-                "status_code": update_item_response.status_code,
-                "response": (
-                    update_item_response.json()
-                    if update_item_response.content
-                    else {}
-                ),
-            }), 400
-    
-        offer_update = {
-            "sku": sku,
-            "marketplaceId": offer.get("marketplaceId"),
-            "format": offer.get("format"),
-            "categoryId": offer.get("categoryId"),
-            "listingDescription": description,
-            "listingPolicies": offer.get("listingPolicies"),
-            "pricingSummary": {
-                "auctionStartPrice": {
-                    "value": starting_bid,
-                    "currency": "USD",
-                }
-            },
-            "listingDuration": auction_duration,
-        }
-    
-        update_offer_response = requests.put(
-            f"https://api.ebay.com/sell/inventory/v1/offer/{offer_id}",
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Content-Language": "en-US",
-            },
-            json=offer_update,
-            timeout=30,
-        )
-    
-        if update_offer_response.status_code not in (200, 204):
-            return jsonify({
-                "success": False,
-                "stage": "offer_update",
-                "status_code": update_offer_response.status_code,
-                "response": (
-                    update_offer_response.json()
-                    if update_offer_response.content
-                    else {}
-                ),
-            }), 400
-    
-        return redirect(
-            f"/ebay/draft-review/{offer_id}?saved=1"
-        )
+            final_image_urls = []
+        
+            for photo in photo_order:
+                if photo.get("kind") == "existing":
+                    final_image_urls.append(photo.get("value"))
+        
+                elif photo.get("kind") == "new":
+                    image_url = uploaded_url_by_key.get(photo.get("value"))
+        
+                    if image_url:
+                        final_image_urls.append(image_url)
+        
+            if not final_image_urls:
+                return "At least one listing photo is required.", 400
+        
+            product = item.get("product", {})
+            product["title"] = title
+            product["description"] = description
+            product["imageUrls"] = final_image_urls
+        
+            item["product"] = product
+        
+            update_item_response = requests.put(
+                f"https://api.ebay.com/sell/inventory/v1/inventory_item/{sku}",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "Content-Language": "en-US",
+                },
+                json=item,
+                timeout=30,
+            )
+        
+            if update_item_response.status_code not in (200, 204):
+                return jsonify({
+                    "success": False,
+                    "stage": "inventory_item_update",
+                    "status_code": update_item_response.status_code,
+                    "response": (
+                        update_item_response.json()
+                        if update_item_response.content
+                        else {}
+                    ),
+                }), 400
+        
+            offer_update = {
+                "sku": sku,
+                "marketplaceId": offer.get("marketplaceId"),
+                "format": offer.get("format"),
+                "categoryId": offer.get("categoryId"),
+                "listingDescription": description,
+                "listingPolicies": offer.get("listingPolicies"),
+                "pricingSummary": {
+                    "auctionStartPrice": {
+                        "value": starting_bid,
+                        "currency": "USD",
+                    }
+                },
+                "listingDuration": auction_duration,
+            }
+        
+            update_offer_response = requests.put(
+                f"https://api.ebay.com/sell/inventory/v1/offer/{offer_id}",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "Content-Language": "en-US",
+                },
+                json=offer_update,
+                timeout=30,
+            )
+        
+            if update_offer_response.status_code not in (200, 204):
+                return jsonify({
+                    "success": False,
+                    "stage": "offer_update",
+                    "status_code": update_offer_response.status_code,
+                    "response": (
+                        update_offer_response.json()
+                        if update_offer_response.content
+                        else {}
+                    ),
+                }), 400
+        
+            return redirect(
+                f"/ebay/draft-review/{offer_id}?saved=1"
+            )
 
 
     inventory_id = None
