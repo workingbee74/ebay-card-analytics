@@ -9304,110 +9304,110 @@ def ebay_draft_review(offer_id):
             if image_url:
                 uploaded_url_by_key[key] = image_url
     
-            final_image_urls = []
-        
-            for photo in photo_order:
-                if photo.get("kind") == "existing":
-                    existing_url = photo.get("value")
-                
-                    if existing_url and existing_url not in removed_photos:
-                        final_image_urls.append(existing_url)
-        
-                elif photo.get("kind") == "new":
-                    image_url = uploaded_url_by_key.get(photo.get("value"))
-        
-                    if image_url:
-                        final_image_urls.append(image_url)
-        
-            if not final_image_urls:
-                return "At least one listing photo is required.", 400
-        
-            product = item.get("product", {})
-            product["title"] = title
-            product["description"] = description
-            product["imageUrls"] = final_image_urls
-        
-            item["product"] = product
-
-            app.logger.warning("DRAFT SAVE: about to update inventory item")
-        
-            update_item_response = requests.put(
-                f"https://api.ebay.com/sell/inventory/v1/inventory_item/{sku}",
-                headers={
-                    "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                    "Content-Language": "en-US",
-                },
-                json=item,
-                timeout=30,
-            )
-        
-            if update_item_response.status_code not in (200, 204):
-                return jsonify({
-                    "success": False,
-                    "stage": "inventory_item_update",
-                    "status_code": update_item_response.status_code,
-                    "response": (
-                        update_item_response.json()
-                        if update_item_response.content
-                        else {}
-                    ),
-                }), 400
-
-            app.logger.warning("DRAFT SAVE: inventory item succeeded, updating offer")
-        
-            offer_update = dict(offer)
-
-            # Remove read-only fields returned by eBay
-            offer_update.pop("offerId", None)
-            offer_update.pop("status", None)
+        final_image_urls = []
+    
+        for photo in photo_order:
+            if photo.get("kind") == "existing":
+                existing_url = photo.get("value")
             
-            # Apply the user's draft edits
-            offer_update["listingDescription"] = description
-            offer_update["listingDuration"] = auction_duration
-            
-            offer_update["pricingSummary"] = {
-                "auctionStartPrice": {
-                    "value": starting_bid,
-                    "currency": "USD",
-                }
+                if existing_url and existing_url not in removed_photos:
+                    final_image_urls.append(existing_url)
+    
+            elif photo.get("kind") == "new":
+                image_url = uploaded_url_by_key.get(photo.get("value"))
+    
+                if image_url:
+                    final_image_urls.append(image_url)
+    
+        if not final_image_urls:
+            return "At least one listing photo is required.", 400
+    
+        product = item.get("product", {})
+        product["title"] = title
+        product["description"] = description
+        product["imageUrls"] = final_image_urls
+    
+        item["product"] = product
+
+        app.logger.warning("DRAFT SAVE: about to update inventory item")
+    
+        update_item_response = requests.put(
+            f"https://api.ebay.com/sell/inventory/v1/inventory_item/{sku}",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Content-Language": "en-US",
+            },
+            json=item,
+            timeout=30,
+        )
+    
+        if update_item_response.status_code not in (200, 204):
+            return jsonify({
+                "success": False,
+                "stage": "inventory_item_update",
+                "status_code": update_item_response.status_code,
+                "response": (
+                    update_item_response.json()
+                    if update_item_response.content
+                    else {}
+                ),
+            }), 400
+
+        app.logger.warning("DRAFT SAVE: inventory item succeeded, updating offer")
+    
+        offer_update = dict(offer)
+
+        # Remove read-only fields returned by eBay
+        offer_update.pop("offerId", None)
+        offer_update.pop("status", None)
+        
+        # Apply the user's draft edits
+        offer_update["listingDescription"] = description
+        offer_update["listingDuration"] = auction_duration
+        
+        offer_update["pricingSummary"] = {
+            "auctionStartPrice": {
+                "value": starting_bid,
+                "currency": "USD",
             }
-        
-            update_offer_response = requests.put(
-                f"https://api.ebay.com/sell/inventory/v1/offer/{offer_id}",
-                headers={
-                    "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                    "Content-Language": "en-US",
-                },
-                json=offer_update,
-                timeout=30,
-            )
+        }
+    
+        update_offer_response = requests.put(
+            f"https://api.ebay.com/sell/inventory/v1/offer/{offer_id}",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Content-Language": "en-US",
+            },
+            json=offer_update,
+            timeout=30,
+        )
 
 
-            app.logger.warning(
-                "EBAY OFFER UPDATE: status=%s body=%s",
-                update_offer_response.status_code,
-                update_offer_response.text
-            )
+        app.logger.warning(
+            "EBAY OFFER UPDATE: status=%s body=%s",
+            update_offer_response.status_code,
+            update_offer_response.text
+        )
+    
+        if update_offer_response.status_code not in (200, 204):
+            return jsonify({
+                "success": False,
+                "stage": "offer_update",
+                "status_code": update_offer_response.status_code,
+                "response": (
+                    update_offer_response.json()
+                    if update_offer_response.content
+                    else {}
+                ),
+            }), 400
         
-            if update_offer_response.status_code not in (200, 204):
-                return jsonify({
-                    "success": False,
-                    "stage": "offer_update",
-                    "status_code": update_offer_response.status_code,
-                    "response": (
-                        update_offer_response.json()
-                        if update_offer_response.content
-                        else {}
-                    ),
-                }), 400
-            
-                return redirect(
-                    f"/ebay/draft-review/{offer_id}?saved=1"
-                )
+            return redirect(
+                f"/ebay/draft-review/{offer_id}?saved=1"
+            )
 
 
     inventory_id = None
