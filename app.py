@@ -7759,6 +7759,7 @@ def inventory_action_ebay_draft(inventory_id):
                     "Sport": ["Baseball"]
                 },
             }
+        }
     
         inventory_response = requests.put(
             f"https://api.ebay.com/sell/inventory/v1/inventory_item/{sku}",
