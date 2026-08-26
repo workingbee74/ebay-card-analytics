@@ -9647,6 +9647,15 @@ def ebay_draft_review(offer_id):
                     }}
         
                     card.remove();
+
+                    const remainingCards = Array.from(
+                        list.querySelectorAll(".photo-card")
+                    );
+                    
+                    if (remainingCards.length > 0) {
+                        list.insertBefore(remainingCards[0], list.firstChild);
+                    }
+                    
                     updateState();
                 }});
             }}
