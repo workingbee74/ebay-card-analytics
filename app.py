@@ -8184,6 +8184,25 @@ def inventory_action_ebay_draft(inventory_id):
     </html>
     """
 
+@app.route("/ebay/offer/<offer_id>", methods=["GET"])
+def ebay_offer_detail(offer_id):
+    token = get_ebay_user_access_token()
+
+    response = requests.get(
+        f"https://api.ebay.com/sell/inventory/v1/offer/{offer_id}",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+        },
+        timeout=30,
+    )
+
+    data = response.json() if response.content else {}
+
+    return jsonify({
+        "status_code": response.status_code,
+        "offer": data,
+    })
 
 @app.route("/inventory", methods=["GET"])
 def inventory_cards_dashboard():
