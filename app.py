@@ -9276,6 +9276,26 @@ def ebay_draft_review(offer_id):
                         "action_priority": row[6],
                     }
 
+    mv = float(market_data.get("market_value") or 0)
+
+    recommended_start_price = max(0.99, mv * 0.50)
+    expected_low = mv * 0.90
+    expected_high = mv * 1.10
+    minimum_outcome = mv * 0.80
+
+    purchase_price_value = float(
+        market_data.get("purchase_price") or 0
+    )
+
+    gain_loss = mv - purchase_price_value
+
+    gain_loss_pct = (
+        (gain_loss / purchase_price_value) * 100
+        if purchase_price_value > 0
+        else None
+    )
+
+
     item_response = requests.get(
         f"https://api.ebay.com/sell/inventory/v1/inventory_item/{sku}",
         headers=headers,
