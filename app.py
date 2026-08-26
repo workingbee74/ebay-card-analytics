@@ -9242,6 +9242,8 @@ def ebay_draft_review(offer_id):
     sku = offer.get("sku")
 
     if request.method == "POST":
+        print("DRAFT SAVE FORM:", request.form.to_dict())
+        
         title = request.form.get("title", "").strip()
         description = request.form.get("description", "").strip()
         starting_bid = request.form.get("starting_bid", "").strip()
