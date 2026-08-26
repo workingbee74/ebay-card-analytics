@@ -9619,6 +9619,31 @@ def ebay_draft_review(offer_id):
 ">
 
     <div>
+
+        <label><strong>Listing Type</strong></label><br>
+        
+        <select
+            name="listing_format"
+            id="listing-format"
+            style="padding:10px; margin:8px 0 20px 0;"
+        >
+            <option
+                value="AUCTION"
+                {"selected" if offer.get("format") == "AUCTION" else ""}
+            >
+                Auction
+            </option>
+        
+            <option
+                value="FIXED_PRICE"
+                {"selected" if offer.get("format") == "FIXED_PRICE" else ""}
+            >
+                Buy It Now
+            </option>
+        </select>
+        
+        <br>
+    
         <label><strong>Starting Bid</strong></label><br>
 
         <input
