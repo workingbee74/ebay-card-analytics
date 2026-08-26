@@ -9240,6 +9240,42 @@ def ebay_draft_review(offer_id):
 
     sku = offer.get("sku")
 
+    inventory_id = None
+    
+    if sku and sku.startswith("inventory-"):
+        inventory_id = int(sku.replace("inventory-", ""))
+    
+    market_data = {}
+    
+    if inventory_id:
+        with psycopg.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT
+                        market_value,
+                        purchase_price,
+                        price_trend,
+                        trend_pct,
+                        trend_confidence,
+                        disposition_action,
+                        action_priority
+                    FROM inventory_cards
+                    WHERE id = %s
+                """, (inventory_id,))
+    
+                row = cur.fetchone()
+    
+                if row:
+                    market_data = {
+                        "market_value": row[0],
+                        "purchase_price": row[1],
+                        "price_trend": row[2],
+                        "trend_pct": row[3],
+                        "trend_confidence": row[4],
+                        "disposition_action": row[5],
+                        "action_priority": row[6],
+                    }
+
     item_response = requests.get(
         f"https://api.ebay.com/sell/inventory/v1/inventory_item/{sku}",
         headers=headers,
