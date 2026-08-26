@@ -9383,8 +9383,8 @@ def ebay_draft_review(offer_id):
                 )
 
 
-                print(
-                    "EBAY OFFER UPDATE:",
+                app.logger.warning(
+                    "EBAY OFFER UPDATE: status=%s body=%s",
                     update_offer_response.status_code,
                     update_offer_response.text
                 )
