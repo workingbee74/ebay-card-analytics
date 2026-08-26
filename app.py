@@ -7425,8 +7425,9 @@ def ebay_oauth_start():
     scopes = " ".join([
     "https://api.ebay.com/oauth/api_scope",
     "https://api.ebay.com/oauth/api_scope/sell.account",
+    "https://api.ebay.com/oauth/api_scope/sell.inventory",
     "https://api.ebay.com/oauth/api_scope/commerce.identity.readonly",
-    ])
+])
 
     params = {
         "client_id": EBAY_CLIENT_ID,
@@ -7458,10 +7459,12 @@ def ebay_oauth_scope_test():
 
 @app.route("/ebay/oauth/start-debug")
 def ebay_oauth_start_debug():
-    scopes = (
-        "https://api.ebay.com/oauth/api_scope "
-        "https://api.ebay.com/oauth/api_scope/sell.account"
-    )
+    scopes = " ".join([
+    "https://api.ebay.com/oauth/api_scope",
+    "https://api.ebay.com/oauth/api_scope/sell.account",
+    "https://api.ebay.com/oauth/api_scope/sell.inventory",
+    "https://api.ebay.com/oauth/api_scope/commerce.identity.readonly",
+])
 
     params = {
         "client_id": EBAY_CLIENT_ID,
