@@ -7565,7 +7565,6 @@ def inventory_action_ebay_draft(inventory_id):
             "sku": sku,
             "marketplaceId": "EBAY_US",
             "format": "AUCTION",
-            "availableQuantity": 1,
             "categoryId": "261328",
             "listingDescription": listing_description,
             "listingPolicies": {
