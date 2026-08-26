@@ -9268,7 +9268,7 @@ def ebay_draft_review(offer_id):
     
     <body style="font-family:Arial; max-width:1000px; margin:40px auto;">
     
-        <h1>Review eBay Draft</h1>
+        <h1>Review eBay Draft - EDIT TEST</h1>
     
         <p><strong>Status:</strong> {offer.get("status")}</p>
     
