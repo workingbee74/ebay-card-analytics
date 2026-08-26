@@ -9250,7 +9250,12 @@ def ebay_draft_review(offer_id):
         photo_order = json.loads(
             request.form.get("photo_order", "[]") or "[]"
         )
-    
+
+        removed_photos = set(
+            json.loads(
+                request.form.get("removed_photos", "[]") or "[]"
+            )
+        )
         new_photo_keys = json.loads(
             request.form.get("new_photo_keys", "[]") or "[]"
         )
@@ -9301,7 +9306,10 @@ def ebay_draft_review(offer_id):
             
                 for photo in photo_order:
                     if photo.get("kind") == "existing":
-                        final_image_urls.append(photo.get("value"))
+                        existing_url = photo.get("value")
+                    
+                        if existing_url and existing_url not in removed_photos:
+                            final_image_urls.append(existing_url)
             
                     elif photo.get("kind") == "new":
                         image_url = uploaded_url_by_key.get(photo.get("value"))
