@@ -907,7 +907,8 @@ def calculate_disposition(
     autograph,
     grade_company,
     grade,
-    serial_numbered_to
+    serial_numbered_to,
+    trend_pct
 ):
     score = 0
     reasons = []
@@ -6602,7 +6603,8 @@ def refresh_inventory_actions():
                     autograph,
                     grade_company,
                     grade,
-                    serial_numbered_to
+                    serial_numbered_to,
+                    trend_pct
                 )
 
                 disposition_action = disposition["action"]
