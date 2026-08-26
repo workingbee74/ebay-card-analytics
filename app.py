@@ -9407,9 +9407,13 @@ def ebay_draft_review(offer_id):
             }), 400
 
             time.sleep(1)
-        
-            return redirect(
-                f"/ebay/draft-review/{offer_id}?saved=1"
+
+            return (
+                "",
+                303,
+                {
+                    "Location": f"/ebay/draft-review/{offer_id}?saved=1"
+                }
             )
 
 
