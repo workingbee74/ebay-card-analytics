@@ -9220,6 +9220,116 @@ def ebay_inventory_item_detail(sku):
         "inventory_item": data,
     })
 
+
+@app.route("/ebay/draft-review/<offer_id>", methods=["GET"])
+def ebay_draft_review(offer_id):
+    token = get_ebay_user_access_token()
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json",
+    }
+
+    offer_response = requests.get(
+        f"https://api.ebay.com/sell/inventory/v1/offer/{offer_id}",
+        headers=headers,
+        timeout=30,
+    )
+
+    offer = offer_response.json() if offer_response.content else {}
+
+    sku = offer.get("sku")
+
+    item_response = requests.get(
+        f"https://api.ebay.com/sell/inventory/v1/inventory_item/{sku}",
+        headers=headers,
+        timeout=30,
+    )
+
+    item = item_response.json() if item_response.content else {}
+
+    product = item.get("product", {})
+    pricing = offer.get("pricingSummary", {})
+    auction_price = pricing.get("auctionStartPrice", {})
+    policies = offer.get("listingPolicies", {})
+
+    image_urls = product.get("imageUrls", [])
+    image_html = "".join(
+        f'<img src="{url}" style="max-width:300px; margin-right:12px;">'
+        for url in image_urls
+    )
+
+    return f"""
+    <html>
+    <head>
+        <title>Review eBay Draft</title>
+    </head>
+
+    <body style="font-family:Arial; max-width:1000px; margin:40px auto;">
+
+        <h1>Review eBay Draft</h1>
+
+        <p><strong>Status:</strong> {offer.get("status")}</p>
+
+        <h2>{product.get("title", "")}</h2>
+
+        <div>
+            {image_html}
+        </div>
+
+        <h3>Description</h3>
+        <p style="white-space:pre-wrap;">
+            {offer.get("listingDescription", "")}
+        </p>
+
+        <h3>Auction</h3>
+
+        <p>
+            <strong>Starting Bid:</strong>
+            ${auction_price.get("value", "")}
+        </p>
+
+        <p>
+            <strong>Duration:</strong>
+            {offer.get("listingDuration", "")}
+        </p>
+
+        <p>
+            <strong>Category:</strong>
+            {offer.get("categoryId", "")}
+        </p>
+
+        <h3>Policies</h3>
+
+        <p>
+            <strong>Shipping:</strong>
+            {policies.get("fulfillmentPolicyId", "")}
+        </p>
+
+        <p>
+            <strong>Payment:</strong>
+            {policies.get("paymentPolicyId", "")}
+        </p>
+
+        <p>
+            <strong>Returns:</strong>
+            No Returns
+        </p>
+
+        <hr>
+
+        <p>
+            <strong>Offer ID:</strong> {offer_id}
+        </p>
+
+        <p>
+            <strong>SKU:</strong> {sku}
+        </p>
+
+    </body>
+    </html>
+    """
+
 @app.route("/deals-dashboard-v2", methods=["GET"])
 def deals_dashboard_v2():
     player_filter = request.args.get("player", "").strip()
