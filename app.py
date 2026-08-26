@@ -9423,7 +9423,11 @@ def ebay_draft_review(offer_id):
                     id="removed_photos"
                     name="removed_photos"
                 >
-            
+                <input
+                    type="hidden"
+                    id="new_photo_keys"
+                    name="new_photo_keys"
+                > 
             </div>
     
             <br>
@@ -9554,6 +9558,7 @@ def ebay_draft_review(offer_id):
             const fileInput = document.getElementById("listing-photo-input");
             const orderInput = document.getElementById("photo_order");
             const removedInput = document.getElementById("removed_photos");
+            const newKeysInput = document.getElementById("new_photo_keys");
         
             if (!manager || !list || !fileInput) return;
         
@@ -9604,6 +9609,9 @@ def ebay_draft_review(offer_id):
         
                 orderInput.value = JSON.stringify(order);
                 removedInput.value = JSON.stringify(Array.from(removedUrls));
+                newKeysInput.value = JSON.stringify(
+                    pendingFiles.map(item => item.key)
+                );
             }}
         
             function wireCard(card) {{
