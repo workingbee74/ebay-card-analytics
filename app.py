@@ -1016,6 +1016,59 @@ def calculate_disposition(
             "gain_loss_pct": gain_loss_pct,
         }
 
+@app.route("/ebay/add-location-to-offer/<offer_id>", methods=["GET"])
+def ebay_add_location_to_offer(offer_id):
+    ebay_token = get_ebay_user_access_token()
+
+    headers = {
+        "Authorization": f"Bearer {ebay_token}",
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Content-Language": "en-US",
+    }
+
+    # Get the complete existing offer first
+    get_response = requests.get(
+        f"https://api.ebay.com/sell/inventory/v1/offer/{offer_id}",
+        headers=headers,
+        timeout=30,
+    )
+
+    if get_response.status_code != 200:
+        return jsonify({
+            "success": False,
+            "stage": "get_offer",
+            "status_code": get_response.status_code,
+            "response": get_response.json() if get_response.content else {},
+        }), 400
+
+    offer_update = get_response.json()
+
+    # Remove read-only response fields
+    offer_update.pop("offerId", None)
+    offer_update.pop("status", None)
+
+    # Attach our inventory location
+    offer_update["merchantLocationKey"] = "jackstation-main"
+
+    update_response = requests.put(
+        f"https://api.ebay.com/sell/inventory/v1/offer/{offer_id}",
+        headers=headers,
+        json=offer_update,
+        timeout=30,
+    )
+
+    return jsonify({
+        "success": update_response.status_code in (200, 204),
+        "offer_id": offer_id,
+        "status_code": update_response.status_code,
+        "response": (
+            update_response.json()
+            if update_response.content
+            else {}
+        ),
+    })
+
 
 @app.route("/ebay/create-test-location", methods=["GET"])
 def ebay_create_test_location():
