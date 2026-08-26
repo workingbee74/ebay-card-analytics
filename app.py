@@ -9221,7 +9221,7 @@ def ebay_inventory_item_detail(sku):
     })
 
 
-@app.route("/ebay/draft-review/<offer_id>", methods=["GET"])
+@app.route("/ebay/draft-review/<offer_id>", methods=["GET", "POST"])
 def ebay_draft_review(offer_id):
     token = get_ebay_user_access_token()
 
