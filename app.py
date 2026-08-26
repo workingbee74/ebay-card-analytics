@@ -7752,10 +7752,12 @@ def inventory_action_ebay_draft(inventory_id):
                 },
             ],
             "product": {
-            "title": listing_title,
-            "description": listing_description,
-            "imageUrls": ebay_image_urls,
-            }
+                "title": listing_title,
+                "description": listing_description,
+                "imageUrls": ebay_image_urls,
+                "aspects": {
+                    "Sport": ["Baseball"]
+                },
             }
     
         inventory_response = requests.put(
