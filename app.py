@@ -9328,6 +9328,8 @@ def ebay_draft_review(offer_id):
                 product["imageUrls"] = final_image_urls
             
                 item["product"] = product
+
+                app.logger.warning("DRAFT SAVE: about to update inventory item")
             
                 update_item_response = requests.put(
                     f"https://api.ebay.com/sell/inventory/v1/inventory_item/{sku}",
@@ -9352,6 +9354,8 @@ def ebay_draft_review(offer_id):
                             else {}
                         ),
                     }), 400
+
+                app.logger.warning("DRAFT SAVE: inventory item succeeded, updating offer")
             
                 offer_update = dict(offer)
 
