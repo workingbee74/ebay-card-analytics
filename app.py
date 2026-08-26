@@ -9346,26 +9346,75 @@ def ebay_draft_review(offer_id):
                 style="width:100%; padding:10px; margin:8px 0 20px 0;"
             >{offer.get("listingDescription", "")}</textarea>
     
-            <label><strong>Starting Bid</strong></label><br>
-            <input
-                type="text"
-                name="starting_bid"
-                value="{auction_price.get("value", "")}"
-                style="width:200px; padding:10px; margin:8px 0 20px 0;"
-            >
-    
-            <br>
-    
-            <label><strong>Auction Duration</strong></label><br>
-            <select
-                name="auction_duration"
-                style="padding:10px; margin:8px 0 20px 0;"
-            >
-                <option value="DAYS_3" {"selected" if offer.get("listingDuration") == "DAYS_3" else ""}>3 days</option>
-                <option value="DAYS_5" {"selected" if offer.get("listingDuration") == "DAYS_5" else ""}>5 days</option>
-                <option value="DAYS_7" {"selected" if offer.get("listingDuration") == "DAYS_7" else ""}>7 days</option>
-                <option value="DAYS_10" {"selected" if offer.get("listingDuration") == "DAYS_10" else ""}>10 days</option>
-            </select>
+ <div style="
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:30px;
+    align-items:start;
+    margin-top:20px;
+">
+
+    <div>
+        <label><strong>Starting Bid</strong></label><br>
+
+        <input
+            type="text"
+            name="starting_bid"
+            value="{auction_price.get("value", "")}"
+            style="width:200px; padding:10px; margin:8px 0 20px 0;"
+        >
+
+        <br>
+
+        <label><strong>Auction Duration</strong></label><br>
+
+        <select
+            name="auction_duration"
+            style="padding:10px; margin:8px 0 20px 0;"
+        >
+            <option value="DAYS_3" {"selected" if offer.get("listingDuration") == "DAYS_3" else ""}>3 days</option>
+            <option value="DAYS_5" {"selected" if offer.get("listingDuration") == "DAYS_5" else ""}>5 days</option>
+            <option value="DAYS_7" {"selected" if offer.get("listingDuration") == "DAYS_7" else ""}>7 days</option>
+            <option value="DAYS_10" {"selected" if offer.get("listingDuration") == "DAYS_10" else ""}>10 days</option>
+        </select>
+    </div>
+
+    <div style="
+        border:1px solid #ddd;
+        border-radius:8px;
+        padding:18px;
+        background:#fafafa;
+    ">
+        <h3 style="margin-top:0;">Market Analytics</h3>
+
+        <p>
+            <strong>Market Value:</strong>
+            ${float(market_data.get("market_value") or 0):,.2f}
+        </p>
+
+        <p>
+            <strong>Your Cost:</strong>
+            ${float(market_data.get("purchase_price") or 0):,.2f}
+        </p>
+
+        <p>
+            <strong>Trend:</strong>
+            {market_data.get("price_trend") or "UNKNOWN"}
+            {f'({float(market_data.get("trend_pct")):+.1f}%)' if market_data.get("trend_pct") is not None else ""}
+        </p>
+
+        <p>
+            <strong>Confidence:</strong>
+            {market_data.get("trend_confidence") or "UNKNOWN"}
+        </p>
+
+        <p>
+            <strong>Recommendation:</strong>
+            {market_data.get("disposition_action") or "HOLD"}
+        </p>
+    </div>
+
+</div>
     
             <h3>Policies</h3>
     
