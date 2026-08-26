@@ -7404,11 +7404,11 @@ def get_ebay_user_access_token():
 
 @app.route("/ebay/oauth/start")
 def ebay_oauth_start():
-    scopes = (
-        "https://api.ebay.com/oauth/api_scope "
-        "https://api.ebay.com/oauth/api_scope/sell.account "
-        "https://api.ebay.com/oauth/api_scope/sell.inventory"
-    )
+    scopes = " ".join([
+    "https://api.ebay.com/oauth/api_scope",
+    "https://api.ebay.com/oauth/api_scope/sell.account",
+    "https://api.ebay.com/oauth/api_scope/commerce.identity.readonly",
+    ])
 
     params = {
         "client_id": EBAY_CLIENT_ID,
