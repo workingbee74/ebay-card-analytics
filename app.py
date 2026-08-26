@@ -1306,7 +1306,7 @@ def ebay_oauth_manual():
 @app.route("/ebay/oauth/exchange-code", methods=["GET", "POST"])
 def ebay_exchange_code():
     auth_code = urllib.parse.unquote(
-        request.form.get("code", "").strip()
+        request.values.get("code", "").strip()
     )
     if not auth_code:
         return jsonify({
