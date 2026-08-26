@@ -9272,7 +9272,7 @@ def ebay_draft_review(offer_id):
     
         <p><strong>Status:</strong> {offer.get("status")}</p>
     
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
     
             <label><strong>Title</strong></label><br>
             <input
@@ -9285,6 +9285,21 @@ def ebay_draft_review(offer_id):
             <div>
                 {image_html}
             </div>
+
+            <h3>Photos</h3>
+            
+            <p>Add replacement or additional listing photos:</p>
+            
+            <input
+                type="file"
+                name="listing_photos"
+                accept="image/*"
+                multiple
+            >
+            
+            <p style="font-size:13px; color:#666;">
+                Existing eBay photos will remain until Save Draft Changes is wired to update them.
+            </p>
     
             <br>
     
