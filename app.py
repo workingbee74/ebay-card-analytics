@@ -1016,6 +1016,29 @@ def calculate_disposition(
             "gain_loss_pct": gain_loss_pct,
         }
 
+
+@app.route("/ebay/whoami", methods=["GET"])
+def ebay_whoami():
+    ebay_token = get_ebay_user_access_token()
+
+    response = requests.get(
+        "https://apiz.ebay.com/commerce/identity/v1/user/",
+        headers={
+            "Authorization": f"Bearer {ebay_token}",
+            "Accept": "application/json",
+        },
+        timeout=30,
+    )
+
+    return jsonify({
+        "status_code": response.status_code,
+        "user": (
+            response.json()
+            if response.content
+            else {}
+        ),
+    })
+
 @app.route("/ebay/add-location-to-offer/<offer_id>", methods=["GET"])
 def ebay_add_location_to_offer(offer_id):
     ebay_token = get_ebay_user_access_token()
