@@ -9418,6 +9418,27 @@ def ebay_draft_review(offer_id):
         </p>
 
         <p>
+            <strong>P/L:</strong>
+            ${gain_loss:+,.2f}
+            {f'({gain_loss_pct:+.1f}%)' if gain_loss_pct is not None else ""}
+        </p>
+        
+        <p>
+            <strong>Recommended Start:</strong>
+            ${recommended_start_price:,.2f}
+        </p>
+        
+        <p>
+            <strong>Expected Sale Range:</strong>
+            ${expected_low:,.2f} - ${expected_high:,.2f}
+        </p>
+        
+        <p>
+            <strong>Minimum Outcome:</strong>
+            ${minimum_outcome:,.2f}
+        </p>
+
+        <p>
             <strong>Trend:</strong>
             {market_data.get("price_trend") or "UNKNOWN"}
             {f'({float(market_data.get("trend_pct")):+.1f}%)' if market_data.get("trend_pct") is not None else ""}
