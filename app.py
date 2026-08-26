@@ -9311,36 +9311,51 @@ def ebay_draft_review(offer_id):
 
     image_urls = product.get("imageUrls", [])
     image_html = "".join(
-        f"""
-        <div style="
-            display:inline-block;
-            vertical-align:top;
-            margin-right:16px;
-            margin-bottom:16px;
-        ">
-            <img
-                src="{url}"
-                style="
-                    max-width:220px;
-                    display:block;
-                    margin-bottom:8px;
-                "
-            >
-    
-            <label>
-                <input
-                    type="checkbox"
-                    name="remove_photo"
-                    value="{url}"
-                >
-                Remove
-            </label>
-        </div>
-        """
-        for url in image_urls
-    )
+    f"""
+    <div style="
+        display:inline-block;
+        vertical-align:top;
+        width:220px;
+        margin-right:16px;
+        margin-bottom:20px;
+        padding:10px;
+        border:1px solid #ddd;
+        border-radius:8px;
+        background:#fff;
+    ">
+        <img
+            src="{url}"
+            style="
+                width:100%;
+                max-height:300px;
+                object-fit:contain;
+                display:block;
+                margin-bottom:10px;
+            "
+        >
 
-    
+        <label style="display:block; margin-bottom:8px;">
+            <input
+                type="radio"
+                name="primary_photo"
+                value="{url}"
+                {"checked" if i == 0 else ""}
+            >
+            Primary Photo
+        </label>
+
+        <label style="display:block;">
+            <input
+                type="checkbox"
+                name="remove_photo"
+                value="{url}"
+            >
+            Remove
+        </label>
+    </div>
+    """
+    for i, url in enumerate(image_urls)
+)    
     return f"""
     <html>
     <head>
@@ -9367,20 +9382,28 @@ def ebay_draft_review(offer_id):
                 {image_html}
             </div>
 
-            <h3>Photos</h3>
-            
-            <p>Add replacement or additional listing photos:</p>
-            
-            <input
-                type="file"
-                name="listing_photos"
-                accept="image/*"
-                multiple
-            >
-            
-            <p style="font-size:13px; color:#666;">
-                Existing eBay photos will remain until Save Draft Changes is wired to update them.
-            </p>
+    <h3>Photos</h3>
+
+    <div style="
+        border:2px dashed #ccc;
+        border-radius:8px;
+        padding:18px;
+        margin:10px 0 24px 0;
+        background:#fafafa;
+    ">
+        <strong>Add Photos</strong>
+    
+        <p style="margin:8px 0 12px 0; color:#666;">
+            Add front, back, or detail images to this draft.
+        </p>
+    
+        <input
+            type="file"
+            name="listing_photos"
+            accept="image/*"
+            multiple
+        >
+    </div>
     
             <br>
     
