@@ -7395,6 +7395,75 @@ def ebay_account_privileges_test():
         "response": data,
     })
 
+@app.route("/ebay/create-bin-test/<int:inventory_id>", methods=["GET"])
+def ebay_create_bin_test(inventory_id):
+    ebay_token = get_ebay_user_access_token()
+
+    sku = f"inventory-{inventory_id}"
+
+    # Confirm the inventory item exists
+    item_response = requests.get(
+        f"https://api.ebay.com/sell/inventory/v1/inventory_item/{sku}",
+        headers={
+            "Authorization": f"Bearer {ebay_token}",
+            "Accept": "application/json",
+        },
+        timeout=30,
+    )
+
+    item_json = (
+        item_response.json()
+        if item_response.content
+        else {}
+    )
+
+    product = item_json.get("product", {})
+    listing_description = product.get("description", "")
+
+    offer_payload = {
+        "sku": sku,
+        "marketplaceId": "EBAY_US",
+        "format": "FIXED_PRICE",
+        "categoryId": "261328",
+        "listingDescription": listing_description,
+        "listingPolicies": {
+            "fulfillmentPolicyId": "294947209015",
+            "paymentPolicyId": "294947292015",
+            "returnPolicyId": "294956239015",
+        },
+        "pricingSummary": {
+            "price": {
+                "value": "400.00",
+                "currency": "USD",
+            }
+        },
+        "listingDuration": "GTC",
+    }
+
+    offer_response = requests.post(
+        "https://api.ebay.com/sell/inventory/v1/offer",
+        headers={
+            "Authorization": f"Bearer {ebay_token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Content-Language": "en-US",
+        },
+        json=offer_payload,
+        timeout=30,
+    )
+
+    return jsonify({
+        "success": offer_response.status_code in (200, 201),
+        "inventory_id": inventory_id,
+        "sku": sku,
+        "status_code": offer_response.status_code,
+        "offer_response": (
+            offer_response.json()
+            if offer_response.content
+            else {}
+        ),
+    })
+
 @app.route(
     "/inventory/action/<int:inventory_id>/ebay-draft",
     methods=["GET", "POST"]
