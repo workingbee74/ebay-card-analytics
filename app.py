@@ -5027,6 +5027,8 @@ def scan_card():
                 const button = document.getElementById("capture-button");
                 const status = document.getElementById("status");
 
+                let frontBlob = null;
+
                 async function startCamera() {
                     try {
                         const stream =
@@ -5072,12 +5074,26 @@ def scan_card():
 
                     canvas.toBlob(
                         async (blob) => {
+                            if (!frontBlob) {
+                                frontBlob = blob;
+                                status.textContent = "Front captured. Flip card and capture back.";
+                                button.textContent = "Capture Back";
+                                button.disabled = false;
+                                return;
+                            }
+                            
                             const formData = new FormData();
-
+                            
                             formData.append(
-                                "card_image",
+                                "front_image",
+                                frontBlob,
+                                "front.jpg"
+                            );
+                            
+                            formData.append(
+                                "back_image",
                                 blob,
-                                "card.jpg"
+                                "back.jpg"
                             );
 
                             try {
@@ -5113,34 +5129,42 @@ def scan_card():
         </html>
         """.replace("{NAV_HTML}", NAV_HTML)
 
-    image = request.files.get("card_image")
-
-    if not image:
+    front_image = request.files.get("front_image")
+    back_image = request.files.get("back_image")
+    
+    if not front_image or not back_image:
         return jsonify({
             "success": False,
-            "error": "No image received"
+            "error": "Front and back images are required"
         }), 400
-
-    image_bytes = image.read()
-
-    image_base64 = base64.b64encode(
-        image_bytes
+    
+    front_base64 = base64.b64encode(
+        front_image.read()
     ).decode("utf-8")
-
+    
+    back_base64 = base64.b64encode(
+        back_image.read()
+    ).decode("utf-8")
     headers = {
         "Authorization": f"Token {XIMILAR_API_TOKEN}",
         "Content-Type": "application/json",
     }
     
-    image_record = {
-        "_base64": image_base64
+   front_record = {
+        "_base64": front_base64,
+        "Side": "front"
+    }
+    
+    back_record = {
+        "_base64": back_base64,
+        "Side": "back"
     }
     
     sport_response = requests.post(
         "https://api.ximilar.com/collectibles/v2/sport_id",
         headers=headers,
         json={
-            "records": [image_record],
+            "records": [front_record, back_record],
             "magic_ai": True,
             "slab_id": True,
             "slab_grade": True,
@@ -5153,7 +5177,7 @@ def scan_card():
         "https://api.ximilar.com/collectibles/v2/card_ocr_id",
         headers=headers,
         json={
-            "records": [image_record]
+            "records": [front_record, back_record],
         },
         timeout=60,
     )
