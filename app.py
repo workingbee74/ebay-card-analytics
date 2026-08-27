@@ -5145,21 +5145,22 @@ def scan_card():
     back_base64 = base64.b64encode(
         back_image.read()
     ).decode("utf-8")
-    headers = {
-    "Authorization": f"Token {XIMILAR_API_TOKEN}",
-    "Content-Type": "application/json",
-}
-
-front_record = {
-    "_base64": front_base64,
-    "Side": "front"
-}
-
-back_record = {
-    "_base64": back_base64,
-    "Side": "back"
-}
     
+    headers = {
+        "Authorization": f"Token {XIMILAR_API_TOKEN}",
+        "Content-Type": "application/json",
+    }
+    
+    front_record = {
+        "_base64": front_base64,
+        "Side": "front"
+    }
+    
+    back_record = {
+        "_base64": back_base64,
+        "Side": "back"
+    }
+        
     sport_response = requests.post(
         "https://api.ximilar.com/collectibles/v2/sport_id",
         headers=headers,
