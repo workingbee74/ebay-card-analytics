@@ -5146,19 +5146,19 @@ def scan_card():
         back_image.read()
     ).decode("utf-8")
     headers = {
-        "Authorization": f"Token {XIMILAR_API_TOKEN}",
-        "Content-Type": "application/json",
-    }
-    
-    front_record = {
-        "_base64": front_base64,
-        "Side": "front"
-    }
-    
-    back_record = {
-        "_base64": back_base64,
-        "Side": "back"
-    }
+    "Authorization": f"Token {XIMILAR_API_TOKEN}",
+    "Content-Type": "application/json",
+}
+
+front_record = {
+    "_base64": front_base64,
+    "Side": "front"
+}
+
+back_record = {
+    "_base64": back_base64,
+    "Side": "back"
+}
     
     sport_response = requests.post(
         "https://api.ximilar.com/collectibles/v2/sport_id",
@@ -9451,91 +9451,6 @@ def inventory_cards_dashboard():
     </body>
     </html>
     """
-
-@app.route("/ximilar-test", methods=["GET", "POST"])
-def ximilar_test():
-    if request.method == "GET":
-        return """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Ximilar Bowman Test</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-        </head>
-        <body style="font-family:Arial;max-width:600px;margin:40px auto;padding:20px;">
-            <h1>Ximilar Bowman Test</h1>
-
-            <form method="POST" enctype="multipart/form-data">
-            <label><strong>Front:</strong></label><br>
-            <input
-                type="file"
-                name="front_image"
-                accept="image/*"
-                capture="environment"
-                required
-            >
-            <br><br>
-            
-            <label><strong>Back:</strong></label><br>
-            <input
-                type="file"
-                name="back_image"
-                accept="image/*"
-                capture="environment"
-                required
-            >
-                <br><br>
-                <button type="submit" style="font-size:18px;padding:14px;">
-                    Identify Card
-                </button>
-            </form>
-        </body>
-        </html>
-        """
-
-    front_image = request.files.get("front_image")
-    back_image = request.files.get("back_image")
-
-    if not front_image or not back_image:
-        return jsonify({
-            "success": False,
-            "error": "Front and back images are required"
-        }), 400
-    
-    front_base64 = base64.b64encode(front_image.read()).decode("utf-8")
-    back_base64 = base64.b64encode(back_image.read()).decode("utf-8")
-
-    headers = {
-        "Authorization": f"Token {XIMILAR_API_TOKEN}",
-        "Content-Type": "application/json",
-    }
-        
-        front_record = {
-            "_base64": front_base64,
-            "Side": "front"
-        }
-        
-        back_record = {
-            "_base64": back_base64,
-            "Side": "back"
-        }
-        
-        sport_response = requests.post(
-            "https://api.ximilar.com/collectibles/v2/sport_id",
-            headers=headers,
-            json={
-                "records": [front_record, back_record],
-                "magic_ai": True,
-                "slab_id": True,
-                "slab_grade": True,
-                "price_stats": False,
-            },
-            timeout=60,
-        )
-    return jsonify({
-        "http_status": response.status_code,
-        "ximilar": response.json()
-    }), response.status_code
 
 
 @app.route("/ebay/inventory-item/<sku>", methods=["GET"])
