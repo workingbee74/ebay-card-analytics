@@ -9505,12 +9505,10 @@ def ximilar_test():
     front_base64 = base64.b64encode(front_image.read()).decode("utf-8")
     back_base64 = base64.b64encode(back_image.read()).decode("utf-8")
 
-    response = requests.post(
-        "https://api.ximilar.com/collectibles/v2/sport_id",
-        headers = {
-            "Authorization": f"Token {XIMILAR_API_TOKEN}",
-            "Content-Type": "application/json",
-        }
+    headers = {
+        "Authorization": f"Token {XIMILAR_API_TOKEN}",
+        "Content-Type": "application/json",
+    }
         
         front_record = {
             "_base64": front_base64,
