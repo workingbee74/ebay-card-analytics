@@ -1017,6 +1017,27 @@ def calculate_disposition(
         }
 
 
+@app.route("/ximilar-test")
+def ximilar_test():
+    import os
+    import requests
+
+    token = os.getenv("XIMILAR_API_TOKEN")
+
+    if not token:
+        return {"success": False, "error": "XIMILAR_API_TOKEN not found"}, 500
+
+    response = requests.get(
+        "https://api.ximilar.com/account/v2/",
+        headers={"Authorization": f"Token {token}"},
+        timeout=20,
+    )
+
+    return {
+        "success": response.ok,
+        "status_code": response.status_code,
+        "response": response.json() if response.content else None,
+    }
 
 @app.route("/ebay/oauth/db-scope", methods=["GET"])
 def ebay_oauth_db_scope():
