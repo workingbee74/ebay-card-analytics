@@ -5150,7 +5150,7 @@ def scan_card():
         "Content-Type": "application/json",
     }
     
-   front_record = {
+    front_record = {
         "_base64": front_base64,
         "Side": "front"
     }
