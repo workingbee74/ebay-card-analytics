@@ -317,13 +317,13 @@ def normalize_ximilar_sport_result(ximilar_data):
     if not records:
         return evidence
 
-    record = records[0]
+    record = records[-1]
 
     objects = record.get("_objects", [])
-
+    
     if not objects:
         return evidence
-
+    
     identification = objects[0].get("_identification", {})
 
     best_match = identification.get("best_match")
