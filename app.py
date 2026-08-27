@@ -9439,13 +9439,24 @@ def ximilar_test():
             <h1>Ximilar Bowman Test</h1>
 
             <form method="POST" enctype="multipart/form-data">
-                <input
-                    type="file"
-                    name="card_image"
-                    accept="image/*"
-                    capture="environment"
-                    required
-                >
+            <label><strong>Front:</strong></label><br>
+            <input
+                type="file"
+                name="front_image"
+                accept="image/*"
+                capture="environment"
+                required
+            >
+            <br><br>
+            
+            <label><strong>Back:</strong></label><br>
+            <input
+                type="file"
+                name="back_image"
+                accept="image/*"
+                capture="environment"
+                required
+            >
                 <br><br>
                 <button type="submit" style="font-size:18px;padding:14px;">
                     Identify Card
@@ -9455,16 +9466,17 @@ def ximilar_test():
         </html>
         """
 
-    image = request.files.get("card_image")
+    front_image = request.files.get("front_image")
+    back_image = request.files.get("back_image")
 
-    if not image:
+    if not front_image or not back_image:
         return jsonify({
             "success": False,
-            "error": "No image uploaded"
+            "error": "Front and back images are required"
         }), 400
-
-    image_bytes = image.read()
-    image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+    
+    front_base64 = base64.b64encode(front_image.read()).decode("utf-8")
+    back_base64 = base64.b64encode(back_image.read()).decode("utf-8")
 
     response = requests.post(
         "https://api.ximilar.com/collectibles/v2/sport_id",
@@ -9475,7 +9487,12 @@ def ximilar_test():
         json={
             "records": [
                 {
-                    "_base64": image_base64
+                    "_base64": front_base64,
+                    "Side": "front"
+                },
+                {
+                    "_base64": back_base64,
+                    "Side": "back"
                 }
             ],
             "magic_ai": True,
