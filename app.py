@@ -5218,6 +5218,9 @@ def scan_card():
         resolved_card = {}
         resolver_score = 0
         needs_review = best_resolution is None
+
+    if needs_review:
+        resolved_card = {}
     
     player = (
         resolved_card.get("player")
