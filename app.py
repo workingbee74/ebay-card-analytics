@@ -2065,7 +2065,34 @@ def cardhedge_test():
         "query": query,
         "cardhedge": data,
     }), response.status_code
-    
+
+@app.route("/cardhedge-image-test", methods=["POST"])
+def cardhedge_image_test():
+    import base64
+
+    if "image" not in request.files:
+        return {"success": False, "error": "No image uploaded"}, 400
+
+    image = request.files["image"]
+    image_bytes = image.read()
+    image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+
+    response = requests.post(
+        "https://api.cardhedger.com/v1/cards/image-match",
+        headers={
+            "X-API-Key": CARDHEDGE_API_KEY,
+            "Content-Type": "application/json",
+        },
+        json={
+            "image_base64": image_base64,
+            "k": 10
+        },
+        timeout=60,
+    )
+
+    return response.json(), response.status_code
+
+
 @app.route("/", methods=["GET"])
 def home():
     return "eBay notification endpoint is running", 200
