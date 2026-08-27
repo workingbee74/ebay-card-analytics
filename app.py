@@ -1016,6 +1016,29 @@ def calculate_disposition(
             "gain_loss_pct": gain_loss_pct,
         }
 
+
+@app.route("/cardhedge-test")
+def cardhedge_test():
+    import os
+    import requests
+
+    api_key = os.getenv("CARDHEDGE_API_KEY")
+
+    if not api_key:
+        return {"success": False, "error": "CARDHEDGE_API_KEY not found"}, 500
+
+    response = requests.get(
+        "https://api.cardhedger.com/v1/cards/top-movers",
+        headers={"X-API-Key": api_key},
+        timeout=20
+    )
+
+    return {
+        "success": response.ok,
+        "status_code": response.status_code,
+        "response": response.json() if response.content else None
+    }
+
 @app.route("/ebay/oauth/db-scope", methods=["GET"])
 def ebay_oauth_db_scope():
     ensure_ebay_oauth_table()
@@ -5261,7 +5284,7 @@ def scan_card():
         }}
 
 
-        .app-nav {
+        .app-nav {{
         position: sticky;
         top: 0;
         z-index: 1000;
@@ -5272,20 +5295,20 @@ def scan_card():
         border-bottom: 1px solid #e5e7eb;
         overflow-x: auto;
         white-space: nowrap;
-    }
+    }}
     
-    .app-nav a {
+    .app-nav a {{
         display: inline-block;
         padding: 10px 14px;
         color: #222;
         text-decoration: none;
         font-weight: 700;
-    }
+    }}
     
-    .app-nav a:hover {
+    .app-nav a:hover {{
         background: #f3f4f6;
         border-radius: 8px;
-    }
+    }}
             body {{
                 font-family: Arial, sans-serif;
                 max-width: 650px;
