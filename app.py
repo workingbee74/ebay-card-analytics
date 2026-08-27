@@ -9504,29 +9504,33 @@ def ximilar_test():
 
     response = requests.post(
         "https://api.ximilar.com/collectibles/v2/sport_id",
-        headers={
+        headers = {
             "Authorization": f"Token {XIMILAR_API_TOKEN}",
             "Content-Type": "application/json",
-        },
-        json={
-            "records": [
-                {
-                    "_base64": front_base64,
-                    "Side": "front"
-                },
-                {
-                    "_base64": back_base64,
-                    "Side": "back"
-                }
-            ],
-            "magic_ai": True,
-            "slab_id": True,
-            "slab_grade": True,
-            "price_stats": False,
-        },
-        timeout=60,
-    )
-
+        }
+        
+        front_record = {
+            "_base64": front_base64,
+            "Side": "front"
+        }
+        
+        back_record = {
+            "_base64": back_base64,
+            "Side": "back"
+        }
+        
+        sport_response = requests.post(
+            "https://api.ximilar.com/collectibles/v2/sport_id",
+            headers=headers,
+            json={
+                "records": [front_record, back_record],
+                "magic_ai": True,
+                "slab_id": True,
+                "slab_grade": True,
+                "price_stats": False,
+            },
+            timeout=60,
+        )
     return jsonify({
         "http_status": response.status_code,
         "ximilar": response.json()
