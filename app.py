@@ -1017,27 +1017,6 @@ def calculate_disposition(
         }
 
 
-@app.route("/cardhedge-test")
-def cardhedge_test():
-    import os
-    import requests
-
-    api_key = os.getenv("CARDHEDGE_API_KEY")
-
-    if not api_key:
-        return {"success": False, "error": "CARDHEDGE_API_KEY not found"}, 500
-
-    response = requests.get(
-        "https://api.cardhedger.com/v1/cards/top-movers",
-        headers={"X-API-Key": api_key},
-        timeout=20
-    )
-
-    return {
-        "success": response.ok,
-        "status_code": response.status_code,
-        "response": response.json() if response.content else None
-    }
 
 @app.route("/ebay/oauth/db-scope", methods=["GET"])
 def ebay_oauth_db_scope():
