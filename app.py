@@ -5055,6 +5055,7 @@ def scan_card():
                 Center the card inside the frame.
             </div>
 
+            </div>
             <canvas id="canvas"></canvas>
 
             <script>
