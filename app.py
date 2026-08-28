@@ -1902,6 +1902,42 @@ def cardhedge_scan_test():
                 Center the card inside the frame.
             </div>
 
+            <hr style="margin:28px 0;">
+            
+            <div style="max-width:500px;margin:0 auto;text-align:left;">
+                <h2>Upload Card Photos</h2>
+            
+                <form method="POST"
+                      action="/scan-card"
+                      enctype="multipart/form-data">
+            
+                    <label><strong>Front Photo</strong></label><br>
+                    <input
+                        type="file"
+                        name="front_image"
+                        accept="image/*"
+                        required
+                    >
+            
+                    <br><br>
+            
+                    <label><strong>Back Photo</strong></label><br>
+                    <input
+                        type="file"
+                        name="back_image"
+                        accept="image/*"
+                        required
+                    >
+            
+                    <br><br>
+            
+                    <button type="submit">
+                        Identify Uploaded Card
+                    </button>
+            
+                </form>
+            </div>
+
             <canvas id="canvas"></canvas>
 
             <script>
