@@ -5346,6 +5346,9 @@ def scan_card():
         or normalized_evidence.get("parallel")
         or ""
     )
+
+
+    autograph = normalized_evidence.get("autograph")
     
     serial_number = (
         normalized_evidence.get("serial_number")
@@ -5678,8 +5681,8 @@ def scan_card():
     <div class="field">
         <div class="label">Autograph</div>
         <select name="autograph">
-            <option value="false">No</option>
-            <option value="true">Yes</option>
+            <option value="false" {"selected" if autograph is not True else ""}>No</option>
+            <option value="true" {"selected" if autograph is True else ""}>Yes</option>
         </select>
     </div>
     
