@@ -5268,16 +5268,16 @@ def scan_card():
         sport_data = sport_response.json()
 
 
-    for i, record in enumerate(sport_data.get("records", [])):
-        objects = record.get("_objects", [])
-        identification = objects[0].get("_identification", {}) if objects else {}
-    
-        print(
-            f"XIMILAR_RECORD_{i}:",
-            "SIDE=", record.get("Side"),
-            "BEST=", identification.get("best_match"),
-            "TAGS=", objects[0].get("_tags", {}) if objects else {}
-        )
+        for i, record in enumerate(sport_data.get("records", [])):
+            objects = record.get("_objects", [])
+            identification = objects[0].get("_identification", {}) if objects else {}
+        
+            print(
+                f"XIMILAR_RECORD_{i}:",
+                "SIDE=", record.get("Side"),
+                "BEST=", identification.get("best_match"),
+                "TAGS=", objects[0].get("_tags", {}) if objects else {}
+            )
 
 
     except ValueError:
