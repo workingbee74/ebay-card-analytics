@@ -5266,6 +5266,8 @@ def scan_card():
     
     try:
         sport_data = sport_response.json()
+
+        print("XIMILAR_RAW:", sport_data)
     except ValueError:
         sport_data = {
             "error": sport_response.text
