@@ -5295,6 +5295,7 @@ def scan_card():
     
     try:
         ocr_data = ocr_response.json()
+        print("XIMILAR_OCR:", ocr_data)
     except ValueError:
         ocr_data = {
             "error": ocr_response.text
