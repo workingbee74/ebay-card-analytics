@@ -320,7 +320,7 @@ def normalize_ximilar_sport_result(ximilar_data):
     front_record = records[0]
     front_objects = front_record.get("_objects", [])
     
-    record = records[-1]
+    record = records[0]
 
     objects = record.get("_objects", [])
     
