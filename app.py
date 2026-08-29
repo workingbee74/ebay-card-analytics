@@ -5295,7 +5295,12 @@ def scan_card():
     
     try:
         ocr_data = ocr_response.json()
-        print("XIMILAR_OCR:", ocr_data)
+        for i, record in enumerate(ocr_data.get("records", [])):
+            print(
+                f"OCR_RECORD_{i}:",
+                "SIDE=", record.get("Side"),
+                "FULL_TEXT=", record.get("_ocr", {}).get("full_text")
+            )
     except ValueError:
         ocr_data = {
             "error": ocr_response.text
