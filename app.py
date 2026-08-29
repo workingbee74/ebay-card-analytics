@@ -317,6 +317,9 @@ def normalize_ximilar_sport_result(ximilar_data):
     if not records:
         return evidence
 
+    front_record = records[0]
+    front_objects = front_record.get("_objects", [])
+    
     record = records[-1]
 
     objects = record.get("_objects", [])
@@ -401,7 +404,11 @@ def normalize_ximilar_sport_result(ximilar_data):
                     serial_match.group(2)
                 )
 
-    tags = objects[0].get("_tags", {})
+    tags = (
+        front_objects[0].get("_tags", {})
+        if front_objects
+        else {}
+    )
 
     autograph_tags = tags.get("Autograph", [])
 
