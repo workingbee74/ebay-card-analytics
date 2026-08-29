@@ -5299,7 +5299,7 @@ def scan_card():
             print(
                 f"OCR_RECORD_{i}:",
                 "SIDE=", record.get("Side"),
-                "FULL_TEXT=", record.get("_ocr", {}).get("full_text")
+                "FULL_TEXT=", record.get("full_text")
             )
     except ValueError:
         ocr_data = {
