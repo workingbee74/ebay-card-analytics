@@ -5267,7 +5267,19 @@ def scan_card():
     try:
         sport_data = sport_response.json()
 
-        print("XIMILAR_RAW:", sport_data)
+
+    for i, record in enumerate(sport_data.get("records", [])):
+        objects = record.get("_objects", [])
+        identification = objects[0].get("_identification", {}) if objects else {}
+    
+        print(
+            f"XIMILAR_RECORD_{i}:",
+            "SIDE=", record.get("Side"),
+            "BEST=", identification.get("best_match"),
+            "TAGS=", objects[0].get("_tags", {}) if objects else {}
+        )
+
+
     except ValueError:
         sport_data = {
             "error": sport_response.text
