@@ -8628,6 +8628,11 @@ def ebay_offer_detail(offer_id):
         "offer": data,
     })
 
+
+@app.route("/inventory/import-cdp", methods=["POST"])
+def import_cdp_csv():
+    return "CDP import route ready"
+
 @app.route("/inventory", methods=["GET"])
 def inventory_cards_dashboard():
     with psycopg.connect(DATABASE_URL) as conn:
