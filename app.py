@@ -8671,6 +8671,7 @@ def inventory_cards_dashboard():
                     rookie_card,
                     grade_company,
                     grade,
+                    quantity,
                     purchase_price,
                     purchase_date,
                     purchase_source,
@@ -8707,6 +8708,7 @@ def inventory_cards_dashboard():
             rookie_card,
             grade_company,
             grade,
+            quantity,
             purchase_price,
             purchase_date,
             purchase_source,
@@ -9009,6 +9011,7 @@ def inventory_cards_dashboard():
                 <td>{product or ""}</td>
                 <td>{parallel or "Base"} {serial_display}</td>
                 <td>{grade_display}</td>
+                <td>{quantity or 1}</td>
                 <td>{price_display}</td>
                 <td>{market_value_display}</td>
                 <td class="{gain_loss_class}">
