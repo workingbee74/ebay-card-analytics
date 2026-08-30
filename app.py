@@ -8674,6 +8674,11 @@ def import_cdp_csv():
         "team": first.get("team"),
         "front_image": first.get("front_image"),
         "back_image": first.get("back_image"),
+        "graded": first.get("graded"),
+        "grader": first.get("grader"),
+        "grade_name": first.get("grade_name"),
+        "grade_number": first.get("grade_number"),
+        
     }
 
 
