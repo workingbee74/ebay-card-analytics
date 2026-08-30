@@ -8648,6 +8648,7 @@ def import_cdp_csv():
         "success": True,
         "row_count": len(rows),
         "columns": reader.fieldnames,
+        "first_row": rows[0] if rows else None,
     })
 
 @app.route("/inventory", methods=["GET"])
