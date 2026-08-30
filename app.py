@@ -8654,9 +8654,18 @@ def import_cdp_csv():
     
     if serial_match:
         serial_numbered_to = int(serial_match.group(1))
+    graded_text = (first.get("graded") or "").strip().lower()
     
+    if graded_text == "yes":
+        grade_company = first.get("grader") or None
+        grade = first.get("grade_number") or first.get("grade_name") or None
+    else:
+        grade_company = "Raw"
+        grade = None
     
     preview = {
+        "grade_company": grade_company,
+        "grade": grade,
         "attributes": attributes,
         "serial_numbered_to": serial_numbered_to,
         "title": first.get("title"),
