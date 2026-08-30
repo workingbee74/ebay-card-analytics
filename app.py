@@ -8644,11 +8644,27 @@ def import_cdp_csv():
 
     rows = list(reader)
 
+    first = rows[0] if rows else {}
+    
+    preview = {
+        "player_name": first.get("player"),
+        "card_year": first.get("year"),
+        "product": first.get("set"),
+        "card_number": first.get("card_number"),
+        "parallel": first.get("subset"),
+        "quantity": 1,
+        "purchase_price": first.get("purchase_price"),
+        "team": first.get("team"),
+        "front_image": first.get("front_image"),
+        "back_image": first.get("back_image"),
+    }
+
+
     return jsonify({
         "success": True,
         "row_count": len(rows),
         "columns": reader.fieldnames,
-        "first_row": rows[0] if rows else None,
+        "preview": preview,
     })
 
 @app.route("/inventory", methods=["GET"])
