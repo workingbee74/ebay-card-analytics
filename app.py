@@ -8644,7 +8644,7 @@ def import_cdp_csv():
 
     rows = list(reader)
 
-    first = rows[0] if rows else {}
+    first = rows[1] if len(rows) > 1 else {}
     attributes = first.get("attributes") or ""
     title = first.get("title") or ""
 
