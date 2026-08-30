@@ -8645,8 +8645,10 @@ def import_cdp_csv():
     rows = list(reader)
 
     first = rows[0] if rows else {}
+    attributes = first.get("attributes") or ""
     
     preview = {
+        "attributes": attributes,
         "title": first.get("title"),
         "player_name": first.get("player"),
         "card_year": first.get("year"),
