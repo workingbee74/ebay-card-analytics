@@ -8672,8 +8672,14 @@ def import_cdp_csv():
     else:
         grade_company = "Raw"
         grade = None
+
+
+    first_bowman = "1st bowman" in title.lower()
     
     preview = {
+        "first_bowman": first_bowman,
+        "prospect_card": False,
+        "autograph": False,
         "grade_company": grade_company,
         "grade": grade,
         "attributes": attributes,
