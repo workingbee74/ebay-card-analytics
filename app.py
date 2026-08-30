@@ -8648,12 +8648,22 @@ def import_cdp_csv():
     attributes = first.get("attributes") or ""
     title = first.get("title") or ""
 
-    serial_numbered_to = None
-    
-    serial_match = re.search(r"#/(\d+)", title)
-    
-    if serial_match:
-        serial_numbered_to = int(serial_match.group(1))
+    serial_number = None
+        serial_numbered_to = None
+        
+        serial_match = re.search(
+            r"(?:#\s*)?(?:(\d{1,4})\s*/\s*(\d{1,4})|/\s*(\d{1,4}))",
+            title
+        )
+        
+        if serial_match:
+            if serial_match.group(1) and serial_match.group(2):
+                serial_number = int(serial_match.group(1))
+                serial_numbered_to = int(serial_match.group(2))
+            elif serial_match.group(3):
+                serial_numbered_to = int(serial_match.group(3))
+
+        
     graded_text = (first.get("graded") or "").strip().lower()
     
     if graded_text == "yes":
@@ -8667,6 +8677,7 @@ def import_cdp_csv():
         "grade_company": grade_company,
         "grade": grade,
         "attributes": attributes,
+        "serial_number": serial_number,
         "serial_numbered_to": serial_numbered_to,
         "title": first.get("title"),
         "player_name": first.get("player"),
