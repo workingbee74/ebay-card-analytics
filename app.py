@@ -8647,6 +8647,7 @@ def import_cdp_csv():
     first = rows[0] if rows else {}
     
     preview = {
+        "title": first.get("title"),
         "player_name": first.get("player"),
         "card_year": first.get("year"),
         "product": (
