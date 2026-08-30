@@ -8631,7 +8631,24 @@ def ebay_offer_detail(offer_id):
 
 @app.route("/inventory/import-cdp", methods=["POST"])
 def import_cdp_csv():
-    return "CDP import route ready"
+    import csv
+    import io
+
+    uploaded_file = request.files.get("cdp_csv")
+
+    if not uploaded_file:
+        return "No CSV uploaded", 400
+
+    text = uploaded_file.read().decode("utf-8-sig")
+    reader = csv.DictReader(io.StringIO(text))
+
+    rows = list(reader)
+
+    return jsonify({
+        "success": True,
+        "row_count": len(rows),
+        "columns": reader.fieldnames,
+    })
 
 @app.route("/inventory", methods=["GET"])
 def inventory_cards_dashboard():
