@@ -8646,9 +8646,19 @@ def import_cdp_csv():
 
     first = rows[0] if rows else {}
     attributes = first.get("attributes") or ""
+    title = first.get("title") or ""
+
+    serial_numbered_to = None
+    
+    serial_match = re.search(r"#/(\d+)", title)
+    
+    if serial_match:
+        serial_numbered_to = int(serial_match.group(1))
+    
     
     preview = {
         "attributes": attributes,
+        "serial_numbered_to": serial_numbered_to,
         "title": first.get("title"),
         "player_name": first.get("player"),
         "card_year": first.get("year"),
