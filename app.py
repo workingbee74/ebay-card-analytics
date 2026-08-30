@@ -9354,6 +9354,27 @@ def inventory_cards_dashboard():
                     + Scan Card
                 </a>
             </div>
+
+            <form
+                action="/inventory/import-cdp"
+                method="POST"
+                enctype="multipart/form-data"
+                style="margin:0 0 14px 0;"
+            >
+                <strong>Import Card Dealer Pro CSV:</strong>
+            
+                <input
+                    type="file"
+                    name="cdp_csv"
+                    accept=".csv,text/csv"
+                    required
+                >
+            
+                <button type="submit">
+                    Import
+                </button>
+            </form>
+            
             <div class="inventory-filters">
                 <input
                     type="text"
