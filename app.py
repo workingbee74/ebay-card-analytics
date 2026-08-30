@@ -8649,7 +8649,11 @@ def import_cdp_csv():
     preview = {
         "player_name": first.get("player"),
         "card_year": first.get("year"),
-        "product": first.get("set"),
+        "product": (
+            "Topps Chrome"
+            if "Chrome" in (first.get("title") or "")
+            else first.get("set")
+        ),
         "card_number": first.get("card_number"),
         "parallel": first.get("subset"),
         "quantity": 1,
