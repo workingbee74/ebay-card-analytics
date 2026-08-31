@@ -10668,6 +10668,7 @@ def deals_dashboard_v2():
                         is_single_card = TRUE
                         AND player_name IS NOT NULL
                         AND asking_price IS NOT NULL
+                        AND (item_end_date IS NULL OR item_end_date > CURRENT_TIMESTAMP)
                     GROUP BY
                         player_name,
                         card_year,
@@ -10710,11 +10711,12 @@ def deals_dashboard_v2():
                        AND e.autograph IS NOT DISTINCT FROM c.autograph
                        AND e.grade_company IS NOT DISTINCT FROM c.grade_company
                         AND e.grade IS NOT DISTINCT FROM c.grade
-                   WHERE
-                    e.is_single_card = TRUE
-                    AND e.asking_price IS NOT NULL
-                    AND (e.asking_price + COALESCE(e.shipping_cost, 0)) < c.median_price
-                LIMIT 50;
+                  WHERE
+                       e.is_single_card = TRUE
+                       AND e.asking_price IS NOT NULL
+                       AND (e.item_end_date IS NULL OR e.item_end_date > CURRENT_TIMESTAMP)
+                       AND (e.asking_price + COALESCE(e.shipping_cost, 0)) < c.median_price
+                  LIMIT 50;
             """)
 
             rows = cur.fetchall()
