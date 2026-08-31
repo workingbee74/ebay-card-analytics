@@ -9430,7 +9430,19 @@ def inventory_cards_dashboard():
             .inventory-filters button {{
                 cursor: pointer;
             }}
-            
+
+            .copy-title-btn {{
+                display: inline-block;
+                margin-top: 6px;
+                padding: 4px 8px;
+                border: 1px solid #d1d5db;
+                border-radius: 4px;
+                background: white;
+                cursor: pointer;
+                font-size: 12px;
+                white-space: nowrap;
+            }}
+        
             .inventory-table td {{
                 padding: 8px 6px;
                 border-bottom: 1px solid #e5e7eb;
