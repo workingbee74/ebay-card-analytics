@@ -3998,6 +3998,19 @@ def auction_watch():
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
 
+
+            cur.execute("""
+                SELECT
+                    COUNT(*) AS total_rows,
+                    COUNT(DISTINCT ebay_item_id) AS auctions,
+                    COUNT(DISTINCT ebay_item_id) FILTER (
+                        WHERE item_end_date > CURRENT_TIMESTAMP
+                    ) AS active_auctions
+                FROM auction_history
+            """)
+            
+            print("AUCTION_HISTORY_COUNTS:", cur.fetchone(), flush=True)
+            
             cur.execute("""
                 WITH ranked AS (
                     SELECT
