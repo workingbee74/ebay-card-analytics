@@ -9834,24 +9834,24 @@ def inventory_cards_dashboard():
             }});
         }}
 
-        document.querySelectorAll(".copy-title-btn").forEach((button) => {
-            button.addEventListener("click", async () => {
+        document.querySelectorAll(".copy-title-btn").forEach((button) => {{
+            button.addEventListener("click", async () => {{
                 const text = button.dataset.copyTitle || "";
         
-                try {
+                try {{
                     await navigator.clipboard.writeText(text);
         
                     const originalText = button.textContent;
                     button.textContent = "Copied";
         
-                    setTimeout(() => {
+                    setTimeout(() => {{
                         button.textContent = originalText;
-                    }, 1200);
-                } catch (error) {
+                    }}, 1200);
+                }} catch (error) {{
                     console.error("Copy failed:", error);
-                }
-            });
-        });
+                }}
+            }});
+        }});
         
         </script>
     </body>
