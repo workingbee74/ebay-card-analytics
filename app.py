@@ -9010,10 +9010,14 @@ def inventory_cards_dashboard():
                 else grade_company
             )
 
+        copy_product = product or ""
+        
+        if card_year and copy_product.startswith(str(card_year)):
+            copy_product = copy_product[len(str(card_year)):].strip()
 
         copy_title_parts = [
             str(card_year) if card_year else "",
-            product or "",
+            copy_product,
             player_name or "",
             f"#{card_number}" if card_number else "",
             "Bowman 1st" if first_bowman else "",
