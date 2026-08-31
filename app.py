@@ -9346,6 +9346,9 @@ def inventory_cards_dashboard():
     <head>
         <title>Bowman Inventory</title>
 
+        <link rel="apple-touch-icon" href="/static/bowman-analytics-icon.png">
+        <link rel="icon" type="image/png" href="/static/bowman-analytics-icon.png">
+
         <meta
             name="viewport"
             content="width=device-width, initial-scale=1"
