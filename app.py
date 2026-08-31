@@ -4524,16 +4524,6 @@ def auction_watch():
     </html>
     """
 
-
-
-    
-    return jsonify({
-        "total_rows": auction_counts[0],
-        "auctions": auction_counts[1],
-        "active_auctions": auction_counts[2],
-        "latest_observed_at": latest_dates[0],
-        "latest_item_end_date": latest_dates[1],
-    })
     
     html = html.replace("{NAV_HTML}", NAV_HTML)
     return html
