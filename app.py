@@ -4010,18 +4010,16 @@ def auction_watch():
             
             auction_counts = cur.fetchone()
             
-
             cur.execute("""
                 SELECT
-                    COUNT(*) AS total_rows,
-                    COUNT(DISTINCT ebay_item_id) AS auctions,
-                    COUNT(DISTINCT ebay_item_id) FILTER (
-                        WHERE item_end_date > CURRENT_TIMESTAMP
-                    ) AS active_auctions
+                    MAX(observed_at),
+                    MAX(item_end_date)
                 FROM auction_history
             """)
             
-            print("AUCTION_HISTORY_COUNTS:", cur.fetchone(), flush=True)
+            latest_dates = cur.fetchone()
+            
+       
             
             cur.execute("""
                 WITH ranked AS (
@@ -4527,14 +4525,7 @@ def auction_watch():
     """
 
 
-    cur.execute("""
-        SELECT
-            MAX(observed_at),
-            MAX(item_end_date)
-        FROM auction_history
-    """)
-    
-    latest_dates = cur.fetchone()
+
     
     return jsonify({
         "total_rows": auction_counts[0],
