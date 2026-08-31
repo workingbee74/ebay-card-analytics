@@ -9012,12 +9012,12 @@ def inventory_cards_dashboard():
 
 
         if grade_company and grade is not None:
-            grade_value = (
-                str(int(grade))
-                if float(grade).is_integer()
-                else str(grade)
-            )
-            grade_display = f"{grade_company} {grade_value}"
+            grade_text = str(grade).strip()
+        
+            if grade_text.endswith(".0"):
+                grade_text = grade_text[:-2]
+        
+            grade_display = f"{grade_company} {grade_text}"
 
         copy_product = product or ""
         
