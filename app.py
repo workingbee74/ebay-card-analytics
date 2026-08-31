@@ -3998,6 +3998,18 @@ def auction_watch():
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
 
+            cur.execute("""
+                SELECT
+                    COUNT(*) AS total_rows,
+                    COUNT(DISTINCT ebay_item_id) AS auctions,
+                    COUNT(DISTINCT ebay_item_id) FILTER (
+                        WHERE item_end_date > CURRENT_TIMESTAMP
+                    ) AS active_auctions
+                FROM auction_history
+            """)
+            
+            auction_counts = cur.fetchone()
+            
 
             cur.execute("""
                 SELECT
@@ -4513,6 +4525,13 @@ def auction_watch():
     </body>
     </html>
     """
+    
+    return jsonify({
+        "total_rows": auction_counts[0],
+        "auctions": auction_counts[1],
+        "active_auctions": auction_counts[2],
+    })
+    
     html = html.replace("{NAV_HTML}", NAV_HTML)
     return html
 
