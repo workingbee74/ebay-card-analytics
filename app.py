@@ -9458,12 +9458,12 @@ def inventory_cards_dashboard():
                 enctype="multipart/form-data"
                 style="margin:0 0 14px 0;"
             >
-                <strong>Import Card Dealer Pro CSV:</strong>
+                <strong>Import Card Dealer Pro:</strong>
             
                 <input
                     type="file"
                     name="cdp_csv"
-                    accept=".csv,text/csv"
+                    accept=".csv,.zip,text/csv,application/zip"
                     required
                 >
             
