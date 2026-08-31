@@ -9030,7 +9030,11 @@ def inventory_cards_dashboard():
             player_name or "",
             f"#{card_number}" if card_number else "",
             "Bowman 1st" if first_bowman else "",
-            "Prospect" if prospect_card and "prospect" not in (parallel or "").lower() else "",
+            "Prospect"
+                if prospect_card
+                and not first_bowman
+                and "prospect" not in (parallel or "").lower()
+                else "",
             parallel or "",
             serial_display,
             "Auto" if autograph else "",
