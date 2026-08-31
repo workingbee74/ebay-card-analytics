@@ -8764,72 +8764,72 @@ def import_cdp_csv():
                     for row in cur.fetchall()
                 }
                 
-            imported = 0
-            skipped = 0
-            ready_to_import = []
-    
-            for item in normalized_rows:
-                cdp_sku = str(item.get("sku") or "").strip()
-            
-                if not cdp_sku or cdp_sku in existing_cdp_skus:
-                    skipped += 1
-                    continue
-    
-                ready_to_import.append({
-                    "sku": cdp_sku,
-                    "player": item.get("player_name"),
-                })
-    
-    
-                cur.execute("""
-                    INSERT INTO inventory_cards (
-                        player_name,
-                        card_year,
-                        product,
-                        card_number,
-                        first_bowman,
-                        prospect_card,
-                        parallel,
-                        serial_number,
-                        serial_numbered_to,
-                        autograph,
-                        grade_company,
-                        grade,
-                        quantity,
-                        purchase_price,
-                        purchase_source,
-                        cdp_sku,
-                        front_image_url,
-                        back_image_url
-                    )
-                    VALUES (
-                        %s, %s, %s, %s, %s, %s,
-                        %s, %s, %s, %s, %s, %s,
-                        %s, %s, %s, %s, %s, %s
-                    )
-                """, (
-                    item.get("player_name"),
-                    item.get("card_year"),
-                    item.get("product"),
-                    item.get("card_number"),
-                    item.get("first_bowman"),
-                    item.get("prospect_card"),
-                    item.get("parallel"),
-                    item.get("serial_number"),
-                    item.get("serial_numbered_to"),
-                    item.get("autograph"),
-                    item.get("grade_company"),
-                    item.get("grade"),
-                    item.get("quantity"),
-                    item.get("purchase_price"),
-                    "Card Dealer Pro",
-                    cdp_sku,
-                    item.get("front_image"),
-                    item.get("back_image"),
-                ))
+                imported = 0
+                skipped = 0
+                ready_to_import = []
+        
+                for item in normalized_rows:
+                    cdp_sku = str(item.get("sku") or "").strip()
                 
-                imported += 1
-                existing_cdp_skus.add(cdp_sku)
+                    if not cdp_sku or cdp_sku in existing_cdp_skus:
+                        skipped += 1
+                        continue
+        
+                    ready_to_import.append({
+                        "sku": cdp_sku,
+                        "player": item.get("player_name"),
+                    })
+        
+        
+                    cur.execute("""
+                        INSERT INTO inventory_cards (
+                            player_name,
+                            card_year,
+                            product,
+                            card_number,
+                            first_bowman,
+                            prospect_card,
+                            parallel,
+                            serial_number,
+                            serial_numbered_to,
+                            autograph,
+                            grade_company,
+                            grade,
+                            quantity,
+                            purchase_price,
+                            purchase_source,
+                            cdp_sku,
+                            front_image_url,
+                            back_image_url
+                        )
+                        VALUES (
+                            %s, %s, %s, %s, %s, %s,
+                            %s, %s, %s, %s, %s, %s,
+                            %s, %s, %s, %s, %s, %s
+                        )
+                    """, (
+                        item.get("player_name"),
+                        item.get("card_year"),
+                        item.get("product"),
+                        item.get("card_number"),
+                        item.get("first_bowman"),
+                        item.get("prospect_card"),
+                        item.get("parallel"),
+                        item.get("serial_number"),
+                        item.get("serial_numbered_to"),
+                        item.get("autograph"),
+                        item.get("grade_company"),
+                        item.get("grade"),
+                        item.get("quantity"),
+                        item.get("purchase_price"),
+                        "Card Dealer Pro",
+                        cdp_sku,
+                        item.get("front_image"),
+                        item.get("back_image"),
+                    ))
+                    
+                    imported += 1
+                    existing_cdp_skus.add(cdp_sku)
                 
     return jsonify({
         "success": True,
