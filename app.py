@@ -9010,6 +9010,15 @@ def inventory_cards_dashboard():
                 else grade_company
             )
 
+
+        if grade_company and grade is not None:
+            grade_value = (
+                str(int(grade))
+                if float(grade).is_integer()
+                else str(grade)
+            )
+            grade_display = f"{grade_company} {grade_value}"
+
         copy_product = product or ""
         
         if card_year and copy_product.startswith(str(card_year)):
