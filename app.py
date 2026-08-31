@@ -8775,10 +8775,10 @@ def import_cdp_csv():
                 skipped += 1
                 continue
 
-        ready_to_import.append({
-            "sku": cdp_sku,
-            "player": item.get("player_name"),
-        })
+            ready_to_import.append({
+                "sku": cdp_sku,
+                "player": item.get("player_name"),
+            })
                 
     return jsonify({
         "success": True,
