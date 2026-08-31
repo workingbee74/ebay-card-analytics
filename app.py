@@ -8644,6 +8644,69 @@ def import_cdp_csv():
 
     rows = list(reader)
 
+    normalized_rows = []
+    
+    for first in rows:
+        attributes = first.get("attributes") or ""
+        title = first.get("title") or ""
+    
+        serial_number = None
+        serial_numbered_to = None
+    
+        serial_match = re.search(
+            r"(?:#\s*)?(?:(\d{1,4})\s*/\s*(\d{1,4})|/\s*(\d{1,4}))",
+            title
+        )
+    
+        if serial_match:
+            if serial_match.group(1) and serial_match.group(2):
+                serial_number = int(serial_match.group(1))
+                serial_numbered_to = int(serial_match.group(2))
+            elif serial_match.group(3):
+                serial_numbered_to = int(serial_match.group(3))
+    
+        graded_text = (first.get("graded") or "").strip().lower()
+    
+        if graded_text == "yes":
+            grade_company = first.get("grader") or None
+            grade = first.get("grade_number") or first.get("grade_name") or None
+        else:
+            grade_company = "Raw"
+            grade = None
+    
+        first_bowman = "1st bowman" in title.lower()
+        prospect_card = "prospect" in title.lower()
+        autograph = (
+            "auto" in title.lower()
+            or "autograph" in title.lower()
+        )
+    
+        normalized_rows.append({
+            "title": title,
+            "player_name": first.get("player"),
+            "card_year": first.get("year"),
+            "product": (
+                "Topps Chrome"
+                if "Chrome" in title
+                else first.get("set")
+            ),
+            "card_number": first.get("card_number"),
+            "parallel": first.get("subset"),
+            "serial_number": serial_number,
+            "serial_numbered_to": serial_numbered_to,
+            "first_bowman": first_bowman,
+            "prospect_card": prospect_card,
+            "autograph": autograph,
+            "grade_company": grade_company,
+            "grade": grade,
+            "quantity": 1,
+            "purchase_price": first.get("purchase_price"),
+            "team": first.get("team"),
+            "front_image": first.get("front_image"),
+            "back_image": first.get("back_image"),
+        })
+
+
     first = rows[1] if len(rows) > 1 else {}
     attributes = first.get("attributes") or ""
     title = first.get("title") or ""
@@ -8720,7 +8783,7 @@ def import_cdp_csv():
         "success": True,
         "row_count": len(rows),
         "columns": reader.fieldnames,
-        "preview": preview,
+        "preview": normalized_rows,
     })
 
 @app.route("/inventory", methods=["GET"])
