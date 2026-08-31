@@ -3003,6 +3003,7 @@ def ebay_search():
                         ADD COLUMN IF NOT EXISTS scanner_source TEXT,
                         ADD COLUMN IF NOT EXISTS scanner_confidence NUMERIC(5,2),
                         ADD COLUMN IF NOT EXISTS external_card_id TEXT,
+                        ADD COLUMN IF NOT EXISTS cdp_sku TEXT,
                         ADD COLUMN IF NOT EXISTS front_image_url TEXT,
                         ADD COLUMN IF NOT EXISTS back_image_url TEXT
                         ADD COLUMN IF NOT EXISTS market_value NUMERIC(12,2),
