@@ -8740,6 +8740,7 @@ def import_cdp_csv():
             "quantity": 1,
             "purchase_price": purchase_price,
             "team": first.get("team"),
+            "sku": first.get("sku"),
             "front_image": first.get("front_image"),
             "back_image": first.get("back_image"),
         })
