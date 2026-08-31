@@ -8872,6 +8872,7 @@ def inventory_cards_dashboard():
                     purchase_date,
                     purchase_source,
                     external_card_id,
+                    front_image_url,
                     disposition_action,
                     action_priority
                     FROM inventory_cards
@@ -8909,6 +8910,7 @@ def inventory_cards_dashboard():
             purchase_date,
             purchase_source,
             cardhedge_id,
+            front_image_url,
             saved_disposition_action,
             saved_action_priority,
             ) = row
@@ -9274,6 +9276,23 @@ def inventory_cards_dashboard():
                     >
                         Copy Title
                     </button>
+
+
+                    {
+                        f'''
+                        <br>
+                        <button
+                            type="button"
+                            class="view-front-btn"
+                            data-front-image="{front_image_url}"
+                        >
+                            View Front
+                        </button>
+                        '''
+                        if front_image_url
+                        else ""
+                    }
+        
                 </td>
             </tr>
             """
@@ -9727,6 +9746,60 @@ def inventory_cards_dashboard():
 
         </div>
 
+
+        <div
+            id="frontImageModal"
+            style="
+                display:none;
+                position:fixed;
+                inset:0;
+                background:rgba(0,0,0,0.75);
+                z-index:2000;
+                align-items:center;
+                justify-content:center;
+                padding:20px;
+            "
+        >
+            <div
+                style="
+                    position:relative;
+                    max-width:90vw;
+                    max-height:90vh;
+                "
+            >
+                <button
+                    type="button"
+                    id="closeFrontImageModal"
+                    style="
+                        position:absolute;
+                        top:-12px;
+                        right:-12px;
+                        width:34px;
+                        height:34px;
+                        border-radius:50%;
+                        border:none;
+                        font-size:20px;
+                        cursor:pointer;
+                    "
+                >
+                    ×
+                </button>
+        
+                <img
+                    id="frontImageModalImg"
+                    src=""
+                    alt="Card front"
+                    style="
+                        display:block;
+                        max-width:90vw;
+                        max-height:85vh;
+                        border-radius:8px;
+                        background:white;
+                    "
+                >
+            </div>
+        </div>
+
         <script>
         const table = document.querySelector(".inventory-table");
         
@@ -9885,6 +9958,34 @@ def inventory_cards_dashboard():
                     console.error("Copy failed:", error);
                 }}
             }});
+        }});
+
+
+        const frontImageModal = document.getElementById("frontImageModal");
+        const frontImageModalImg = document.getElementById("frontImageModalImg");
+        const closeFrontImageModal = document.getElementById("closeFrontImageModal");
+        
+        document.querySelectorAll(".view-front-btn").forEach((button) => {{
+            button.addEventListener("click", () => {{
+                const imageUrl = button.dataset.frontImage || "";
+        
+                if (!imageUrl) return;
+        
+                frontImageModalImg.src = imageUrl;
+                frontImageModal.style.display = "flex";
+            }});
+        }});
+        
+        closeFrontImageModal.addEventListener("click", () => {{
+            frontImageModal.style.display = "none";
+            frontImageModalImg.src = "";
+        }});
+        
+        frontImageModal.addEventListener("click", (event) => {{
+            if (event.target === frontImageModal) {{
+                frontImageModal.style.display = "none";
+                frontImageModalImg.src = "";
+            }}
         }});
         
         </script>
