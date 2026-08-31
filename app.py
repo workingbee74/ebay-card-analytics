@@ -8635,9 +8635,18 @@ def import_cdp_csv():
     import io
 
     uploaded_file = request.files.get("cdp_csv")
+    filename = (uploaded_file.filename or "").lower()
+
 
     if not uploaded_file:
         return "No CSV uploaded", 400
+
+
+    if filename.endswith(".zip"):
+        return jsonify({
+            "success": False,
+            "message": "ZIP detected — ZIP processing not enabled yet."
+        }), 400
 
     text = uploaded_file.read().decode("utf-8-sig")
     reader = csv.DictReader(io.StringIO(text))
