@@ -8675,8 +8675,8 @@ def import_cdp_csv():
             grade = None
     
         first_bowman = (
-            "bowman 1st" in title.lower()
-            or "1st bowman" in title.lower()
+            "bowman" in title.lower()
+            and re.search(r"\b1st\b", title.lower()) is not None
         )
         prospect_card = "prospect" in title.lower()
         autograph = (
