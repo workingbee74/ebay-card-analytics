@@ -3,6 +3,7 @@ import hashlib
 import base64
 import requests
 import psycopg
+import zipfile
 import re
 import time
 import json
@@ -8643,12 +8644,26 @@ def import_cdp_csv():
 
 
     if filename.endswith(".zip"):
-        return jsonify({
-            "success": False,
-            "message": "ZIP detected — ZIP processing not enabled yet."
-        }), 400
+        zip_bytes = uploaded_file.read()
+    
+        with zipfile.ZipFile(io.BytesIO(zip_bytes)) as z:
+            csv_files = [
+                name for name in z.namelist()
+                if name.lower().endswith(".csv")
+            ]
+    
+            if not csv_files:
+                return jsonify({
+                    "success": False,
+                    "message": "No CSV found inside ZIP."
+                }), 400
+    
+            csv_name = csv_files[0]
+            text = z.read(csv_name).decode("utf-8-sig")
+    else:
+        text = uploaded_file.read().decode("utf-8-sig")
 
-    text = uploaded_file.read().decode("utf-8-sig")
+   
     reader = csv.DictReader(io.StringIO(text))
 
     rows = list(reader)
