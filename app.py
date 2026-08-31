@@ -8766,6 +8766,7 @@ def import_cdp_csv():
                 
         imported = 0
         skipped = 0
+        ready_to_import = []
 
         for item in normalized_rows:
             cdp_sku = str(item.get("sku") or "").strip()
@@ -8773,12 +8774,19 @@ def import_cdp_csv():
             if not cdp_sku or cdp_sku in existing_cdp_skus:
                 skipped += 1
                 continue
+
+        ready_to_import.append({
+            "sku": cdp_sku,
+            "player": item.get("player_name"),
+        })
+                
     return jsonify({
         "success": True,
         "row_count": len(rows),
         "columns": reader.fieldnames,
         "preview": normalized_rows,
         "existing_cdp_skus": sorted(existing_cdp_skus),
+        "ready_to_import": ready_to_import,
     })
 
 @app.route("/inventory", methods=["GET"])
