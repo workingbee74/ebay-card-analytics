@@ -9015,6 +9015,15 @@ def inventory_cards_dashboard():
         if card_year and copy_product.startswith(str(card_year)):
             copy_product = copy_product[len(str(card_year)):].strip()
 
+            copy_product = re.sub(
+                r"\bProspects?\b|\bBaseball\b",
+                "",
+                copy_product,
+                flags=re.IGNORECASE
+            )
+            
+            copy_product = " ".join(copy_product.split())
+
         copy_title_parts = [
             str(card_year) if card_year else "",
             copy_product,
