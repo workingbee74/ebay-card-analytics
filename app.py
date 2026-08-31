@@ -8677,11 +8677,17 @@ def import_cdp_csv():
     first_bowman = "1st bowman" in title.lower()
 
     prospect_card = "prospect" in title.lower()
+
+
+    autograph = (
+        "auto" in title.lower()
+        or "autograph" in title.lower()
+    )
     
     preview = {
         "first_bowman": first_bowman,
         "prospect_card": prospect_card,
-        "autograph": False,
+        "autograph": autograph,
         "grade_company": grade_company,
         "grade": grade,
         "attributes": attributes,
