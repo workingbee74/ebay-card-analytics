@@ -8674,7 +8674,10 @@ def import_cdp_csv():
             grade_company = "Raw"
             grade = None
     
-        first_bowman = "1st bowman" in title.lower()
+        first_bowman = (
+            "bowman 1st" in title.lower()
+            or "1st bowman" in title.lower()
+        )
         prospect_card = "prospect" in title.lower()
         autograph = (
             "auto" in title.lower()
