@@ -9010,6 +9010,27 @@ def inventory_cards_dashboard():
                 else grade_company
             )
 
+
+        copy_title_parts = [
+            str(card_year) if card_year else "",
+            product or "",
+            player_name or "",
+            f"#{card_number}" if card_number else "",
+            "Bowman 1st" if first_bowman else "",
+            "Prospect" if prospect_card and "prospect" not in (parallel or "").lower() else "",
+            parallel or "",
+            serial_display,
+            "Auto" if autograph else "",
+            "RC" if rookie_card else "",
+            grade_display,
+        ]
+        
+        copy_title = " ".join(
+            str(part).strip()
+            for part in copy_title_parts
+            if part and str(part).strip()
+        )
+
         price_display = (
             f"${float(purchase_price):,.2f}"
             if purchase_price is not None
@@ -9212,7 +9233,17 @@ def inventory_cards_dashboard():
                 <td class="{trend_class}">
                     {trend_display}
                 </td>
-                <td>{disposition_action}</td>
+                <td>
+                    {disposition_action}
+                    <br>
+                    <button
+                        type="button"
+                        class="copy-title-btn"
+                        data-copy-title="{copy_title}"
+                    >
+                        Copy Title
+                    </button>
+                </td>
             </tr>
             """
         })
@@ -9790,6 +9821,26 @@ def inventory_cards_dashboard():
                 applyFilters();
             }});
         }}
+
+        document.querySelectorAll(".copy-title-btn").forEach((button) => {
+            button.addEventListener("click", async () => {
+                const text = button.dataset.copyTitle || "";
+        
+                try {
+                    await navigator.clipboard.writeText(text);
+        
+                    const originalText = button.textContent;
+                    button.textContent = "Copied";
+        
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                    }, 1200);
+                } catch (error) {
+                    console.error("Copy failed:", error);
+                }
+            });
+        });
+        
         </script>
     </body>
     </html>
