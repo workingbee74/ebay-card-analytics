@@ -8686,8 +8686,12 @@ def import_cdp_csv():
             "player_name": first.get("player"),
             "card_year": first.get("year"),
             "product": (
-                "Topps Chrome"
-                if "Chrome" in title
+                "Bowman Draft"
+                if "Bowman" in title and "Draft" in title
+                else "Bowman Chrome"
+                if "Bowman Chrome" in title
+                else "Topps Chrome"
+                if "Topps Chrome" in title
                 else first.get("set")
             ),
             "card_number": first.get("card_number"),
