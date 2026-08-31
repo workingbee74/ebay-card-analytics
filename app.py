@@ -8763,7 +8763,16 @@ def import_cdp_csv():
                     str(row[0])
                     for row in cur.fetchall()
                 }
+                
+        imported = 0
+        skipped = 0
 
+        for item in normalized_rows:
+            cdp_sku = str(item.get("sku") or "").strip()
+        
+            if not cdp_sku or cdp_sku in existing_cdp_skus:
+                skipped += 1
+                continue
     return jsonify({
         "success": True,
         "row_count": len(rows),
