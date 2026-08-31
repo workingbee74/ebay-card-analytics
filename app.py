@@ -8746,11 +8746,26 @@ def import_cdp_csv():
             "back_image": first.get("back_image"),
         })
 
+
+        with psycopg.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT cdp_sku
+                    FROM inventory_cards
+                    WHERE cdp_sku IS NOT NULL
+                """)
+        
+                existing_cdp_skus = {
+                    str(row[0])
+                    for row in cur.fetchall()
+                }
+
     return jsonify({
         "success": True,
         "row_count": len(rows),
         "columns": reader.fieldnames,
         "preview": normalized_rows,
+        "existing_cdp_skus": sorted(existing_cdp_skus),
     })
 
 @app.route("/inventory", methods=["GET"])
