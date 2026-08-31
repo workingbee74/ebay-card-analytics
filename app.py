@@ -2350,6 +2350,7 @@ def get_sold_price_tiers(
     exact_prices = []
     same_parallel_prices = []
     same_card_prices = []
+    same_product_prices = []
 
     
     target_player = (player_name or "").casefold().strip()
@@ -2377,6 +2378,17 @@ def get_sold_price_tiers(
             card_data.get("parallel") == parallel
         )
 
+
+        if (
+            player_match
+            and year_match
+            and product_match
+        ):
+            try:
+                same_product_prices.append(float(sold_price))
+            except (TypeError, ValueError):
+                pass
+        
         if not (
             player_match
             and year_match
@@ -2431,6 +2443,7 @@ def get_sold_price_tiers(
     "exact_prices": exact_prices,
     "same_parallel_prices": same_parallel_prices,
     "same_card_prices": same_card_prices,
+    "same_product_prices": same_product_prices,
 }
     
 def calculate_auction_decision(
@@ -3848,13 +3861,26 @@ def auction_value_refresh():
                             for comp in broad_tiers["same_card_prices"]
                             if comp.get("price") is not None
                         ]
-                            
+
+
+                        fallback_prices = [
+                            price
+                            for price in broad_tiers["same_product_prices"]
+                            if price is not None
+                        ]
+                    
+                    decision_prices = (
+                        exact_prices
+                        if len(exact_prices) >= 3
+                        else fallback_prices
+                    )
+                    
                     decision = calculate_auction_decision(
-                        exact_prices,
+                        decision_prices,
                         float(current_bid)
                         if current_bid is not None
                         else None
-                )
+                    )
 
                     # Never issue an automated BID on uncertain identity
                     if not identity_verified:
