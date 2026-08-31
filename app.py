@@ -8683,6 +8683,13 @@ def import_cdp_csv():
             "auto" in title.lower()
             or "autograph" in title.lower()
         )
+
+        purchase_price_raw = (first.get("purchase_price") or "").strip()
+        
+        if purchase_price_raw and purchase_price_raw not in ("0", "0.00"):
+            purchase_price = float(purchase_price_raw)
+        else:
+            purchase_price = None
     
         normalized_rows.append({
             "title": title,
@@ -8707,7 +8714,7 @@ def import_cdp_csv():
             "grade_company": grade_company,
             "grade": grade,
             "quantity": 1,
-            "purchase_price": first.get("purchase_price"),
+            "purchase_price": purchase_price,
             "team": first.get("team"),
             "front_image": first.get("front_image"),
             "back_image": first.get("back_image"),
