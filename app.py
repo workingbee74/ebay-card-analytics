@@ -8750,6 +8750,10 @@ def import_cdp_csv():
         with psycopg.connect(DATABASE_URL) as conn:
             with conn.cursor() as cur:
                 cur.execute("""
+                    ALTER TABLE inventory_cards
+                    ADD COLUMN IF NOT EXISTS cdp_sku TEXT
+                """)
+                cur.execute("""
                     SELECT cdp_sku
                     FROM inventory_cards
                     WHERE cdp_sku IS NOT NULL
