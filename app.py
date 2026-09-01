@@ -4743,6 +4743,28 @@ def pipeline_top100_test():
     })
 
 
+@app.route("/prospect-rank-history-test", methods=["GET"])
+def prospect_rank_history_test():
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT
+                    COUNT(*),
+                    MIN(overall_rank),
+                    MAX(overall_rank)
+                FROM prospect_rank_history
+                WHERE ranking_source = 'MLB Pipeline'
+                  AND rank_date = CURRENT_DATE
+            """)
+
+            row = cur.fetchone()
+
+    return jsonify({
+        "count": row[0],
+        "min_rank": row[1],
+        "max_rank": row[2],
+    })
+
 @app.route("/prospect-test", methods=["GET"])
 def prospect_test():
     mlb_player_id = 815888
