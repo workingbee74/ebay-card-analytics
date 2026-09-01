@@ -4162,12 +4162,12 @@ for player_name, card_year, product, card_number in auctions:
             "error": str(e)
         })
 
-return jsonify({
-    "success": True,
-    "auctions_considered": len(auctions),
-    "cache_entries_refreshed": refreshed,
-    "errors": errors
-})
+    return jsonify({
+        "success": True,
+        "auctions_considered": len(auctions),
+        "cache_entries_refreshed": refreshed,
+        "errors": errors
+    })
 
 @app.route("/soldcomps-test", methods=["GET"])
 def soldcomps_test():
