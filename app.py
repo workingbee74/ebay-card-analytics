@@ -4579,15 +4579,19 @@ def pipeline_top100_test():
                     else None
                 ),
             }
-            decoded = html.unescape(response.text)
-            josue_pos = response.text.find("Josue De Paula")
+        decoded = html.unescape(response.text)
+        josue_pos = decoded.find("Josue De Paula")
+
         return jsonify({
             "success": True,
-            "pipeline_rank_mentions": decoded.count('"pipelineRank'),
-            "player_name_mentions": decoded.count('"playerName"'),
-            "josue_found": "Josue De Paula" in decoded,
+            "josue_position": josue_pos,
+            "context": (
+                decoded[josue_pos - 3000:josue_pos + 3000]
+                if josue_pos >= 0
+                else None
+            ),
         })
-
+        
 @app.route("/prospect-test", methods=["GET"])
 def prospect_test():
     mlb_player_id = 815888
