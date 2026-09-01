@@ -4719,9 +4719,179 @@ def auction_watch():
 
 @app.route("/auction-watch-cache-refresh", methods=["GET"])
 def auction_watch_cache_refresh():
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                TRUNCATE TABLE auction_watch_current
+            """)
+    
+            cur.execute("""
+                INSERT INTO auction_watch_current (
+                    ebay_item_id,
+                    player_name,
+                    card_year,
+                    product,
+                    card_number,
+                    parallel,
+                    serial_numbered_to,
+                    grade_company,
+                    grade,
+                    current_bid,
+                    current_bid_count,
+                    demand_score,
+                    momentum_score,
+                    hours_remaining,
+                    urgency_score,
+                    observations,
+                    listing_url,
+                    identity_verified,
+                    evidence_confidence,
+                    exact_comp_count,
+                    exact_active_median,
+                    recommended_max_bid,
+                    bid_headroom,
+                    action,
+                    valued_at,
+                    item_end_date,
+                    refreshed_at
+                )
+                SELECT
+                    m.ebay_item_id,
+                    m.player_name,
+                    m.card_year,
+                    m.product,
+                    m.card_number,
+                    m.parallel,
+                    m.serial_numbered_to,
+                    m.grade_company,
+                    m.grade,
+                    m.current_bid,
+                    m.current_bid_count,
+                    m.demand_score,
+                    m.momentum_score,
+                    m.hours_remaining,
+                    m.urgency_score,
+                    m.observations,
+                    m.listing_url,
+                    av.identity_verified,
+                    av.evidence_confidence,
+                    av.exact_comp_count,
+                    av.exact_active_median,
+                    av.recommended_max_bid,
+                    av.bid_headroom,
+                    av.action,
+                    av.valued_at,
+                    m.item_end_date,
+                    CURRENT_TIMESTAMP
+                FROM (
+                    SELECT
+                        ebay_item_id,
+                        MAX(player_name) FILTER (WHERE last_rn = 1) AS player_name,
+                        MAX(card_year) FILTER (WHERE last_rn = 1) AS card_year,
+                        MAX(product) FILTER (WHERE last_rn = 1) AS product,
+                        MAX(card_number) FILTER (WHERE last_rn = 1) AS card_number,
+                        MAX(parallel) FILTER (WHERE last_rn = 1) AS parallel,
+                        MAX(serial_numbered_to) FILTER (WHERE last_rn = 1) AS serial_numbered_to,
+                        MAX(grade_company) FILTER (WHERE last_rn = 1) AS grade_company,
+                        MAX(grade) FILTER (WHERE last_rn = 1) AS grade,
+                        MAX(current_bid) FILTER (WHERE last_rn = 1) AS current_bid,
+                        MAX(bid_count) FILTER (WHERE last_rn = 1) AS current_bid_count,
+                        MAX(item_end_date) FILTER (WHERE last_rn = 1) AS item_end_date,
+                        MAX(listing_url) FILTER (WHERE last_rn = 1) AS listing_url,
+                        MAX(observations) AS observations,
+    
+                        LEAST(100, MAX(bid_count) FILTER (WHERE last_rn = 1) * 4) AS demand_score,
+    
+                        0 AS momentum_score,
+    
+                        GREATEST(
+                            EXTRACT(
+                                EPOCH FROM (
+                                    MAX(item_end_date) FILTER (WHERE last_rn = 1)
+                                    - CURRENT_TIMESTAMP
+                                )
+                            ) / 3600.0,
+                            0
+                        ) AS hours_remaining,
+    
+                        CASE
+                            WHEN GREATEST(
+                                EXTRACT(
+                                    EPOCH FROM (
+                                        MAX(item_end_date) FILTER (WHERE last_rn = 1)
+                                        - CURRENT_TIMESTAMP
+                                    )
+                                ) / 3600.0,
+                                0
+                            ) <= 1 THEN 100
+                            WHEN GREATEST(
+                                EXTRACT(
+                                    EPOCH FROM (
+                                        MAX(item_end_date) FILTER (WHERE last_rn = 1)
+                                        - CURRENT_TIMESTAMP
+                                    )
+                                ) / 3600.0,
+                                0
+                            ) <= 6 THEN 80
+                            WHEN GREATEST(
+                                EXTRACT(
+                                    EPOCH FROM (
+                                        MAX(item_end_date) FILTER (WHERE last_rn = 1)
+                                        - CURRENT_TIMESTAMP
+                                    )
+                                ) / 3600.0,
+                                0
+                            ) <= 24 THEN 65
+                            ELSE 5
+                        END AS urgency_score
+    
+                    FROM (
+                        SELECT
+                            *,
+                            ROW_NUMBER() OVER (
+                                PARTITION BY ebay_item_id
+                                ORDER BY observed_at DESC
+                            ) AS last_rn,
+    
+                            COUNT(*) OVER (
+                                PARTITION BY ebay_item_id
+                            ) AS observations
+    
+                        FROM auction_history
+                        WHERE item_end_date > CURRENT_TIMESTAMP
+                    ) ranked
+    
+                    GROUP BY ebay_item_id
+                ) m
+    
+                LEFT JOIN LATERAL (
+                    SELECT *
+                    FROM auction_valuations av2
+                    WHERE av2.ebay_item_id = m.ebay_item_id
+                    ORDER BY av2.valued_at DESC
+                    LIMIT 1
+                ) av ON TRUE
+    
+                ORDER BY
+                    m.urgency_score DESC,
+                    m.demand_score DESC,
+                    m.item_end_date ASC
+    
+                LIMIT 50
+            """)
+    
+            cur.execute("""
+                SELECT COUNT(*)
+                FROM auction_watch_current
+            """)
+    
+            row_count = cur.fetchone()[0]
+    
+            conn.commit()
+    
     return jsonify({
         "success": True,
-        "message": "cache refresh route ready"
+        "cached_rows": row_count
     })
 
 @app.route("/inventory-dashboard", methods=["GET"])
