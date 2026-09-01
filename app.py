@@ -4526,9 +4526,9 @@ def pipeline_top100_test():
     
     soup = BeautifulSoup(response.text, "html.parser")
     
-        rows = soup.select('tr[data-testid="table-row"]')
+    rows = soup.select('tr[data-testid="table-row"]')
         
-        prospects = []
+    prospects = []
         
         for row in rows:
             cells = row.select('td[data-testid="table-cell"]')
