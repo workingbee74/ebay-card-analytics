@@ -4106,10 +4106,67 @@ def auction_value_refresh():
 
 
 @app.route("/soldcomps-cache-refresh", methods=["GET"])
-def soldcomps_cache_refresh():
+    def soldcomps_cache_refresh():
+        refreshed = 0
+    errors = []
+    
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT
+                    player_name,
+                    card_year,
+                    product,
+                    card_number
+                FROM auction_watch_current
+                WHERE player_name IS NOT NULL
+                  AND product IS NOT NULL
+                ORDER BY urgency_score DESC,
+                         demand_score DESC
+                LIMIT 25
+            """)
+    
+            auctions = cur.fetchall()
+    
+    for player_name, card_year, product, card_number in auctions:
+        try:
+            query_parts = [
+                str(card_year or ""),
+                str(player_name or ""),
+                str(product or ""),
+                str(card_number or ""),
+            ]
+    
+            query = " ".join(
+                part.strip()
+                for part in query_parts
+                if part and part.strip()
+            )
+    
+            search_key = f"{player_name}|{card_year}|{product}|{card_number}"
+    
+            get_cached_soldcomps_sales(
+                search_key=search_key,
+                query=query,
+                count=100,
+                days=90,
+                cache_hours=0,
+                cache_only=False,
+            )
+    
+            refreshed += 1
+    
+        except Exception as e:
+            errors.append({
+                "player": player_name,
+                "error": str(e)
+            })
+    
     return jsonify({
         "success": True,
-        "message": "SoldComps cache refresh route ready"
+        "auctions_considered": len(auctions),
+        "cache_entries_refreshed": refreshed,
+        "errors": errors
     })
 
 @app.route("/soldcomps-test", methods=["GET"])
