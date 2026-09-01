@@ -4604,24 +4604,24 @@ def pipeline_top100_test():
                 else None
             )
     
-test_ids = ",".join(
-    str(player["mlb_player_id"])
-    for player in parsed_players[:5]
-)
-
-batch_response = requests.get(
-    "https://statsapi.mlb.com/api/v1/people",
-    params={
-        "personIds": test_ids,
-    },
-    timeout=30,
-)
-
-return jsonify({
-    "success": True,
-    "status_code": batch_response.status_code,
-    "data": batch_response.json(),
-})
+    test_ids = ",".join(
+        str(player["mlb_player_id"])
+        for player in parsed_players[:5]
+    )
+    
+    batch_response = requests.get(
+        "https://statsapi.mlb.com/api/v1/people",
+        params={
+            "personIds": test_ids,
+        },
+        timeout=30,
+    )
+    
+    return jsonify({
+        "success": True,
+        "status_code": batch_response.status_code,
+        "data": batch_response.json(),
+    })
 
 
 @app.route("/prospect-test", methods=["GET"])
