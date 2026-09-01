@@ -4517,7 +4517,14 @@ def refresh_prospect_stats(
 @app.route("/pipeline-top100-test", methods=["GET"])
 def pipeline_top100_test():
     response = requests.get(
-        soup = BeautifulSoup(response.text, "html.parser")
+        "https://www.mlb.com/milb/prospects/2026/top100",
+        headers={
+            "User-Agent": "Mozilla/5.0"
+        },
+        timeout=30,
+    )
+    
+    soup = BeautifulSoup(response.text, "html.parser")
     
         rows = soup.select('tr[data-testid="table-row"]')
         
