@@ -3696,7 +3696,13 @@ def auction_value_refresh():
                     AND product IS NOT NULL
                     AND card_number IS NOT NULL
 
-                ORDER BY item_end_date ASC
+                ORDER BY
+                    (
+                        SELECT MAX(av.valued_at)
+                        FROM auction_valuations av
+                        WHERE av.ebay_item_id = latest.ebay_item_id
+                    ) ASC NULLS FIRST,
+                    item_end_date ASC
 
                 LIMIT 25;
             """)
