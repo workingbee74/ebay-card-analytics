@@ -24,6 +24,51 @@ CARDSIGHT_API_KEY = os.environ.get("CARDSIGHT_API_KEY", "")
 XIMILAR_API_TOKEN = os.environ.get("XIMILAR_API_TOKEN", "")
 CARDHEDGE_API_KEY = os.environ.get("CARDHEDGE_API_KEY", "")
 
+
+def calculate_prospect_momentum(mlb_player_id):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT
+                    stat_date,
+                    games_played,
+                    batting_average,
+                    ops,
+                    home_runs,
+                    stolen_bases
+                FROM prospect_stat_history
+                WHERE mlb_player_id = %s
+                ORDER BY stat_date DESC
+                LIMIT 2
+            """, (mlb_player_id,))
+
+            rows = cur.fetchall()
+
+    if len(rows) < 2:
+        return {
+            "status": "INSUFFICIENT_HISTORY",
+            "momentum_score": 0
+        }
+
+    latest = rows[0]
+    previous = rows[1]
+
+    games_delta = (latest[1] or 0) - (previous[1] or 0)
+    avg_delta = float(latest[2] or 0) - float(previous[2] or 0)
+    ops_delta = float(latest[3] or 0) - float(previous[3] or 0)
+    hr_delta = (latest[4] or 0) - (previous[4] or 0)
+    sb_delta = (latest[5] or 0) - (previous[5] or 0)
+
+    return {
+        "status": "OK",
+        "games_delta": games_delta,
+        "avg_delta": round(avg_delta, 3),
+        "ops_delta": round(ops_delta, 3),
+        "hr_delta": hr_delta,
+        "sb_delta": sb_delta,
+        "momentum_score": 0
+    }
+
 def ensure_ebay_oauth_table():
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -1166,6 +1211,17 @@ def calculate_disposition(
         "reasons": reasons,
         "gain_loss_pct": gain_loss_pct,
     }
+
+
+@app.route("/prospect-momentum-test", methods=["GET"])
+def prospect_momentum_test():
+    result = calculate_prospect_momentum(815888)
+
+    return jsonify({
+        "player": "Leo De Vries",
+        "mlb_player_id": 815888,
+        "momentum": result
+    })
 
 @app.route("/prospect-history-test", methods=["GET"])
 def prospect_history_test():
