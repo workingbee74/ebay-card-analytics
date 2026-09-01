@@ -3888,6 +3888,22 @@ def auction_value_refresh():
                         else None
                     )
 
+                    print(
+                        "AUCTION_VALUE_DEBUG:",
+                        player_name,
+                        card_year,
+                        product,
+                        card_number,
+                        "exact=",
+                        len(exact_prices),
+                        "fallback=",
+                        len(fallback_prices),
+                        "using=",
+                        len(decision_prices),
+                        flush=True,
+                    )
+                    
+
                     # Never issue an automated BID on uncertain identity
                     if not identity_verified:
                         decision["action"] = "REVIEW"
