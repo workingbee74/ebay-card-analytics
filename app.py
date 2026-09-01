@@ -4358,127 +4358,127 @@ def refresh_prospect_stats(
             },
             timeout=30,
         )
-        data = response.json()
-        
-        stats = (
-            data.get("stats", [{}])[0]
-            .get("splits", [{}])[0]
-            .get("stat", {})
-        )
+    data = response.json()
     
-        with psycopg.connect(DATABASE_URL) as conn:
-            with conn.cursor() as cur:
-                cur.execute("""
-                    INSERT INTO prospect_intelligence (
-                        player_name,
-                        mlb_player_id,
-                        position,
-                        current_level,
-                        batting_average,
-                        on_base_pct,
-                        slugging_pct,
-                        ops,
-                        home_runs,
-                        stolen_bases,
-                        stats_updated_at,
-                        updated_at
-                    )
-                    VALUES (
-                        %s, %s, %s, %s,
-                        %s, %s, %s, %s,
-                        %s, %s,
-                        CURRENT_TIMESTAMP,
-                        CURRENT_TIMESTAMP
-                    )
-                    ON CONFLICT (mlb_player_id)
-                    DO UPDATE SET
-                        player_name = EXCLUDED.player_name,
-                        position = EXCLUDED.position,
-                        current_level = EXCLUDED.current_level,
-                        batting_average = EXCLUDED.batting_average,
-                        on_base_pct = EXCLUDED.on_base_pct,
-                        slugging_pct = EXCLUDED.slugging_pct,
-                        ops = EXCLUDED.ops,
-                        home_runs = EXCLUDED.home_runs,
-                        stolen_bases = EXCLUDED.stolen_bases,
-                        stats_updated_at = CURRENT_TIMESTAMP,
-                        updated_at = CURRENT_TIMESTAMP
-                """, (
+    stats = (
+        data.get("stats", [{}])[0]
+        .get("splits", [{}])[0]
+        .get("stat", {})
+    )
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO prospect_intelligence (
                     player_name,
                     mlb_player_id,
                     position,
                     current_level,
-                    stats.get("avg"),
-                    stats.get("obp"),
-                    stats.get("slg"),
-                    stats.get("ops"),
-                    stats.get("homeRuns"),
-                    stats.get("stolenBases"),
-                ))
-                cur.execute("""
-                    INSERT INTO prospect_stat_history (
-                        mlb_player_id,
-                        player_name,
-                        stat_date,
-                        level,
-                        games_played,
-                        batting_average,
-                        on_base_pct,
-                        slugging_pct,
-                        ops,
-                        home_runs,
-                        stolen_bases,
-                        runs,
-                        rbi,
-                        walks,
-                        strikeouts
-                    )
-                    VALUES (
-                        %s, %s, CURRENT_DATE, %s,
-                        %s, %s, %s, %s, %s,
-                        %s, %s, %s, %s, %s, %s
-                    )
-                    ON CONFLICT (mlb_player_id, stat_date)
-                    DO UPDATE SET
-                        level = EXCLUDED.level,
-                        games_played = EXCLUDED.games_played,
-                        batting_average = EXCLUDED.batting_average,
-                        on_base_pct = EXCLUDED.on_base_pct,
-                        slugging_pct = EXCLUDED.slugging_pct,
-                        ops = EXCLUDED.ops,
-                        home_runs = EXCLUDED.home_runs,
-                        stolen_bases = EXCLUDED.stolen_bases,
-                        runs = EXCLUDED.runs,
-                        rbi = EXCLUDED.rbi,
-                        walks = EXCLUDED.walks,
-                        strikeouts = EXCLUDED.strikeouts,
-                        collected_at = CURRENT_TIMESTAMP
-                """, (
+                    batting_average,
+                    on_base_pct,
+                    slugging_pct,
+                    ops,
+                    home_runs,
+                    stolen_bases,
+                    stats_updated_at,
+                    updated_at
+                )
+                VALUES (
+                    %s, %s, %s, %s,
+                    %s, %s, %s, %s,
+                    %s, %s,
+                    CURRENT_TIMESTAMP,
+                    CURRENT_TIMESTAMP
+                )
+                ON CONFLICT (mlb_player_id)
+                DO UPDATE SET
+                    player_name = EXCLUDED.player_name,
+                    position = EXCLUDED.position,
+                    current_level = EXCLUDED.current_level,
+                    batting_average = EXCLUDED.batting_average,
+                    on_base_pct = EXCLUDED.on_base_pct,
+                    slugging_pct = EXCLUDED.slugging_pct,
+                    ops = EXCLUDED.ops,
+                    home_runs = EXCLUDED.home_runs,
+                    stolen_bases = EXCLUDED.stolen_bases,
+                    stats_updated_at = CURRENT_TIMESTAMP,
+                    updated_at = CURRENT_TIMESTAMP
+            """, (
+                player_name,
+                mlb_player_id,
+                position,
+                current_level,
+                stats.get("avg"),
+                stats.get("obp"),
+                stats.get("slg"),
+                stats.get("ops"),
+                stats.get("homeRuns"),
+                stats.get("stolenBases"),
+            ))
+            cur.execute("""
+                INSERT INTO prospect_stat_history (
                     mlb_player_id,
                     player_name,
-                    current_level,
-                    stats.get("gamesPlayed"),
-                    stats.get("avg"),
-                    stats.get("obp"),
-                    stats.get("slg"),
-                    stats.get("ops"),
-                    stats.get("homeRuns"),
-                    stats.get("stolenBases"),
-                    stats.get("runs"),
-                    stats.get("rbi"),
-                    stats.get("baseOnBalls"),
-                    stats.get("strikeOuts"),
-                ))
-                conn.commit()
+                    stat_date,
+                    level,
+                    games_played,
+                    batting_average,
+                    on_base_pct,
+                    slugging_pct,
+                    ops,
+                    home_runs,
+                    stolen_bases,
+                    runs,
+                    rbi,
+                    walks,
+                    strikeouts
+                )
+                VALUES (
+                    %s, %s, CURRENT_DATE, %s,
+                    %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s, %s
+                )
+                ON CONFLICT (mlb_player_id, stat_date)
+                DO UPDATE SET
+                    level = EXCLUDED.level,
+                    games_played = EXCLUDED.games_played,
+                    batting_average = EXCLUDED.batting_average,
+                    on_base_pct = EXCLUDED.on_base_pct,
+                    slugging_pct = EXCLUDED.slugging_pct,
+                    ops = EXCLUDED.ops,
+                    home_runs = EXCLUDED.home_runs,
+                    stolen_bases = EXCLUDED.stolen_bases,
+                    runs = EXCLUDED.runs,
+                    rbi = EXCLUDED.rbi,
+                    walks = EXCLUDED.walks,
+                    strikeouts = EXCLUDED.strikeouts,
+                    collected_at = CURRENT_TIMESTAMP
+            """, (
+                mlb_player_id,
+                player_name,
+                current_level,
+                stats.get("gamesPlayed"),
+                stats.get("avg"),
+                stats.get("obp"),
+                stats.get("slg"),
+                stats.get("ops"),
+                stats.get("homeRuns"),
+                stats.get("stolenBases"),
+                stats.get("runs"),
+                stats.get("rbi"),
+                stats.get("baseOnBalls"),
+                stats.get("strikeOuts"),
+            ))
+            conn.commit()
 
-    return {
-        "mlb_player_id": mlb_player_id,
-        "player_name": player_name,
-        "position": position,
-        "current_level": current_level,
-        "sport_id": sport_id,
-        "stats": stats,
-    }
+return {
+    "mlb_player_id": mlb_player_id,
+    "player_name": player_name,
+    "position": position,
+    "current_level": current_level,
+    "sport_id": sport_id,
+    "stats": stats,
+}
 
 @app.route("/prospect-test", methods=["GET"])
 def prospect_test():
