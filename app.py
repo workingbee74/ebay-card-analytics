@@ -4618,19 +4618,37 @@ def pipeline_top100_test():
     )
     
     people = batch_response.json().get("people", [])
+
+
+    people_by_id = {
+        person.get("id"): person
+        for person in people
+        if person.get("id") is not None
+    }
+
+    merged_players = []
+    
+    for prospect in parsed_players:
+        person = people_by_id.get(prospect["mlb_player_id"], {})
+    
+        merged_players.append({
+            "rank": prospect["rank"],
+            "mlb_player_id": prospect["mlb_player_id"],
+            "player_name": person.get("fullName"),
+            "position": prospect["position"],
+            "eta": prospect["eta"],
+            "age": person.get("currentAge"),
+            "birth_date": person.get("birthDate"),
+            "bats": person.get("batSide", {}).get("code"),
+            "throws": person.get("pitchHand", {}).get("code"),
+        })
+
     
     return jsonify({
         "success": True,
-        "pipeline_players": len(parsed_players),
-        "mlb_people_returned": len(people),
-        "first_5_names": [
-            person.get("fullName")
-            for person in people[:5]
-        ],
-        "last_5_names": [
-            person.get("fullName")
-            for person in people[-5:]
-        ],
+        "merged_count": len(merged_players),
+        "first_5": merged_players[:5],
+        "last_5": merged_players[-5:],
     })
 
 
