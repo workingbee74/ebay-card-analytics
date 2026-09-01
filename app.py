@@ -181,6 +181,39 @@ with psycopg.connect(DATABASE_URL) as conn:
 
         conn.commit()
 
+with psycopg.connect(DATABASE_URL) as conn:
+    with conn.cursor() as cur:
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS prospect_rank_history (
+                id BIGSERIAL PRIMARY KEY,
+                mlb_player_id INTEGER NOT NULL,
+                player_name TEXT NOT NULL,
+                ranking_source TEXT NOT NULL DEFAULT 'MLB Pipeline',
+                rank_date DATE NOT NULL,
+                overall_rank INTEGER,
+                organization_rank INTEGER,
+                organization TEXT,
+                active_top_100 BOOLEAN DEFAULT TRUE,
+                collected_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+
+                UNIQUE (
+                    mlb_player_id,
+                    ranking_source,
+                    rank_date
+                )
+            )
+        """)
+
+        cur.execute("""
+            CREATE INDEX IF NOT EXISTS idx_prospect_rank_history_player
+            ON prospect_rank_history (
+                mlb_player_id,
+                rank_date DESC
+            )
+        """)
+
+        conn.commit()
+
 NAV_HTML = """
 <nav class="app-nav">
     <a href="/inventory">Inventory</a>
