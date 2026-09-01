@@ -3921,6 +3921,8 @@ def auction_value_refresh():
                         len(exact_prices),
                         "fallback=",
                         len(fallback_prices),
+                        "bowman=",
+                        len(bowman_fallback_prices),
                         "using=",
                         len(decision_prices),
                         flush=True,
