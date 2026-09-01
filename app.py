@@ -4554,35 +4554,35 @@ def pipeline_top100_test():
             ],
         })
         
-        all_headshots = soup.select('[data-testid="player-headshot"]')
+        markers = [
+            "__NEXT_DATA__",
+            "prospectRank",
+            "overallRank",
+            "playerId",
+            "player_id",
+            "top100",
+            "prospects",
+        ]
 
-        headshot_players = []
+        marker_results = {}
     
-        for img in all_headshots:
-            alt = img.get("alt", "")
-            src = img.get("src", "")
+        for marker in markers:
+            pos = response.text.find(marker)
     
-            if "Photo headshot of " not in alt:
-                continue
-    
-            headshot_players.append({
-                "name": alt.replace("Photo headshot of ", "").strip(),
-                "src": src,
-            })
-    
-        unique_names = sorted({
-            player["name"]
-            for player in headshot_players
-            if player["name"]
-        })
+            marker_results[marker] = {
+                "found": pos >= 0,
+                "position": pos,
+                "context": (
+                    response.text[pos - 300:pos + 700]
+                    if pos >= 0
+                    else None
+                ),
+            }
     
         return jsonify({
             "success": True,
-            "table_rows_found": len(rows),
-            "headshots_found": len(all_headshots),
-            "unique_players_found": len(unique_names),
-            "first_10_names": unique_names[:10],
-            "last_10_names": unique_names[-10:],
+            "content_length": len(response.text),
+            "markers": marker_results,
         })
 
 @app.route("/prospect-test", methods=["GET"])
