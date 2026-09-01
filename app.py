@@ -4365,7 +4365,8 @@ def auction_watch():
             table {
                 width: 100%;
                 table-layout: auto;
-                border-collapse: collapse;
+                border-collapse: separate;
+                border-spacing: 0;
                 background: white;
             }
 
