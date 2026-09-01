@@ -4265,8 +4265,7 @@ def prospect_test():
     response = requests.get(
         "https://statsapi.mlb.com/api/v1/people/search",
         params={
-            "names": "Leo De Vries",
-            "sportIds": 11,
+            "names": "Leodalis De Vries",
         },
         timeout=30,
     )
