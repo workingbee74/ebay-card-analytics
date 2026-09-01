@@ -4587,7 +4587,7 @@ def pipeline_top100_test():
         person_mentions = decoded.count('Person:')
         
         rank_matches = re.findall(
-            r'\\"rank\\":\\"(\d+)\\"',
+            r'\\?"rank\\?"\s*:\s*\\?"(\d+)\\?"',
             decoded
         )
         
