@@ -4572,12 +4572,12 @@ def pipeline_top100_test():
         
         return jsonify({
             "success": True,
-            "top_level_keys": list(player.keys()),
-            "player_entity_keys": list(player_entity.keys()),
             "rank": player.get("rank"),
             "player_ref": player_entity.get("player"),
             "position": player_entity.get("position"),
             "eta": player_entity.get("eta"),
+            "grades_hitting": player_entity.get("gradesHitting"),
+            "grades_pitching": player_entity.get("gradesPitching"),
         })
         
 @app.route("/prospect-test", methods=["GET"])
