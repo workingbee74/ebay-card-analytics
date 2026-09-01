@@ -12,6 +12,7 @@ import base64
 import urllib.parse
 from flask import Flask, request, jsonify, redirect
 from cardsightai import CardSightAI
+from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 VERIFICATION_TOKEN = os.environ.get("EBAY_VERIFICATION_TOKEN", "")
@@ -4516,25 +4517,42 @@ def refresh_prospect_stats(
 @app.route("/pipeline-top100-test", methods=["GET"])
 def pipeline_top100_test():
     response = requests.get(
-        "https://www.mlb.com/milb/prospects/2026/top100",
-        headers={
-            "User-Agent": "Mozilla/5.0"
-        },
-        timeout=30,
-    )
+        soup = BeautifulSoup(response.text, "html.parser")
     
-    leo_pos = response.text.find("Leo De Vries")
-    
-    return jsonify({
-        "success": response.ok,
-        "status_code": response.status_code,
-        "leo_position": leo_pos,
-        "leo_context": (
-            response.text[leo_pos - 1000:leo_pos + 2000]
-            if leo_pos >= 0
-            else None
-        ),
-    })
+        rows = soup.select('tr[data-testid="table-row"]')
+        
+        prospects = []
+        
+        for row in rows:
+            cells = row.select('td[data-testid="table-cell"]')
+        
+            if not cells:
+                continue
+        
+            name_el = row.select_one('[data-testid="player-headshot"]')
+            if not name_el:
+                continue
+        
+            name = name_el.get("alt", "").replace("Photo headshot of ", "").strip()
+        
+            link = row.select_one('a[href*="/prospects/"]')
+        
+            prospects.append({
+                "name": name,
+                "profile_url": link.get("href") if link else None,
+                "cell_count": len(cells),
+                "cell_text": [
+                    cell.get_text(" ", strip=True)
+                    for cell in cells
+                ],
+            })
+        
+        return jsonify({
+            "success": True,
+            "rows_found": len(rows),
+            "prospects_found": len(prospects),
+            "first_5": prospects[:5],
+        })
 
 @app.route("/prospect-test", methods=["GET"])
 def prospect_test():
