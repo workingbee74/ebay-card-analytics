@@ -4321,7 +4321,6 @@ def auction_watch():
             padding: 10px 16px;
             background: white;
             border-bottom: 1px solid #e5e7eb;
-            overflow-x: auto;
             white-space: nowrap;
         }
         
@@ -4375,6 +4374,51 @@ def auction_watch():
                 white-space: normal;
                 word-break: normal;
                 overflow-wrap: normal;
+            }
+
+
+            @media (max-width: 1200px) {
+                table {
+                    font-size: 12px;
+                }
+            
+                th,
+                td {
+                    padding: 6px 5px;
+                }
+            
+                th:nth-child(1),
+                td:nth-child(1) {
+                    width: 120px;
+                }
+            
+                th:nth-child(2),
+                td:nth-child(2) {
+                    width: 95px;
+                }
+            
+                th:nth-child(3),
+                td:nth-child(3) {
+                    width: 105px;
+                }
+            
+                th:nth-child(4),
+                td:nth-child(4) {
+                    width: 90px;
+                }
+            
+                th:nth-child(5),
+                td:nth-child(5),
+                th:nth-child(6),
+                td:nth-child(6),
+                th:nth-child(7),
+                td:nth-child(7),
+                th:nth-child(8),
+                td:nth-child(8),
+                th:nth-child(9),
+                td:nth-child(9) {
+                    width: 70px;
+                }
             }
 
             th {
