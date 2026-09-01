@@ -4578,11 +4578,16 @@ def pipeline_top100_test():
                     else None
                 ),
             }
-    
+            josue_pos = response.text.find("Josue De Paula")
         return jsonify({
             "success": True,
-            "content_length": len(response.text),
-            "markers": marker_results,
+            "josue_found": josue_pos >= 0,
+            "josue_position": josue_pos,
+            "josue_context": (
+                response.text[josue_pos - 1000:josue_pos + 2000]
+                if josue_pos >= 0
+                else None
+            ),
         })
 
 @app.route("/prospect-test", methods=["GET"])
