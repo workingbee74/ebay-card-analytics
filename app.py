@@ -4702,7 +4702,36 @@ def pipeline_top100_test():
                         prospect["bats"],
                         prospect["throws"],
                     ))
-        
+                    cur.execute("""
+                        INSERT INTO prospect_rank_history (
+                            mlb_player_id,
+                            player_name,
+                            ranking_source,
+                            rank_date,
+                            overall_rank,
+                            active_top_100
+                        )
+                        VALUES (
+                            %s, %s, 'MLB Pipeline',
+                            CURRENT_DATE,
+                            %s,
+                            TRUE
+                        )
+                        ON CONFLICT (
+                            mlb_player_id,
+                            ranking_source,
+                            rank_date
+                        )
+                        DO UPDATE SET
+                            player_name = EXCLUDED.player_name,
+                            overall_rank = EXCLUDED.overall_rank,
+                            active_top_100 = TRUE,
+                            collected_at = CURRENT_TIMESTAMP
+                    """, (
+                        prospect["mlb_player_id"],
+                        prospect["player_name"],
+                        prospect["rank"],
+                    ))
                 conn.commit()
 
     
