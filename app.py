@@ -4557,18 +4557,7 @@ def pipeline_top100_test():
         
        
     
-        for marker in markers:
-            pos = response.text.find(marker)
-    
-            marker_results[marker] = {
-                "found": pos >= 0,
-                "position": pos,
-                "context": (
-                    response.text[pos - 300:pos + 700]
-                    if pos >= 0
-                    else None
-                ),
-            }
+       
         decoded = html.unescape(response.text)
 
         rank_matches = re.findall(
