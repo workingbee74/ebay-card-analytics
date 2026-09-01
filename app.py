@@ -2460,7 +2460,8 @@ def get_sold_price_tiers(
     
 def calculate_auction_decision(
     exact_prices,
-    current_bid=None
+    current_bid=None,
+    valuation_basis="EXACT_CARD"
 ):
     exact_prices = sorted(
         price for price in exact_prices
@@ -2513,14 +2514,22 @@ def calculate_auction_decision(
         evidence_confidence = 0
         valuation_haircut = 0.0
 
-    conservative_value = None
-    recommended_max_bid = None
-
-    if exact_active_median is not None:
-        conservative_value = round(
-            exact_active_median * valuation_haircut,
-            2
-        )
+    if valuation_basis == "SAME_PRODUCT":
+        evidence_confidence = min(evidence_confidence, 45)
+        valuation_haircut = min(valuation_haircut, 0.55)
+    
+    elif valuation_basis == "SAME_PLAYER_BOWMAN":
+        evidence_confidence = min(evidence_confidence, 30)
+        valuation_haircut = min(valuation_haircut, 0.40)
+        
+        conservative_value = None
+        recommended_max_bid = None
+    
+        if exact_active_median is not None:
+            conservative_value = round(
+                exact_active_median * valuation_haircut,
+                2
+            )
 
         recommended_max_bid = conservative_value
 
@@ -3903,12 +3912,25 @@ def auction_value_refresh():
                         if bowman_fallback_prices
                         else exact_prices
                     )
+
+
+                    if len(exact_prices) >= 3:
+                        valuation_basis = "EXACT_CARD"
+                    elif fallback_prices:
+                        valuation_basis = "SAME_PRODUCT"
+                    elif bowman_fallback_prices:
+                        valuation_basis = "SAME_PLAYER_BOWMAN"
+                    elif exact_prices:
+                        valuation_basis = "LIMITED_EXACT"
+                    else:
+                        valuation_basis = "NO_COMPS"
                     
                     decision = calculate_auction_decision(
                         decision_prices,
                         float(current_bid)
                         if current_bid is not None
-                        else None
+                        else None,
+                        valuation_basis
                     )
 
                     print(
