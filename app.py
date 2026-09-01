@@ -2351,7 +2351,7 @@ def get_sold_price_tiers(
     same_parallel_prices = []
     same_card_prices = []
     same_product_prices = []
-
+    same_player_bowman_prices = []
     
     target_player = (player_name or "").casefold().strip()
 
@@ -2371,6 +2371,10 @@ def get_sold_price_tiers(
         player_match = sale_player == target_player
         year_match = card_data.get("card_year") == card_year
         product_match = card_data.get("product") == product
+        same_player_bowman = (
+            player_match
+            and "bowman" in str(card_data.get("product") or "").lower()
+        )
         card_number_match = (
             card_data.get("card_number") == card_number
         )
@@ -2386,6 +2390,13 @@ def get_sold_price_tiers(
         ):
             try:
                 same_product_prices.append(float(sold_price))
+            except (TypeError, ValueError):
+                pass
+
+
+        if same_player_bowman:
+            try:
+                same_player_bowman_prices.append(float(sold_price))
             except (TypeError, ValueError):
                 pass
         
@@ -2444,6 +2455,7 @@ def get_sold_price_tiers(
     "same_parallel_prices": same_parallel_prices,
     "same_card_prices": same_card_prices,
     "same_product_prices": same_product_prices,
+    "same_player_bowman_prices": same_player_bowman_prices,
 }
     
 def calculate_auction_decision(
@@ -3876,12 +3888,18 @@ def auction_value_refresh():
                             if price is not None
                         ]
                     
-                   
+                        bowman_fallback_prices = [
+                            price
+                            for price in broad_tiers["same_player_bowman_prices"]
+                            if price is not None
+                        ]
                     decision_prices = (
                         exact_prices
                         if len(exact_prices) >= 3
                         else fallback_prices
                         if fallback_prices
+                        else bowman_fallback_prices
+                        if bowman_fallback_prices
                         else exact_prices
                     )
                     
