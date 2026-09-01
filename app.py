@@ -4523,13 +4523,17 @@ def pipeline_top100_test():
         timeout=30,
     )
     
+    leo_pos = response.text.find("Leo De Vries")
+    
     return jsonify({
         "success": response.ok,
         "status_code": response.status_code,
-        "content_length": len(response.text),
-        "contains_leo": "Leo De Vries" in response.text,
-        "contains_kade": "Kade Anderson" in response.text,
-        "preview": response.text[:500],
+        "leo_position": leo_pos,
+        "leo_context": (
+            response.text[leo_pos - 1000:leo_pos + 2000]
+            if leo_pos >= 0
+            else None
+        ),
     })
 
 @app.route("/prospect-test", methods=["GET"])
