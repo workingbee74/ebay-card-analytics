@@ -4569,11 +4569,8 @@ def pipeline_top100_test():
         
         return jsonify({
             "success": True,
-            "array_start": array_start,
             "players_found": len(players),
-            "first_rank": players[0].get("rank") if players else None,
-            "last_rank": players[-1].get("rank") if players else None,
-            "characters_consumed": consumed,
+            "first_player": players[0] if players else None,
         })
         
 @app.route("/prospect-test", methods=["GET"])
