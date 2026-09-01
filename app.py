@@ -4263,24 +4263,13 @@ def soldcomps_cache_refresh():
 @app.route("/prospect-test", methods=["GET"])
 def prospect_test():
     response = requests.get(
-        "https://statsapi.mlb.com/api/v1/sports/11/players",
-        params={
-            "season": 2026,
-        },
+        "https://statsapi.mlb.com/api/v1/people/815888",
         timeout=30,
     )
-    
-    data = response.json()
-    
-    matches = [
-        player
-        for player in data.get("people", [])
-        if "de vries" in player.get("fullName", "").lower()
-    ]
-    
+
     return jsonify({
         "status_code": response.status_code,
-        "matches": matches,
+        "data": response.json(),
     })
 
 
