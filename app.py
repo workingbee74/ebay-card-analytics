@@ -4588,13 +4588,15 @@ def pipeline_top100_test():
                 "eta": player_entity.get("eta"),
             })
         
-            first_player_entity = players[0].get("playerEntity", {})
-            first_player_ref = first_player_entity.get("player")
-            
             return jsonify({
                 "success": True,
-                "player_field": first_player_ref,
-                "player_field_type": type(first_player_ref).__name__,
+                "players_found": len(parsed_players),
+                "players_with_mlb_id": sum(
+                    1 for player in parsed_players
+                    if player["mlb_player_id"] is not None
+                ),
+                "first_5": parsed_players[:5],
+                "last_5": parsed_players[-5:],
             })
         
 @app.route("/prospect-test", methods=["GET"])
