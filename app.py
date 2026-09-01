@@ -4268,6 +4268,7 @@ def prospect_test():
             "stats": "season",
             "group": "hitting",
             "season": 2026,
+            "sportId": 12,
         },
         timeout=30,
     )
