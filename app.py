@@ -6806,13 +6806,13 @@ def inventory_actions_page():
                 padding: 20px;
             }}
 
-            .action-reason {
+            .action-reason {{
                 margin-top: 4px;
                 font-size: 11px;
                 line-height: 1.25;
                 color: #666;
                 max-width: 220px;
-            }
+            }}
 
             .header {{
                 display: flex;
