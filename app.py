@@ -4104,6 +4104,14 @@ def auction_value_refresh():
         "errors": errors
     }), 200
 
+
+@app.route("/soldcomps-cache-refresh", methods=["GET"])
+def soldcomps_cache_refresh():
+    return jsonify({
+        "success": True,
+        "message": "SoldComps cache refresh route ready"
+    })
+
 @app.route("/soldcomps-test", methods=["GET"])
 def soldcomps_test():
     query = request.args.get(
