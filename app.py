@@ -6368,6 +6368,7 @@ def inventory_actions_page():
                     trend_pct,
                     trend_confidence,
                     disposition_action,
+                    disposition_reasons,
                     action_priority
                     FROM inventory_cards
                 WHERE player_name IS NOT NULL
@@ -6404,6 +6405,7 @@ def inventory_actions_page():
     saved_trend_pct,
     saved_trend_confidence,
     saved_disposition_action,
+    saved_disposition_reasons,
     saved_action_priority,
     ) = row
 
