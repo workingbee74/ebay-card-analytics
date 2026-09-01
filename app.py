@@ -1167,6 +1167,32 @@ def calculate_disposition(
         "gain_loss_pct": gain_loss_pct,
     }
 
+@app.route("/prospect-history-test", methods=["GET"])
+def prospect_history_test():
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT
+                    mlb_player_id,
+                    player_name,
+                    stat_date,
+                    level,
+                    games_played,
+                    batting_average,
+                    ops,
+                    home_runs,
+                    stolen_bases
+                FROM prospect_stat_history
+                WHERE mlb_player_id = 815888
+                ORDER BY stat_date DESC
+                LIMIT 10
+            """)
+
+            rows = cur.fetchall()
+
+    return jsonify({
+        "rows": rows
+    })
 
 @app.route("/ebay/oauth/db-scope", methods=["GET"])
 def ebay_oauth_db_scope():
