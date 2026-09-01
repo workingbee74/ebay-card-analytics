@@ -4471,14 +4471,14 @@ def refresh_prospect_stats(
             ))
             conn.commit()
 
-return {
-    "mlb_player_id": mlb_player_id,
-    "player_name": player_name,
-    "position": position,
-    "current_level": current_level,
-    "sport_id": sport_id,
-    "stats": stats,
-}
+    return {
+        "mlb_player_id": mlb_player_id,
+        "player_name": player_name,
+        "position": position,
+        "current_level": current_level,
+        "sport_id": sport_id,
+        "stats": stats,
+    }
 
 @app.route("/prospect-test", methods=["GET"])
 def prospect_test():
