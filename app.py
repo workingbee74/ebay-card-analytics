@@ -181,6 +181,17 @@ with psycopg.connect(DATABASE_URL) as conn:
             ON prospect_intelligence (LOWER(player_name))
         """)
 
+        cur.execute("""
+            ALTER TABLE prospect_intelligence
+            ADD COLUMN IF NOT EXISTS birth_date DATE,
+            ADD COLUMN IF NOT EXISTS bats TEXT,
+            ADD COLUMN IF NOT EXISTS throws TEXT,
+            ADD COLUMN IF NOT EXISTS active_top_100 BOOLEAN DEFAULT TRUE
+        """)
+
+        
+
+        
         conn.commit()
 
 with psycopg.connect(DATABASE_URL) as conn:
