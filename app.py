@@ -4721,6 +4721,39 @@ def auction_watch():
 def auction_watch_cache_refresh():
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
+
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS auction_watch_current (
+                    ebay_item_id TEXT PRIMARY KEY,
+                    player_name TEXT,
+                    card_year INTEGER,
+                    product TEXT,
+                    card_number TEXT,
+                    parallel TEXT,
+                    serial_numbered_to INTEGER,
+                    grade_company TEXT,
+                    grade TEXT,
+                    current_bid NUMERIC(12,2),
+                    current_bid_count INTEGER,
+                    demand_score NUMERIC,
+                    momentum_score NUMERIC,
+                    hours_remaining NUMERIC,
+                    urgency_score NUMERIC,
+                    observations INTEGER,
+                    listing_url TEXT,
+                    identity_verified BOOLEAN,
+                    evidence_confidence NUMERIC,
+                    exact_comp_count INTEGER,
+                    exact_active_median NUMERIC(12,2),
+                    recommended_max_bid NUMERIC(12,2),
+                    bid_headroom NUMERIC(12,2),
+                    action TEXT,
+                    valued_at TIMESTAMPTZ,
+                    item_end_date TIMESTAMPTZ,
+                    refreshed_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+        
             cur.execute("""
                 TRUNCATE TABLE auction_watch_current
             """)
