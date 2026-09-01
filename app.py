@@ -4554,12 +4554,23 @@ def pipeline_top100_test():
             ],
         })
         
-        return jsonify({
-            "success": True,
-            "rows_found": len(rows),
-            "prospects_found": len(prospects),
-            "first_5": prospects[:5],
-        })
+       return jsonify({
+        "success": True,
+        "rows_found": len(rows),
+        "row_debug": [
+            {
+                "text": row.get_text(" ", strip=True),
+                "cell_count": len(
+                    row.select('td[data-testid="table-cell"]')
+                ),
+                "has_headshot": row.select_one(
+                    '[data-testid="player-headshot"]'
+                ) is not None,
+                "html_preview": str(row)[:1000],
+            }
+            for row in rows
+        ],
+    })
 
 @app.route("/prospect-test", methods=["GET"])
 def prospect_test():
