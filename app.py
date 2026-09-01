@@ -4513,6 +4513,13 @@ def refresh_prospect_stats(
         "stats": stats,
     }
 
+@app.route("/pipeline-top100-test", methods=["GET"])
+def pipeline_top100_test():
+    return jsonify({
+        "success": True,
+        "message": "Pipeline Top 100 test route ready"
+    })
+
 @app.route("/prospect-test", methods=["GET"])
 def prospect_test():
     mlb_player_id = 815888
