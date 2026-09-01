@@ -4587,7 +4587,23 @@ def pipeline_top100_test():
                 "position": player_entity.get("position"),
                 "eta": player_entity.get("eta"),
             })
-           
+
+
+        for prospect in parsed_players[:5]:
+            person_response = requests.get(
+                f"https://statsapi.mlb.com/api/v1/people/{prospect['mlb_player_id']}",
+                timeout=30,
+            )
+        
+            person_data = person_response.json()
+            people = person_data.get("people", [])
+        
+            prospect["player_name"] = (
+                people[0].get("fullName")
+                if people
+                else None
+            )
+    
     return jsonify({
         "success": True,
         "players_found": len(parsed_players),
