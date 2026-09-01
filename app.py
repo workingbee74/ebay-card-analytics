@@ -1047,7 +1047,32 @@ def calculate_disposition(
 
     # Decide
     # Decide
-    if score >= 4:
+    if (
+        score >= 6
+        and (
+            prospect_card
+            or first_bowman
+            or autograph
+            or (
+                serial_numbered_to
+                and serial_numbered_to <= 25
+            )
+        )
+    ):
+        action = "HOLD"
+        reasons.append("Premium Bowman/prospect profile favors holding for further upside")
+    
+    elif (
+        gain_loss_pct is not None
+        and gain_loss_pct >= 25
+        and liquidity in ("HIGH", "MODERATE")
+    ):
+        action = "QUICK FLIP - BIN"
+        reasons.append("Market value is at least 25% above cost with sufficient liquidity")
+    
+    elif score >= 4:
+        action = "HOLD"
+    elif score >= 4:
         action = "HOLD"
     
     elif (
@@ -1058,22 +1083,34 @@ def calculate_disposition(
     ):
         action = "HOLD"
         reasons.append("Below cost, but market trend is stable or improving")
+
+
+    elif (
+        trend_pct is not None
+        and trend_pct <= -10
+        and liquidity in ("HIGH", "MODERATE")
+    ):
+        action = "SELL - DEFENSIVE"
+        reasons.append("Market trend is falling and liquidity is sufficient to exit")
     
     elif liquidity == "HIGH":
-        action = "SELL - AUCTION"
+        if (
+            gain_loss_pct is not None
+            and gain_loss_pct >= 15
+        ):
+            action = "SELL - BIN + BEST OFFER"
+            reasons.append("Strong liquidity and positive gain favor a controlled BIN exit")
+        else:
+            action = "SELL - AUCTION"
+            reasons.append("Strong liquidity supports competitive auction bidding")
     
     elif liquidity == "MODERATE":
         action = "SELL - BIN + BEST OFFER"
+        reasons.append("Moderate liquidity favors a patient BIN strategy")
     
     else:
         action = "HOLD"
-        return {
-            "action": action,
-            "score": score,
-            "liquidity": liquidity,
-            "reasons": reasons,
-            "gain_loss_pct": gain_loss_pct,
-        }
+        reasons.append("Low liquidity favors holding rather than forcing a sale")
 
 
 
