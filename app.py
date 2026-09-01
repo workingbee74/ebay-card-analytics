@@ -4560,14 +4560,16 @@ def pipeline_top100_test():
        
         decoded = html.unescape(response.text)
 
-        entity_pos = decoded.find('"RankedPlayerEntity"')
+        start = decoded.find('"getPlayerRankingsFromSelection')
+        end = decoded.find('],"prospectSchoolCommitted"', start)
         
         return jsonify({
             "success": True,
-            "entity_position": entity_pos,
-            "entity_context": (
-                decoded[entity_pos - 100:entity_pos + 1500]
-                if entity_pos >= 0
+            "start": start,
+            "end": end,
+            "payload_preview": (
+                decoded[start:start + 3000]
+                if start >= 0
                 else None
             ),
         })
