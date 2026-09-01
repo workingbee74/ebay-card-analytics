@@ -4590,13 +4590,11 @@ def pipeline_top100_test():
         
             return jsonify({
                 "success": True,
-                "players_found": len(parsed_players),
-                "players_with_mlb_id": sum(
-                    1 for player in parsed_players
-                    if player["mlb_player_id"] is not None
-                ),
-                "first_5": parsed_players[:5],
-                "last_5": parsed_players[-5:],
+                "start": start,
+                "array_start": array_start,
+                "characters_consumed": consumed,
+                "players_raw_count": len(players),
+                "array_preview": decoded[array_start:array_start + 500],
             })
         
 @app.route("/prospect-test", methods=["GET"])
