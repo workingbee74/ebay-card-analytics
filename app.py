@@ -4554,23 +4554,36 @@ def pipeline_top100_test():
             ],
         })
         
-    return jsonify({
-        "success": True,
-        "rows_found": len(rows),
-        "row_debug": [
-            {
-                "text": row.get_text(" ", strip=True),
-                "cell_count": len(
-                    row.select('td[data-testid="table-cell"]')
-                ),
-                "has_headshot": row.select_one(
-                    '[data-testid="player-headshot"]'
-                ) is not None,
-                "html_preview": str(row)[:1000],
-            }
-            for row in rows
-        ],
-    })
+        all_headshots = soup.select('[data-testid="player-headshot"]')
+
+        headshot_players = []
+    
+        for img in all_headshots:
+            alt = img.get("alt", "")
+            src = img.get("src", "")
+    
+            if "Photo headshot of " not in alt:
+                continue
+    
+            headshot_players.append({
+                "name": alt.replace("Photo headshot of ", "").strip(),
+                "src": src,
+            })
+    
+        unique_names = sorted({
+            player["name"]
+            for player in headshot_players
+            if player["name"]
+        })
+    
+        return jsonify({
+            "success": True,
+            "table_rows_found": len(rows),
+            "headshots_found": len(all_headshots),
+            "unique_players_found": len(unique_names),
+            "first_10_names": unique_names[:10],
+            "last_10_names": unique_names[-10:],
+        })
 
 @app.route("/prospect-test", methods=["GET"])
 def prospect_test():
