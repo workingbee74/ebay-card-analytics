@@ -2254,6 +2254,7 @@ def get_cached_soldcomps_sales(
     count=100,
     days=90,
     cache_hours=24,
+    cache_only=False,
 ):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
@@ -2269,7 +2270,7 @@ def get_cached_soldcomps_sales(
 
             cache_is_fresh = cur.fetchone() is not None
 
-            if not cache_is_fresh:
+            if not cache_is_fresh and not cache_only:
                 # Call SoldComps only when cache is stale/missing
                 sales = get_soldcomps_sales(
                     query,
@@ -3880,6 +3881,7 @@ def auction_value_refresh():
                         count=100,
                         days=90,
                         cache_hours=24,
+                        cache_only=True,
                     )
                     
                     # Strictly filter SoldComps results to the same Bowman identity
@@ -3923,6 +3925,7 @@ def auction_value_refresh():
                             count=100,
                             days=90,
                             cache_hours=24,
+                            cache_only=True,
                         )
                     
                         broad_tiers = get_sold_price_tiers(
@@ -4144,215 +4147,43 @@ def auction_watch():
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
 
-            
-   
-            
             cur.execute("""
-                WITH ranked AS (
-                    SELECT
-                        ebay_item_id,
-                        player_name,
-                        card_year,
-                        product,
-                        card_number,
-                        parallel,
-                        serial_numbered_to,
-                        grade_company,
-                        grade,
-                        current_bid,
-                        bid_count,
-                        item_end_date,
-                        listing_url,
-                        observed_at,
-
-                        ROW_NUMBER() OVER (
-                            PARTITION BY ebay_item_id
-                            ORDER BY observed_at ASC
-                        ) AS first_rn,
-
-                        ROW_NUMBER() OVER (
-                            PARTITION BY ebay_item_id
-                            ORDER BY observed_at DESC
-                        ) AS last_rn,
-
-                        COUNT(*) OVER (
-                            PARTITION BY ebay_item_id
-                        ) AS observations
-
-                    FROM auction_history
-                ),
-
-                movement AS (
-                    SELECT
-                        ebay_item_id,
-
-                        MAX(player_name) FILTER (WHERE last_rn = 1)
-                            AS player_name,
-
-                        MAX(card_year) FILTER (WHERE last_rn = 1)
-                            AS card_year,
-
-                        MAX(product) FILTER (WHERE last_rn = 1)
-                            AS product,
-
-                        MAX(card_number) FILTER (WHERE last_rn = 1)
-                            AS card_number,
-
-                        MAX(parallel) FILTER (WHERE last_rn = 1)
-                            AS parallel,
-
-                        MAX(serial_numbered_to) FILTER (WHERE last_rn = 1)
-                            AS serial_numbered_to,
-
-                        MAX(grade_company) FILTER (WHERE last_rn = 1)
-                            AS grade_company,
-
-                        MAX(grade) FILTER (WHERE last_rn = 1)
-                            AS grade,
-
-                        MAX(current_bid) FILTER (WHERE first_rn = 1)
-                            AS first_bid,
-
-                        MAX(current_bid) FILTER (WHERE last_rn = 1)
-                            AS current_bid,
-
-                        MAX(bid_count) FILTER (WHERE first_rn = 1)
-                            AS first_bid_count,
-
-                        MAX(bid_count) FILTER (WHERE last_rn = 1)
-                            AS current_bid_count,
-
-                        MAX(observed_at) FILTER (WHERE first_rn = 1)
-                            AS first_observed,
-
-                        MAX(observed_at) FILTER (WHERE last_rn = 1)
-                            AS last_observed,
-
-                        MAX(item_end_date) FILTER (WHERE last_rn = 1)
-                            AS item_end_date,
-
-                        MAX(listing_url) FILTER (WHERE last_rn = 1)
-                            AS listing_url,
-
-                        MAX(observations) AS observations
-
-                    FROM ranked
-                    GROUP BY ebay_item_id
-                ),
-
-                metrics AS (
-                    SELECT
-                        *,
-
-                        GREATEST(
-                            EXTRACT(
-                                EPOCH FROM (
-                                    last_observed - first_observed
-                                )
-                            ) / 3600.0,
-                            0.25
-                        ) AS hours_observed,
-
-                        GREATEST(
-                            EXTRACT(
-                                EPOCH FROM (
-                                    item_end_date - CURRENT_TIMESTAMP
-                                )
-                            ) / 3600.0,
-                            0
-                        ) AS hours_remaining,
-
-                        current_bid_count - first_bid_count
-                            AS new_bids,
-
-                        current_bid - first_bid
-                            AS price_change
-
-                    FROM movement
-
-                    WHERE
-                        observations >= 2
-                        AND item_end_date > CURRENT_TIMESTAMP
-                )
-
                 SELECT
-                   m.ebay_item_id,
-                    m.player_name,
-                    m.card_year,
-                    m.product,
-                    m.card_number,
-                    m.parallel,
-                    m.serial_numbered_to,
-                    m.grade_company,
-                    m.grade,
-                    m.current_bid,
-                    m.current_bid_count,
-
-                    -- Demand: 0-100
-                    LEAST(
-                        100,
-                        current_bid_count * 4
-                    ) AS demand_score,
-
-                    -- Recent Momentum: 0-100
-                    LEAST(
-                        100,
-                        GREATEST(
-                            0,
-                            (
-                                (new_bids / hours_observed) * 20
-                            )
-                            +
-                            CASE
-                                WHEN first_bid > 0
-                                THEN
-                                    (
-                                        (price_change / first_bid) * 100
-                                        / hours_observed
-                                    )
-                                ELSE 0
-                            END
-                        )
-                    ) AS momentum_score,
-
+                    ebay_item_id,
+                    player_name,
+                    card_year,
+                    product,
+                    card_number,
+                    parallel,
+                    serial_numbered_to,
+                    grade_company,
+                    grade,
+                    current_bid,
+                    current_bid_count,
+                    demand_score,
+                    momentum_score,
                     hours_remaining,
-
-                    -- Urgency: 0-100
-                    CASE
-                        WHEN hours_remaining <= 1 THEN 100
-                        WHEN hours_remaining <= 3 THEN 90
-                        WHEN hours_remaining <= 6 THEN 80
-                        WHEN hours_remaining <= 12 THEN 65
-                        WHEN hours_remaining <= 24 THEN 50
-                        WHEN hours_remaining <= 48 THEN 30
-                        WHEN hours_remaining <= 72 THEN 15
-                        ELSE 5
-                    END AS urgency_score,
-
+                    urgency_score,
                     observations,
                     listing_url,
-                
-                    av.identity_verified,
-                    av.evidence_confidence,
-                    av.exact_comp_count,
-                    av.exact_active_median,
-                    av.recommended_max_bid,
-                    av.bid_headroom,
-                    av.action,
-                    av.valued_at
-            
-            FROM metrics m
-
-                LEFT JOIN auction_valuations av
-                    ON av.ebay_item_id = m.ebay_item_id
-
+                    identity_verified,
+                    evidence_confidence,
+                    exact_comp_count,
+                    exact_active_median,
+                    recommended_max_bid,
+                    bid_headroom,
+                    action,
+                    valued_at
+                FROM auction_watch_current
+                WHERE item_end_date > CURRENT_TIMESTAMP
                 ORDER BY
                     urgency_score DESC,
                     momentum_score DESC,
-                    demand_score DESC
+                    demand_score DESC,
+                    item_end_date ASC
+                LIMIT 50
+            """)    
 
-                LIMIT 100;
-            """)
 
             rows = cur.fetchall()
 
