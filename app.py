@@ -4530,29 +4530,29 @@ def pipeline_top100_test():
         
     prospects = []
         
-        for row in rows:
-            cells = row.select('td[data-testid="table-cell"]')
-        
-            if not cells:
-                continue
-        
-            name_el = row.select_one('[data-testid="player-headshot"]')
-            if not name_el:
-                continue
-        
-            name = name_el.get("alt", "").replace("Photo headshot of ", "").strip()
-        
-            link = row.select_one('a[href*="/prospects/"]')
-        
-            prospects.append({
-                "name": name,
-                "profile_url": link.get("href") if link else None,
-                "cell_count": len(cells),
-                "cell_text": [
-                    cell.get_text(" ", strip=True)
-                    for cell in cells
-                ],
-            })
+    for row in rows:
+        cells = row.select('td[data-testid="table-cell"]')
+    
+        if not cells:
+            continue
+    
+        name_el = row.select_one('[data-testid="player-headshot"]')
+        if not name_el:
+            continue
+    
+        name = name_el.get("alt", "").replace("Photo headshot of ", "").strip()
+    
+        link = row.select_one('a[href*="/prospects/"]')
+    
+        prospects.append({
+            "name": name,
+            "profile_url": link.get("href") if link else None,
+            "cell_count": len(cells),
+            "cell_text": [
+                cell.get_text(" ", strip=True)
+                for cell in cells
+            ],
+        })
         
         return jsonify({
             "success": True,
