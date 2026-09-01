@@ -4555,17 +4555,7 @@ def pipeline_top100_test():
             ],
         })
         
-        markers = [
-            "__NEXT_DATA__",
-            "prospectRank",
-            "overallRank",
-            "playerId",
-            "player_id",
-            "top100",
-            "prospects",
-        ]
-
-        marker_results = {}
+       
     
         for marker in markers:
             pos = response.text.find(marker)
@@ -4580,6 +4570,26 @@ def pipeline_top100_test():
                 ),
             }
         decoded = html.unescape(response.text)
+
+        rank_matches = re.findall(
+            r'\\"rank\\":(\d+)',
+            decoded
+        )
+        
+        unique_ranks = sorted({
+            int(rank)
+            for rank in rank_matches
+            if 1 <= int(rank) <= 100
+        })
+        
+        return jsonify({
+            "success": True,
+            "rank_matches_found": len(rank_matches),
+            "unique_rank_count": len(unique_ranks),
+            "first_10_ranks": unique_ranks[:10],
+            "last_10_ranks": unique_ranks[-10:],
+        })
+        
         josue_pos = decoded.find("Josue De Paula")
 
         entity_pos = decoded.find("RankedPlayerEntity")
