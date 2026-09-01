@@ -3834,7 +3834,6 @@ def auction_value_refresh():
                             str(card_year or ""),
                             str(player_name or ""),
                             str(product or ""),
-                            str(card_number or ""),
                         ]
                     
                         broad_query = " ".join(
