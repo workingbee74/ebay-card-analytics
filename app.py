@@ -4329,7 +4329,60 @@ def prospect_test():
                 stats.get("homeRuns"),
                 stats.get("stolenBases"),
             ))
-    
+                cur.execute("""
+                    INSERT INTO prospect_stat_history (
+                        mlb_player_id,
+                        player_name,
+                        stat_date,
+                        level,
+                        games_played,
+                        batting_average,
+                        on_base_pct,
+                        slugging_pct,
+                        ops,
+                        home_runs,
+                        stolen_bases,
+                        runs,
+                        rbi,
+                        walks,
+                        strikeouts
+                    )
+                    VALUES (
+                        %s, %s, CURRENT_DATE, %s,
+                        %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s
+                    )
+                    ON CONFLICT (mlb_player_id, stat_date)
+                    DO UPDATE SET
+                        level = EXCLUDED.level,
+                        games_played = EXCLUDED.games_played,
+                        batting_average = EXCLUDED.batting_average,
+                        on_base_pct = EXCLUDED.on_base_pct,
+                        slugging_pct = EXCLUDED.slugging_pct,
+                        ops = EXCLUDED.ops,
+                        home_runs = EXCLUDED.home_runs,
+                        stolen_bases = EXCLUDED.stolen_bases,
+                        runs = EXCLUDED.runs,
+                        rbi = EXCLUDED.rbi,
+                        walks = EXCLUDED.walks,
+                        strikeouts = EXCLUDED.strikeouts,
+                        collected_at = CURRENT_TIMESTAMP
+                """, (
+                    815888,
+                    "Leo De Vries",
+                    "AA",
+                    stats.get("gamesPlayed"),
+                    stats.get("avg"),
+                    stats.get("obp"),
+                    stats.get("slg"),
+                    stats.get("ops"),
+                    stats.get("homeRuns"),
+                    stats.get("stolenBases"),
+                    stats.get("runs"),
+                    stats.get("rbi"),
+                    stats.get("baseOnBalls"),
+                    stats.get("strikeOuts"),
+                ))
             conn.commit()
     
         return jsonify({
