@@ -4272,7 +4272,66 @@ def prospect_test():
         },
         timeout=30,
     )
+    data = response.json()
+    
+    stats = (
+        data.get("stats", [{}])[0]
+        .get("splits", [{}])[0]
+        .get("stat", {})
+    )
 
+with psycopg.connect(DATABASE_URL) as conn:
+    with conn.cursor() as cur:
+        cur.execute("""
+            INSERT INTO prospect_intelligence (
+                player_name,
+                mlb_player_id,
+                position,
+                current_level,
+                batting_average,
+                on_base_pct,
+                slugging_pct,
+                ops,
+                home_runs,
+                stolen_bases,
+                stats_updated_at,
+                updated_at
+            )
+            VALUES (
+                %s, %s, %s, %s,
+                %s, %s, %s, %s,
+                %s, %s,
+                CURRENT_TIMESTAMP,
+                CURRENT_TIMESTAMP
+            )
+            ON CONFLICT (mlb_player_id)
+            DO UPDATE SET
+                player_name = EXCLUDED.player_name,
+                position = EXCLUDED.position,
+                current_level = EXCLUDED.current_level,
+                batting_average = EXCLUDED.batting_average,
+                on_base_pct = EXCLUDED.on_base_pct,
+                slugging_pct = EXCLUDED.slugging_pct,
+                ops = EXCLUDED.ops,
+                home_runs = EXCLUDED.home_runs,
+                stolen_bases = EXCLUDED.stolen_bases,
+                stats_updated_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
+        """, (
+            "Leo De Vries",
+            815888,
+            "SS",
+            "AA",
+            stats.get("avg"),
+            stats.get("obp"),
+            stats.get("slg"),
+            stats.get("ops"),
+            stats.get("homeRuns"),
+            stats.get("stolenBases"),
+        ))
+
+        conn.commit()
+    
     return jsonify({
         "status_code": response.status_code,
         "data": response.json(),
