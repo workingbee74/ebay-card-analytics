@@ -4515,9 +4515,21 @@ def refresh_prospect_stats(
 
 @app.route("/pipeline-top100-test", methods=["GET"])
 def pipeline_top100_test():
+    response = requests.get(
+        "https://www.mlb.com/milb/prospects/2026/top100",
+        headers={
+            "User-Agent": "Mozilla/5.0"
+        },
+        timeout=30,
+    )
+    
     return jsonify({
-        "success": True,
-        "message": "Pipeline Top 100 test route ready"
+        "success": response.ok,
+        "status_code": response.status_code,
+        "content_length": len(response.text),
+        "contains_leo": "Leo De Vries" in response.text,
+        "contains_kade": "Kade Anderson" in response.text,
+        "preview": response.text[:500],
     })
 
 @app.route("/prospect-test", methods=["GET"])
