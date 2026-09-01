@@ -4357,8 +4357,14 @@ def auction_watch():
                 margin-bottom: 10px;
             }
 
+            .auction-table-wrap {
+                width: 100%;
+                overflow-x: auto;
+            }
+
             table {
                 width: 100%;
+                 min-width: 1200px;
                 table-layout: auto;
                 border-collapse: collapse;
                 background: white;
@@ -4367,7 +4373,8 @@ def auction_watch():
             th,
             td {
                 white-space: normal;
-                word-break: break-word;
+                word-break: normal;
+                overflow-wrap: normal;
             }
 
             th {
@@ -4422,7 +4429,7 @@ def auction_watch():
         <div class="subtitle">
             Live auction behavior — Demand, Momentum and Urgency
         </div>
-
+        <div class="auction-table-wrap">
         <table>
             <tr>
                 <th>Player</th>
@@ -4605,7 +4612,7 @@ def auction_watch():
 
     html += """
         </table>
-
+        </div>
     </body>
     </html>
     """
