@@ -4604,17 +4604,26 @@ def pipeline_top100_test():
                 else None
             )
     
-    return jsonify({
-        "success": True,
-        "players_found": len(parsed_players),
-        "players_with_mlb_id": sum(
-            1 for player in parsed_players
-            if player["mlb_player_id"] is not None
-        ),
-        "first_5": parsed_players[:5],
-        "last_5": parsed_players[-5:],
-    })
-        
+test_ids = ",".join(
+    str(player["mlb_player_id"])
+    for player in parsed_players[:5]
+)
+
+batch_response = requests.get(
+    "https://statsapi.mlb.com/api/v1/people",
+    params={
+        "personIds": test_ids,
+    },
+    timeout=30,
+)
+
+return jsonify({
+    "success": True,
+    "status_code": batch_response.status_code,
+    "data": batch_response.json(),
+})
+
+
 @app.route("/prospect-test", methods=["GET"])
 def prospect_test():
     mlb_player_id = 815888
