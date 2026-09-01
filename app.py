@@ -4582,14 +4582,17 @@ def pipeline_top100_test():
         decoded = html.unescape(response.text)
         josue_pos = decoded.find("Josue De Paula")
 
+        ranked_mentions = decoded.count('RankedPlayerEntity')
+        
+        person_mentions = decoded.count('Person:')
+        
         return jsonify({
             "success": True,
-            "josue_position": josue_pos,
-            "context": (
-                decoded[josue_pos - 3000:josue_pos + 3000]
-                if josue_pos >= 0
-                else None
-            ),
+            "ranked_player_mentions": ranked_mentions,
+            "person_mentions": person_mentions,
+            "has_rank_1": '"rank":"1"' in decoded,
+            "has_rank_50": '"rank":"50"' in decoded,
+            "has_rank_100": '"rank":"100"' in decoded,
         })
         
 @app.route("/prospect-test", methods=["GET"])
