@@ -4260,6 +4260,22 @@ def soldcomps_cache_refresh():
         "errors": errors
     })
 
+@app.route("/prospect-test", methods=["GET"])
+def prospect_test():
+    response = requests.get(
+        "https://statsapi.mlb.com/api/v1/people/search",
+        params={
+            "names": "Leo De Vries",
+            "sportIds": 11,
+        },
+        timeout=30,
+    )
+
+    return jsonify({
+        "status_code": response.status_code,
+        "data": response.json(),
+    })
+
 
 @app.route("/soldcomps-test", methods=["GET"])
 def soldcomps_test():
