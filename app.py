@@ -9231,6 +9231,11 @@ def inventory_cards_dashboard():
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
+                ALTER TABLE inventory_cards
+                ADD COLUMN IF NOT EXISTS disposition_reasons TEXT
+            """)
+            conn.commit()
+            cur.execute("""
                 SELECT
                     id,
                     player_name,
