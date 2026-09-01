@@ -4554,7 +4554,7 @@ def pipeline_top100_test():
             ],
         })
         
-       return jsonify({
+    return jsonify({
         "success": True,
         "rows_found": len(rows),
         "row_debug": [
