@@ -4263,7 +4263,12 @@ def soldcomps_cache_refresh():
 @app.route("/prospect-test", methods=["GET"])
 def prospect_test():
     response = requests.get(
-        "https://statsapi.mlb.com/api/v1/people/815888",
+        "https://statsapi.mlb.com/api/v1/people/815888/stats",
+        params={
+            "stats": "season",
+            "group": "hitting",
+            "season": 2026,
+        },
         timeout=30,
     )
 
