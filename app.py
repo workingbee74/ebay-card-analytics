@@ -4359,8 +4359,15 @@ def auction_watch():
 
             table {
                 width: 100%;
+                table-layout: auto;
                 border-collapse: collapse;
                 background: white;
+            }
+
+            th,
+            td {
+                white-space: normal;
+                word-break: break-word;
             }
 
             th {
@@ -4368,6 +4375,10 @@ def auction_watch():
                 color: white;
                 text-align: left;
                 padding: 11px;
+                position: sticky;
+                top: 0;
+                z-index: 20;
+                
             }
 
             td {
