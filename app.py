@@ -4383,7 +4383,7 @@ def auction_watch():
                 text-align: left;
                 padding: 11px;
                 position: sticky;
-                top: 0;
+                top: 49;
                 z-index: 20;
                 
             }
