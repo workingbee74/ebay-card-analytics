@@ -4561,7 +4561,7 @@ def pipeline_top100_test():
         decoded = html.unescape(response.text)
 
         rank_matches = re.findall(
-            r'\\"rank\\":(\d+)',
+            r'"rank":(\d+)',
             decoded
         )
         
