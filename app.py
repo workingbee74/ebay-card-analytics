@@ -88,6 +88,54 @@ def ensure_ebay_oauth_table():
     
             conn.commit()
 
+
+with psycopg.connect(DATABASE_URL) as conn:
+    with conn.cursor() as cur:
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS prospect_intelligence (
+                id SERIAL PRIMARY KEY,
+
+                player_name TEXT NOT NULL,
+                mlb_player_id INTEGER UNIQUE,
+
+                organization TEXT,
+                position TEXT,
+                current_level TEXT,
+                age NUMERIC(4,1),
+                eta_year INTEGER,
+
+                pipeline_rank INTEGER,
+                organization_rank INTEGER,
+
+                batting_average NUMERIC(5,3),
+                on_base_pct NUMERIC(5,3),
+                slugging_pct NUMERIC(5,3),
+                ops NUMERIC(5,3),
+                home_runs INTEGER,
+                stolen_bases INTEGER,
+
+                prospect_score NUMERIC(5,2),
+                performance_score NUMERIC(5,2),
+                momentum_score NUMERIC(5,2),
+                catalyst_score NUMERIC(5,2),
+                value_score NUMERIC(5,2),
+
+                stats_updated_at TIMESTAMPTZ,
+                ranking_updated_at TIMESTAMPTZ,
+                score_updated_at TIMESTAMPTZ,
+
+                created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        cur.execute("""
+            CREATE INDEX IF NOT EXISTS idx_prospect_intelligence_player
+            ON prospect_intelligence (LOWER(player_name))
+        """)
+
+        conn.commit()
+
 NAV_HTML = """
 <nav class="app-nav">
     <a href="/inventory">Inventory</a>
