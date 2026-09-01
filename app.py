@@ -4617,10 +4617,20 @@ def pipeline_top100_test():
         timeout=30,
     )
     
+    people = batch_response.json().get("people", [])
+    
     return jsonify({
         "success": True,
-        "status_code": batch_response.status_code,
-        "data": batch_response.json(),
+        "pipeline_players": len(parsed_players),
+        "mlb_people_returned": len(people),
+        "first_5_names": [
+            person.get("fullName")
+            for person in people[:5]
+        ],
+        "last_5_names": [
+            person.get("fullName")
+            for person in people[-5:]
+        ],
     })
 
 
