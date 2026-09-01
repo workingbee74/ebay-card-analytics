@@ -3698,7 +3698,7 @@ def auction_value_refresh():
 
                 ORDER BY item_end_date ASC
 
-                LIMIT 10;
+                LIMIT 100;
             """)
 
             auctions = cur.fetchall()
