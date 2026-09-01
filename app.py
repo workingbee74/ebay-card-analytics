@@ -4561,17 +4561,19 @@ def pipeline_top100_test():
         decoded = html.unescape(response.text)
 
         start = decoded.find('"getPlayerRankingsFromSelection')
-        end = decoded.find('],"prospectSchoolCommitted"', start)
+        array_start = decoded.find("[", start)
+        
+        players, consumed = json.JSONDecoder().raw_decode(
+            decoded[array_start:]
+        )
         
         return jsonify({
             "success": True,
-            "start": start,
-            "end": end,
-            "payload_preview": (
-                decoded[start:start + 3000]
-                if start >= 0
-                else None
-            ),
+            "array_start": array_start,
+            "players_found": len(players),
+            "first_rank": players[0].get("rank") if players else None,
+            "last_rank": players[-1].get("rank") if players else None,
+            "characters_consumed": consumed,
         })
         
 @app.route("/prospect-test", methods=["GET"])
