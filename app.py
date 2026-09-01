@@ -3128,6 +3128,7 @@ def ebay_search():
                         ADD COLUMN IF NOT EXISTS quantity INTEGER DEFAULT 1,
                         ADD COLUMN IF NOT EXISTS condition TEXT,
                         ADD COLUMN IF NOT EXISTS storage_location TEXT,
+                        ADD COLUMN IF NOT EXISTS disposition_reasons TEXT,
                         ADD COLUMN IF NOT EXISTS scanner_source TEXT,
                         ADD COLUMN IF NOT EXISTS scanner_confidence NUMERIC(5,2),
                         ADD COLUMN IF NOT EXISTS external_card_id TEXT,
@@ -6454,7 +6455,11 @@ def inventory_actions_page():
         action_priority = saved_action_priority or 0
         disposition_action = saved_disposition_action or "HOLD"
         disposition_liquidity = "UNKNOWN"
-        disposition_reasons = []
+        disposition_reasons = (
+            saved_disposition_reasons.split(" | ")
+            if saved_disposition_reasons
+            else []
+        )
                 
         reasons_html = "".join(
             f"<li>{reason}</li>"
@@ -6663,8 +6668,14 @@ def inventory_actions_page():
             <td>
                 {
                     f'<a href="/inventory/action/{inventory_id}" class="action-link">{disposition_action}</a>'
-                    if disposition_action == "SELL — AUCTION"
+                    if disposition_action == "SELL - AUCTION"
                     else disposition_action
+                }
+            
+                {
+                    f'<div class="action-reason">{disposition_reasons[0]}</div>'
+                    if disposition_reasons
+                    else ""
                 }
             </td>
         </tr>
@@ -6787,6 +6798,14 @@ def inventory_actions_page():
                 margin: 0 auto;
                 padding: 20px;
             }}
+
+            .action-reason {
+                margin-top: 4px;
+                font-size: 11px;
+                line-height: 1.25;
+                color: #666;
+                max-width: 220px;
+            }
 
             .header {{
                 display: flex;
@@ -7328,14 +7347,7 @@ def refresh_inventory_actions():
                     serial_numbered_to,
                     trend_pct
                 )
-                print(
-                    "DISPOSITION_DEBUG:",
-                    inventory_id,
-                    "trend_pct=", trend_pct,
-                    "liquidity=", disposition["liquidity"],
-                    "action=", disposition["action"],
-                    flush=True,
-                )
+                
                 disposition_action = disposition["action"]
                 disposition_liquidity = disposition["liquidity"]
                 gain_loss_pct = disposition["gain_loss_pct"]
@@ -7357,6 +7369,7 @@ def refresh_inventory_actions():
                         trend_pct = %s,
                         trend_confidence = %s,
                         disposition_action = %s,
+                        disposition_reasons = %s,
                         action_priority = %s,
                         market_updated_at = NOW()
                     WHERE id = %s
@@ -7368,6 +7381,7 @@ def refresh_inventory_actions():
                     trend_pct,
                     trend_confidence,
                     disposition_action,
+                    " | ".join(disposition["reasons"]),
                     action_priority,
                     inventory_id
             
@@ -9239,6 +9253,7 @@ def inventory_cards_dashboard():
                     external_card_id,
                     front_image_url,
                     disposition_action,
+                    disposition_reasons,
                     action_priority
                     FROM inventory_cards
                 WHERE player_name IS NOT NULL
@@ -9277,6 +9292,7 @@ def inventory_cards_dashboard():
             cardhedge_id,
             front_image_url,
             saved_disposition_action,
+            saved_disposition_reasons,
             saved_action_priority,
             ) = row
 
