@@ -3837,6 +3837,7 @@ def auction_value_refresh():
                     exact_prices = price_tiers["exact_prices"]
 
                     fallback_prices = []
+                    bowman_fallback_prices = []
                     
                     if not exact_prices:
                         exact_prices = price_tiers["same_parallel_prices"]
