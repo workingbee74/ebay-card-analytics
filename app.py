@@ -4606,7 +4606,7 @@ def pipeline_top100_test():
     
     test_ids = ",".join(
         str(player["mlb_player_id"])
-        for player in parsed_players[:5]
+        for player in parsed_players
     )
     
     batch_response = requests.get(
