@@ -4343,13 +4343,18 @@ def soldcomps_cache_refresh():
 
 @app.route("/prospect-test", methods=["GET"])
 def prospect_test():
+    mlb_player_id = 815888
+    player_name = "Leo De Vries"
+    position = "SS"
+    current_level = "AA"
+    sport_id = 12
     response = requests.get(
-        "https://statsapi.mlb.com/api/v1/people/815888/stats",
+        f"https://statsapi.mlb.com/api/v1/people/{mlb_player_id}/stats",
         params={
             "stats": "season",
             "group": "hitting",
             "season": 2026,
-            "sportId": 12,
+            "sportId": sport_id,
         },
         timeout=30,
     )
@@ -4399,10 +4404,10 @@ def prospect_test():
                     stats_updated_at = CURRENT_TIMESTAMP,
                     updated_at = CURRENT_TIMESTAMP
             """, (
-                "Leo De Vries",
-                815888,
-                "SS",
-                "AA",
+                player_name,
+                mlb_player_id,
+                position,
+                current_level,
                 stats.get("avg"),
                 stats.get("obp"),
                 stats.get("slg"),
@@ -4449,9 +4454,9 @@ def prospect_test():
                     strikeouts = EXCLUDED.strikeouts,
                     collected_at = CURRENT_TIMESTAMP
             """, (
-                815888,
-                "Leo De Vries",
-                "AA",
+                mlb_player_id,
+                player_name,
+                current_level,
                 stats.get("gamesPlayed"),
                 stats.get("avg"),
                 stats.get("obp"),
