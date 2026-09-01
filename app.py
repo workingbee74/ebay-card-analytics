@@ -4586,13 +4586,24 @@ def pipeline_top100_test():
         
         person_mentions = decoded.count('Person:')
         
+        rank_matches = re.findall(
+            r'\\"rank\\":\\"(\d+)\\"',
+            decoded
+        )
+        
+        unique_ranks = sorted({
+            int(rank)
+            for rank in rank_matches
+            if 1 <= int(rank) <= 100
+        })
+        
         return jsonify({
             "success": True,
-            "ranked_player_mentions": ranked_mentions,
-            "person_mentions": person_mentions,
-            "has_rank_1": '"rank":"1"' in decoded,
-            "has_rank_50": '"rank":"50"' in decoded,
-            "has_rank_100": '"rank":"100"' in decoded,
+            "ranked_player_mentions": decoded.count("RankedPlayerEntity"),
+            "rank_matches_found": len(rank_matches),
+            "unique_rank_count": len(unique_ranks),
+            "first_10_ranks": unique_ranks[:10],
+            "last_10_ranks": unique_ranks[-10:],
         })
         
 @app.route("/prospect-test", methods=["GET"])
