@@ -3877,10 +3877,13 @@ def auction_value_refresh():
                             if price is not None
                         ]
                     
+                   
                     decision_prices = (
                         exact_prices
                         if len(exact_prices) >= 3
                         else fallback_prices
+                        if fallback_prices
+                        else exact_prices
                     )
                     
                     decision = calculate_auction_decision(
