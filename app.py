@@ -4531,7 +4531,7 @@ def auction_watch():
 
         if grade_company and grade is not None:
             grade_number = (
-                str(int(grade))
+                str(int(float(grade)))
                 if float(grade).is_integer()
                 else str(grade)
             )
