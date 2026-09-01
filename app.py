@@ -4574,7 +4574,7 @@ def pipeline_top100_test():
         
         for player in players:
             player_entity = player.get("playerEntity", {})
-            player_ref = player_entity.get("player", {}).get("_ref", "")
+            player_ref = player_entity.get("player", {}).get("__ref", "")
         
             mlb_player_id = None
         
@@ -4587,22 +4587,17 @@ def pipeline_top100_test():
                 "position": player_entity.get("position"),
                 "eta": player_entity.get("eta"),
             })
-    
-        first_entity = players[0].get("playerEntity", {})
-        first_player_obj = first_entity.get("player", {})
-        first_ref = first_player_obj.get("_ref", "")
-        
-        return jsonify({
-            "success": True,
-            "first_player_obj": first_player_obj,
-            "first_ref": first_ref,
-            "first_ref_type": type(first_ref).__name__,
-            "starts_with_person": (
-                first_ref.startswith("Person:")
-                if isinstance(first_ref, str)
-                else False
-            ),
-        })
+           
+    return jsonify({
+        "success": True,
+        "players_found": len(parsed_players),
+        "players_with_mlb_id": sum(
+            1 for player in parsed_players
+            if player["mlb_player_id"] is not None
+        ),
+        "first_5": parsed_players[:5],
+        "last_5": parsed_players[-5:],
+    })
         
 @app.route("/prospect-test", methods=["GET"])
 def prospect_test():
