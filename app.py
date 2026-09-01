@@ -4359,12 +4359,11 @@ def auction_watch():
 
             .auction-table-wrap {
                 width: 100%;
-                overflow-x: auto;
+                overflow: visible;
             }
 
             table {
                 width: 100%;
-                 min-width: 1200px;
                 table-layout: auto;
                 border-collapse: collapse;
                 background: white;
