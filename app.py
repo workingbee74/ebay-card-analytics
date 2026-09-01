@@ -4502,6 +4502,38 @@ def prospect_test():
         "result": result,
     })
 
+@app.route("/prospect-refresh", methods=["GET"])
+def prospect_refresh():
+    tracked_prospects = [
+        {
+            "mlb_player_id": 815888,
+            "player_name": "Leo De Vries",
+            "position": "SS",
+            "current_level": "AA",
+            "sport_id": 12,
+        },
+    ]
+
+    results = []
+    errors = []
+
+    for prospect in tracked_prospects:
+        try:
+            result = refresh_prospect_stats(**prospect)
+            results.append(result)
+        except Exception as e:
+            errors.append({
+                "player_name": prospect["player_name"],
+                "error": str(e),
+            })
+
+    return jsonify({
+        "success": len(errors) == 0,
+        "refreshed": len(results),
+        "errors": errors,
+        "results": results,
+    })
+
 @app.route("/soldcomps-test", methods=["GET"])
 def soldcomps_test():
     query = request.args.get(
