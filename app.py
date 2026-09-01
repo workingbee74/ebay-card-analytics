@@ -4716,6 +4716,14 @@ def auction_watch():
     html = html.replace("{NAV_HTML}", NAV_HTML)
     return html
 
+
+@app.route("/auction-watch-cache-refresh", methods=["GET"])
+def auction_watch_cache_refresh():
+    return jsonify({
+        "success": True,
+        "message": "cache refresh route ready"
+    })
+
 @app.route("/inventory-dashboard", methods=["GET"])
 def inventory_dashboard():
 
