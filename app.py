@@ -4504,15 +4504,40 @@ def prospect_test():
 
 @app.route("/prospect-refresh", methods=["GET"])
 def prospect_refresh():
-    tracked_prospects = [
-        {
-            "mlb_player_id": 815888,
-            "player_name": "Leo De Vries",
-            "position": "SS",
-            "current_level": "AA",
-            "sport_id": 12,
-        },
-    ]
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT
+                    mlb_player_id,
+                    player_name,
+                    position,
+                    current_level
+                FROM prospect_intelligence
+                WHERE mlb_player_id IS NOT NULL
+                ORDER BY player_name
+            """)
+    
+            rows = cur.fetchall()
+    
+    tracked_prospects = []
+    
+    for mlb_player_id, player_name, position, current_level in rows:
+        sport_id = {
+            "AAA": 11,
+            "AA": 12,
+            "A+": 13,
+            "A": 14,
+            "ROOKIE": 16,
+            "MLB": 1,
+        }.get(str(current_level or "").upper(), 12)
+    
+        tracked_prospects.append({
+            "mlb_player_id": mlb_player_id,
+            "player_name": player_name,
+            "position": position,
+            "current_level": current_level,
+            "sport_id": sport_id,
+        })
 
     results = []
     errors = []
