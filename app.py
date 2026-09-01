@@ -7328,7 +7328,14 @@ def refresh_inventory_actions():
                     serial_numbered_to,
                     trend_pct
                 )
-
+                print(
+                    "DISPOSITION_DEBUG:",
+                    inventory_id,
+                    "trend_pct=", trend_pct,
+                    "liquidity=", disposition["liquidity"],
+                    "action=", disposition["action"],
+                    flush=True,
+                )
                 disposition_action = disposition["action"]
                 disposition_liquidity = disposition["liquidity"]
                 gain_loss_pct = disposition["gain_loss_pct"]
