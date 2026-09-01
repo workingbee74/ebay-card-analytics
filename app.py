@@ -2522,16 +2522,16 @@ def calculate_auction_decision(
         evidence_confidence = min(evidence_confidence, 30)
         valuation_haircut = min(valuation_haircut, 0.40)
         
-        conservative_value = None
-        recommended_max_bid = None
+    conservative_value = None
+    recommended_max_bid = None
     
-        if exact_active_median is not None:
-            conservative_value = round(
-                exact_active_median * valuation_haircut,
-                2
-            )
+    if exact_active_median is not None:
+        conservative_value = round(
+            exact_active_median * valuation_haircut,
+            2
+        )
 
-        recommended_max_bid = conservative_value
+    recommended_max_bid = conservative_value
 
     action = "NO BID"
     bid_headroom = None
