@@ -4653,6 +4653,57 @@ def pipeline_top100_test():
             "bats": person.get("batSide", {}).get("code"),
             "throws": person.get("pitchHand", {}).get("code"),
         })
+       
+        with psycopg.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                for prospect in merged_players:
+                    cur.execute("""
+                        INSERT INTO prospect_intelligence (
+                            player_name,
+                            mlb_player_id,
+                            position,
+                            age,
+                            eta_year,
+                            pipeline_rank,
+                            birth_date,
+                            bats,
+                            throws,
+                            active_top_100,
+                            ranking_updated_at,
+                            updated_at
+                        )
+                        VALUES (
+                            %s, %s, %s, %s, %s, %s,
+                            %s, %s, %s, TRUE,
+                            CURRENT_TIMESTAMP,
+                            CURRENT_TIMESTAMP
+                        )
+                        ON CONFLICT (mlb_player_id)
+                        DO UPDATE SET
+                            player_name = EXCLUDED.player_name,
+                            position = EXCLUDED.position,
+                            age = EXCLUDED.age,
+                            eta_year = EXCLUDED.eta_year,
+                            pipeline_rank = EXCLUDED.pipeline_rank,
+                            birth_date = EXCLUDED.birth_date,
+                            bats = EXCLUDED.bats,
+                            throws = EXCLUDED.throws,
+                            active_top_100 = TRUE,
+                            ranking_updated_at = CURRENT_TIMESTAMP,
+                            updated_at = CURRENT_TIMESTAMP
+                    """, (
+                        prospect["player_name"],
+                        prospect["mlb_player_id"],
+                        prospect["position"],
+                        prospect["age"],
+                        prospect["eta"],
+                        prospect["rank"],
+                        prospect["birth_date"],
+                        prospect["bats"],
+                        prospect["throws"],
+                    ))
+        
+                conn.commit()
 
     
     return jsonify({
