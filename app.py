@@ -4560,17 +4560,14 @@ def pipeline_top100_test():
        
         decoded = html.unescape(response.text)
 
-        entity_match = re.search(
-            r'\{"_typename":"RankedPlayerEntity","rank":1,"playerEntity":(\{.*?\})\}',
-            decoded
-        )
+        entity_pos = decoded.find('"RankedPlayerEntity"')
         
         return jsonify({
             "success": True,
-            "found_rank_1": entity_match is not None,
-            "rank_1_entity_preview": (
-                entity_match.group(1)[:3000]
-                if entity_match
+            "entity_position": entity_pos,
+            "entity_context": (
+                decoded[entity_pos - 100:entity_pos + 1500]
+                if entity_pos >= 0
                 else None
             ),
         })
