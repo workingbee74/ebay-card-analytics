@@ -5,6 +5,7 @@ import requests
 import psycopg
 import zipfile
 import re
+import html
 import time
 import json
 import unicodedata
@@ -4578,16 +4579,13 @@ def pipeline_top100_test():
                     else None
                 ),
             }
+            decoded = html.unescape(response.text)
             josue_pos = response.text.find("Josue De Paula")
         return jsonify({
             "success": True,
-            "josue_found": josue_pos >= 0,
-            "josue_position": josue_pos,
-            "josue_context": (
-                response.text[josue_pos - 1000:josue_pos + 2000]
-                if josue_pos >= 0
-                else None
-            ),
+            "pipeline_rank_mentions": decoded.count('"pipelineRank'),
+            "player_name_mentions": decoded.count('"playerName"'),
+            "josue_found": "Josue De Paula" in decoded,
         })
 
 @app.route("/prospect-test", methods=["GET"])
