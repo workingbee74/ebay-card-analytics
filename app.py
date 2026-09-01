@@ -4567,10 +4567,17 @@ def pipeline_top100_test():
             decoded[array_start:]
         )
         
+        player = players[0] if players else {}
+        player_entity = player.get("playerEntity", {})
+        
         return jsonify({
             "success": True,
-            "players_found": len(players),
-            "first_player": players[0] if players else None,
+            "top_level_keys": list(player.keys()),
+            "player_entity_keys": list(player_entity.keys()),
+            "rank": player.get("rank"),
+            "player_ref": player_entity.get("player"),
+            "position": player_entity.get("position"),
+            "eta": player_entity.get("eta"),
         })
         
 @app.route("/prospect-test", methods=["GET"])
