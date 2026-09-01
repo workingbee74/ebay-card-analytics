@@ -1069,11 +1069,16 @@ def calculate_disposition(
     ):
         action = "QUICK FLIP - BIN"
         reasons.append("Market value is at least 25% above cost with sufficient liquidity")
+    elif (
+        trend_pct is not None
+        and trend_pct <= -10
+        and liquidity in ("HIGH", "MODERATE")
+    ):
+        action = "SELL - DEFENSIVE"
+        reasons.append("Market trend is falling and liquidity is sufficient to exit")
+    elif score >= 4:
+        action = "HOLD"
     
-    elif score >= 4:
-        action = "HOLD"
-    elif score >= 4:
-        action = "HOLD"
     
     elif (
         gain_loss_pct is not None
@@ -1085,13 +1090,7 @@ def calculate_disposition(
         reasons.append("Below cost, but market trend is stable or improving")
 
 
-    elif (
-        trend_pct is not None
-        and trend_pct <= -10
-        and liquidity in ("HIGH", "MODERATE")
-    ):
-        action = "SELL - DEFENSIVE"
-        reasons.append("Market trend is falling and liquidity is sufficient to exit")
+
     
     elif liquidity == "HIGH":
         if (
@@ -1112,7 +1111,13 @@ def calculate_disposition(
         action = "HOLD"
         reasons.append("Low liquidity favors holding rather than forcing a sale")
 
-
+    return {
+        "action": action,
+        "score": score,
+        "liquidity": liquidity,
+        "reasons": reasons,
+        "gain_loss_pct": gain_loss_pct,
+    }
 
 
 @app.route("/ebay/oauth/db-scope", methods=["GET"])
