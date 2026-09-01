@@ -4560,39 +4560,19 @@ def pipeline_top100_test():
        
         decoded = html.unescape(response.text)
 
-        rank_matches = re.findall(
-            r'"rank":(\d+)',
+        entity_match = re.search(
+            r'\{"_typename":"RankedPlayerEntity","rank":1,"playerEntity":(\{.*?\})\}',
             decoded
         )
         
-        unique_ranks = sorted({
-            int(rank)
-            for rank in rank_matches
-            if 1 <= int(rank) <= 100
-        })
-        
         return jsonify({
             "success": True,
-            "rank_matches_found": len(rank_matches),
-            "unique_rank_count": len(unique_ranks),
-            "first_10_ranks": unique_ranks[:10],
-            "last_10_ranks": unique_ranks[-10:],
-        })
-        
-        josue_pos = decoded.find("Josue De Paula")
-
-        entity_pos = decoded.find("RankedPlayerEntity")
-
-        entity_context = (
-            repr(decoded[entity_pos - 300:entity_pos + 500])
-            if entity_pos >= 0
-            else None
-        )
-        
-        return jsonify({
-            "success": True,
-            "entity_position": entity_pos,
-            "entity_context_repr": entity_context,
+            "found_rank_1": entity_match is not None,
+            "rank_1_entity_preview": (
+                entity_match.group(1)[:3000]
+                if entity_match
+                else None
+            ),
         })
         
 @app.route("/prospect-test", methods=["GET"])
