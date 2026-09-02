@@ -1259,6 +1259,18 @@ def calculate_disposition(
     }
 
 
+@app.route("/prospect-team-test", methods=["GET"])
+def prospect_team_test():
+    response = requests.get(
+        "https://statsapi.mlb.com/api/v1/teams/237",
+        timeout=30,
+    )
+
+    return jsonify({
+        "status_code": response.status_code,
+        "data": response.json(),
+    })
+
 @app.route("/prospect-momentum-test", methods=["GET"])
 def prospect_momentum_test():
     result = calculate_prospect_momentum(815888)
