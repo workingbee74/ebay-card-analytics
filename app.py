@@ -4645,6 +4645,8 @@ def pipeline_top100_test():
     people = batch_response.json().get("people", [])
 
 
+    
+
     people_by_id = {
         person.get("id"): person
         for person in people
@@ -4750,18 +4752,25 @@ def pipeline_top100_test():
 
     
     people = batch_response.json().get("people", [])
+    team_ids = ",".join(
+        str(person.get("currentTeam", {}).get("id"))
+        for person in people[:5]
+        if person.get("currentTeam", {}).get("id")
+    )
+    
+    team_response = requests.get(
+        "https://statsapi.mlb.com/api/v1/teams",
+        params={
+            "teamIds": team_ids,
+        },
+        timeout=30,
+    )
     
     return jsonify({
         "success": True,
-        "people_returned": len(people),
-        "first_5": [
-            {
-                "id": person.get("id"),
-                "name": person.get("fullName"),
-                "current_team": person.get("currentTeam"),
-            }
-            for person in people[:5]
-        ],
+        "team_ids": team_ids,
+        "status_code": team_response.status_code,
+        "data": team_response.json(),
     })
 
 
