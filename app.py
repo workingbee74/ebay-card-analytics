@@ -4624,6 +4624,8 @@ def pipeline_top100_test():
         "https://statsapi.mlb.com/api/v1/people",
         params={
             "personIds": test_ids,
+            "hydrate": "currentTeam",
+            "appContext": "minorLeague",
         },
         timeout=30,
     )
@@ -4735,11 +4737,19 @@ def pipeline_top100_test():
                 conn.commit()
 
     
+    people = batch_response.json().get("people", [])
+    
     return jsonify({
         "success": True,
-        "merged_count": len(merged_players),
-        "first_5": merged_players[:5],
-        "last_5": merged_players[-5:],
+        "people_returned": len(people),
+        "first_5": [
+            {
+                "id": person.get("id"),
+                "name": person.get("fullName"),
+                "current_team": person.get("currentTeam"),
+            }
+            for person in people[:5]
+        ],
     })
 
 
