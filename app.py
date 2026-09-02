@@ -4636,7 +4636,7 @@ def pipeline_top100_test():
         "https://statsapi.mlb.com/api/v1/people",
         params={
             "personIds": test_ids,
-            "hydrate": "currentTeam",
+            "hydrate": "currentTeam(sport)",
             "appContext": "minorLeague",
         },
         timeout=30,
