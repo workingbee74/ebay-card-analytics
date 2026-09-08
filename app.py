@@ -11889,20 +11889,87 @@ def deals_dashboard_v2():
             """)
 
             rows = cur.fetchall()
+            
+import statistics
 
     deals = []
 
     for row in rows:
-        discount = float(row[13])
-        comparable_count = row[11]
-
-        if comparable_count == 2:
-            confidence = 40
-        else:
-            confidence = min(
+        total_cost = (
+            float(row[8]) +
+            (float(row[9]) if row[9] is not None else 0)
+        )
+    
+        player_name = row[1]
+        card_year = row[2]
+        product = row[3]
+        parallel = row[4]
+        card_number = row[5]
+        grade_company = row[6]
+        grade = row[7]
+    
+        search_key = "|".join([
+            str(player_name or "").casefold().strip(),
+            str(card_year or ""),
+            str(product or "").casefold().strip(),
+            str(card_number or "").casefold().strip(),
+            str(parallel or "").casefold().strip(),
+            str(grade_company or "").casefold().strip(),
+            str(grade or ""),
+        ])
+    
+        sold_query = " ".join(
+            str(part).strip()
+            for part in [
+                card_year,
+                player_name,
+                product,
+                card_number,
+                parallel,
+                grade_company,
+                grade,
+            ]
+            if part and str(part).strip()
+        )
+    
+        sold_sales = get_cached_soldcomps_sales(
+            search_key=search_key,
+            query=sold_query,
+            count=100,
+            days=90,
+            cache_hours=24,
+        )
+    
+        exact_prices = get_exact_sold_prices(
+            sold_sales,
+            player_name=player_name,
+            card_year=card_year,
+            product=product,
+            card_number=card_number,
+            parallel=parallel,
+            grade_company=grade_company,
+            grade=grade,
+        )
+    
+        if len(exact_prices) < 2:
+            continue
+    
+        sold_median = statistics.median(exact_prices)
+        comparable_count = len(exact_prices)
+    
+        if sold_median <= 0:
+            continue
+    
+        discount = ((sold_median - total_cost) / sold_median) * 100
+    
+        if discount <= 0:
+            continue
+    
+        confidence = min(
             100,
-            55 + (comparable_count - 3) * 8
-            )
+            55 + max(0, comparable_count - 3) * 8
+        )
+        
         scoring_discount = min(discount, 60)
         quality = round(
             (scoring_discount * 0.60) +
