@@ -11951,6 +11951,19 @@ def deals_dashboard_v2():
             grade=grade,
         )
 
+        print(
+            "DEALS_SOLD_DEBUG",
+            player_name,
+            card_year,
+            product,
+            card_number,
+            parallel,
+            "sales=", len(sold_sales),
+            "exact=", len(sold_tiers["exact_prices"]),
+            "parallel=", len(sold_tiers["same_parallel_prices"]),
+            "card=", len(sold_tiers["same_card_prices"]),
+        )
+
         valuation_prices = [
             float(price)
             for price in sold_tiers["exact_prices"]
