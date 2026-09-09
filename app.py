@@ -12029,6 +12029,85 @@ def deals_dashboard_v2():
         key=lambda x: x["deal_quality_score"],
         reverse=True
     )
+
+
+    # Test CardHedge enrichment on only the top screened deal
+    if deals:
+        top_deal = deals[0]
+
+        evidence = {
+            "player_name": top_deal["player_name"],
+            "card_year": top_deal["card_year"],
+            "product": top_deal["product"],
+            "card_number": top_deal["card_number"],
+            "parallel": top_deal["parallel"],
+            "serial_numbered_to": None,
+        }
+
+        cardhedge_result = resolve_with_cardhedge(evidence)
+
+        top_deal["cardhedge_id"] = None
+        top_deal["cardhedge_market_value"] = None
+        top_deal["cardhedge_match_score"] = None
+        top_deal["cardhedge_sales_7day"] = None
+        top_deal["cardhedge_sales_30day"] = None
+
+        best = cardhedge_result.get("best")
+
+        if best:
+            card = best["card"]
+
+            top_deal["cardhedge_id"] = card.get("card_id")
+            top_deal["cardhedge_match_score"] = best.get("score")
+            top_deal["cardhedge_sales_7day"] = card.get("7 Day Sales")
+            top_deal["cardhedge_sales_30day"] = card.get("30 Day Sales")
+
+            grade_company = top_deal.get("grade_company")
+            grade = top_deal.get("grade")
+
+            if grade_company and grade is not None:
+                try:
+                    grade_number = float(grade)
+                    grade_text = (
+                        str(int(grade_number))
+                        if grade_number.is_integer()
+                        else str(grade_number)
+                    )
+                except Exception:
+                    grade_text = str(grade)
+
+                target_grade = f"{grade_company} {grade_text}"
+            else:
+                target_grade = "Raw"
+
+            for price_record in card.get("prices", []):
+                if (
+                    str(price_record.get("grade", "")).casefold()
+                    == target_grade.casefold()
+                ):
+                    try:
+                        top_deal["cardhedge_market_value"] = float(
+                            price_record["price"]
+                        )
+                    except (TypeError, ValueError, KeyError):
+                        pass
+                    break
+
+        print(
+            "CARDHEDGE_TOP_DEAL",
+            top_deal["player_name"],
+            top_deal["card_year"],
+            top_deal["card_number"],
+            top_deal["parallel"],
+            "cost=", top_deal["total_cost"],
+            "cardhedge_id=", top_deal["cardhedge_id"],
+            "match=", top_deal["cardhedge_match_score"],
+            "market=", top_deal["cardhedge_market_value"],
+            "sales7=", top_deal["cardhedge_sales_7day"],
+            "sales30=", top_deal["cardhedge_sales_30day"],
+        )
+
+    
     html = f"""
     <html>
     <head>
