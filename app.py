@@ -2066,6 +2066,20 @@ def cardhedge_history_test():
         timeout=30,
     )
 
+
+    try:
+        cardhedge_data = response.json()
+    except Exception:
+        cardhedge_data = {"raw": response.text}
+
+    return jsonify({
+        "success": response.ok,
+        "http_status": response.status_code,
+        "card_id": card_id,
+        "grade": grade,
+        "cardhedge": cardhedge_data,
+    }), response.status_code
+
     try:
         data = response.json()
     except ValueError:
