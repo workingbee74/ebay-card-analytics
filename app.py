@@ -11894,17 +11894,17 @@ def deals_dashboard_v2():
 
     deals = []
 
-        for row in rows:
-            discount = float(row[13])
-            comparable_count = row[11]
-        
-            if comparable_count == 2:
-                confidence = 40
-            else:
-                confidence = min(
-                    100,
-                    55 + (comparable_count - 3) * 8
-                )    
+    for row in rows:
+        discount = float(row[13])
+        comparable_count = row[11]
+    
+        if comparable_count == 2:
+            confidence = 40
+        else:
+            confidence = min(
+                100,
+                55 + (comparable_count - 3) * 8
+            )    
         scoring_discount = min(discount, 60)
         quality = round(
             (scoring_discount * 0.60) +
@@ -11917,7 +11917,7 @@ def deals_dashboard_v2():
             rating = "FAIR"
         else:
             rating = "HIGH"
-
+    
         total_cost = (
             float(row[8]) +
             (float(row[9]) if row[9] is not None else 0)
