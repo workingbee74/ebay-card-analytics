@@ -12103,6 +12103,26 @@ def deals_dashboard_v2():
                         pass
                     break
 
+
+            if top_deal["cardhedge_market_value"] is not None:
+                cardhedge_value = top_deal["cardhedge_market_value"]
+                total_cost = top_deal["total_cost"]
+    
+                top_deal["median_price"] = cardhedge_value
+    
+                if cardhedge_value > 0:
+                    top_deal["discount_percentage"] = round(
+                        ((cardhedge_value - total_cost) / cardhedge_value) * 100,
+                        1
+                    )
+    
+                if total_cost <= cardhedge_value * 0.80:
+                    top_deal["deal_rating"] = "BUY"
+                elif total_cost <= cardhedge_value:
+                    top_deal["deal_rating"] = "FAIR"
+                else:
+                    top_deal["deal_rating"] = "PASS"
+
         print(
             "CARDHEDGE_TOP_DEAL",
             top_deal["player_name"],
