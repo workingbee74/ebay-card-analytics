@@ -12043,7 +12043,7 @@ def deals_dashboard_v2():
         None
     )
 
-if top_deal:
+    if top_deal:
 
         evidence = {
             "player_name": top_deal["player_name"],
