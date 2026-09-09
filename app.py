@@ -884,6 +884,21 @@ def resolve_with_cardhedge(evidence):
 
     return evidence
 
+
+@app.route("/deal-cardhedge-test", methods=["GET"])
+def deal_cardhedge_test():
+    evidence = {
+        "player_name": "Kade Anderson",
+        "card_year": 2025,
+        "product": "Bowman Draft",
+        "card_number": "BDC-3",
+        "parallel": "Refractor",
+        "serial_numbered_to": None,
+    }
+
+    result = resolve_with_cardhedge(evidence)
+    return jsonify(result)
+
 def get_inventory_market_data(
     cardhedge_id,
     grade_company=None,
