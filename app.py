@@ -1863,7 +1863,7 @@ def ebay_opt_in_business_policies():
         "response": response.json() if response.content else {}
     })
 
-@app.route("/cardhedge-history-test", methods=["GET"])
+
 def calculate_action_priority(
     disposition_action,
     disposition_liquidity,
