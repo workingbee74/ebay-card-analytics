@@ -11951,17 +11951,26 @@ def deals_dashboard_v2():
             grade=grade,
         )
 
-        exact_prices = [
+        valuation_prices = [
             float(price)
             for price in sold_tiers["exact_prices"]
             if price is not None
-        ]
-    
-        if len(exact_prices) < 2:
-            continue
-    
-        sold_median = statistics.median(exact_prices)
-        comparable_count = len(exact_prices)
+            ]
+                
+        # If exact card + parallel + grade is too thin,
+        # fall back to same card + parallel regardless of grade.
+        if len(valuation_prices) < 2:
+            valuation_prices = [
+            float(price)
+            for price in sold_tiers["same_parallel_prices"]
+            if price is not None
+            ]
+                
+        if len(valuation_prices) < 2:
+        continue
+                
+        sold_median = statistics.median(valuation_prices)
+        comparable_count = len(valuation_prices)
     
         if sold_median <= 0:
             continue
