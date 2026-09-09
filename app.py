@@ -11890,7 +11890,7 @@ def deals_dashboard_v2():
 
             rows = cur.fetchall()
             
-import statistics
+    import statistics
 
     deals = []
 
