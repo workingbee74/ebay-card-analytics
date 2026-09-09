@@ -12001,7 +12001,7 @@ def deals_dashboard_v2():
             "total_cost": total_cost,
             "listing_url": row[10],
             "comparable_count": comparable_count,
-            "median_price": float(row[12]),
+            "median_price": sold_median,
             "discount_percentage": discount,
             "confidence_score": confidence,
             "deal_quality_score": quality,
