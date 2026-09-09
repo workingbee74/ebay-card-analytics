@@ -11952,9 +11952,9 @@ def deals_dashboard_v2():
         )
 
         exact_prices = [
-            comp["price"]
-            for comp in sold_tiers["exact_prices"]
-            if comp.get("price") is not None
+            float(price)
+            for price in sold_tiers["exact_prices"]
+            if price is not None
         ]
     
         if len(exact_prices) < 2:
