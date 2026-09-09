@@ -11967,7 +11967,7 @@ def deals_dashboard_v2():
             ]
                 
         if len(valuation_prices) < 2:
-        continue
+            continue
                 
         sold_median = statistics.median(valuation_prices)
         comparable_count = len(valuation_prices)
