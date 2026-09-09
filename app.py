@@ -12032,8 +12032,18 @@ def deals_dashboard_v2():
 
 
     # Test CardHedge enrichment on only the top screened deal
-    if deals:
-        top_deal = deals[0]
+    top_deal = next(
+        (
+            deal for deal in deals
+            if deal.get("player_name")
+            and deal.get("card_year")
+            and deal.get("product")
+            and deal.get("card_number")
+        ),
+        None
+    )
+
+if top_deal:
 
         evidence = {
             "player_name": top_deal["player_name"],
