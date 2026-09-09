@@ -11940,7 +11940,7 @@ def deals_dashboard_v2():
             cache_hours=24,
         )
     
-        exact_prices = get_exact_sold_prices(
+        sold_tiers = get_sold_price_tiers(
             sold_sales,
             player_name=player_name,
             card_year=card_year,
@@ -11950,6 +11950,12 @@ def deals_dashboard_v2():
             grade_company=grade_company,
             grade=grade,
         )
+
+        exact_prices = [
+            comp["price"]
+            for comp in sold_tiers["exact_prices"]
+            if comp.get("price") is not None
+        ]
     
         if len(exact_prices) < 2:
             continue
