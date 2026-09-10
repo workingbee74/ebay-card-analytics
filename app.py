@@ -5054,19 +5054,27 @@ def auction_watch():
 
             table {
                 width: 100%;
-                min-width: 1500px;
+                min-width: 1250px;
                 table-layout: auto;
                 border-collapse: separate;
                 border-spacing: 0;
                 background: white;
-                font-size: 13px;
+                font-size: 11px;
             }
             
-            th,
+            th {
+                background: #222;
+                color: white;
+                text-align: left;
+                padding: 5px 6px;
+                position: sticky;
+                top: 49px;
+                z-index: 20;
+            }
+            
             td {
-                white-space: nowrap;
-                word-break: normal;
-                overflow-wrap: normal;
+                padding: 4px 6px;
+                border-bottom: 1px solid #ddd;
             }
             
             th {
