@@ -5047,21 +5047,42 @@ def auction_watch():
                 overflow: visible;
             }
 
+            .auction-table-wrap {
+                width: 100%;
+                overflow-x: auto;
+            }
+
             table {
                 width: 100%;
+                min-width: 1500px;
                 table-layout: auto;
                 border-collapse: separate;
                 border-spacing: 0;
                 background: white;
+                font-size: 13px;
             }
-
+            
             th,
             td {
-                white-space: normal;
+                white-space: nowrap;
                 word-break: normal;
                 overflow-wrap: normal;
             }
-
+            
+            th {
+                background: #222;
+                color: white;
+                text-align: left;
+                padding: 7px 8px;
+                position: sticky;
+                top: 49px;
+                z-index: 20;
+            }
+            
+            td {
+                padding: 6px 8px;
+                border-bottom: 1px solid #ddd;
+            }
 
             @media (max-width: 1200px) {
                 table {
