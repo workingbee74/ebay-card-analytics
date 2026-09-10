@@ -12027,22 +12027,22 @@ def deals_dashboard_v2():
         
                     total_cost = float(price) + shipping_cost
         
-                live_rows.append((
-                    title,
-                    card_data.get("player_name"),
-                    card_data.get("card_year"),
-                    card_data.get("product"),
-                    card_data.get("parallel"),
-                    card_data.get("card_number"),
-                    card_data.get("grade_company"),
-                    card_data.get("grade"),
-                    float(price),
-                    shipping_cost,
-                    item.get("itemWebUrl"),
-                    0,
-                    total_cost,
-                    0
-            ))
+                    live_rows.append((
+                        title,
+                        card_data.get("player_name"),
+                        card_data.get("card_year"),
+                        card_data.get("product"),
+                        card_data.get("parallel"),
+                        card_data.get("card_number"),
+                        card_data.get("grade_company"),
+                        card_data.get("grade"),
+                        float(price),
+                        shipping_cost,
+                        item.get("itemWebUrl"),
+                        0,
+                        total_cost,
+                        0
+                    ))
 
         rows = live_rows
         print(
