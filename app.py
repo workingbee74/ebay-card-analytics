@@ -11930,22 +11930,66 @@ def deals_dashboard_v2():
             # When a player is searched, query the full collected active eBay universe
             # instead of only the pre-qualified "deal" rows.
             if player_filter:
-                cur.execute("""
-                    SELECT COUNT(*)
-                    FROM ebay_listings
-                    WHERE player_name ILIKE %s OR title ILIKE %s;
-                    """, (
-                    f"%{player_filter}%",
-                    f"%{player_filter}%"
-                ))
+                live_query = f"Bowman {player_filter}"
                 
-                debug_count = cur.fetchone()[0]
                 
-                print(
-                    "PLAYER_SEARCH_DEBUG",
-                    player_filter,
-                    "total=", debug_count
+                credentials = f"{EBAY_CLIENT_ID}:{EBAY_CLIENT_SECRET}"
+                
+                    encoded_credentials = base64.b64encode(
+                        credentials.encode("utf-8")
+                ).decode("utf-8")
+                
+                token_response = requests.post(
+                    "https://api.ebay.com/identity/v1/oauth2/token",
+                    headers={
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "Authorization": f"Basic {encoded_credentials}",
+                    },
+                    data={
+                        "grant_type": "client_credentials",
+                        "scope": "https://api.ebay.com/oauth/api_scope",
+                    },
+                    timeout=20,
+                    )
+                
+                if token_response.status_code != 200:
+                    return jsonify({
+                        "success": False,
+                        "error": token_response.text
+                }), token_response.status_code
+                
+                access_token = token_response.json()["access_token"]
+                
+                search_response = requests.get(
+                "https://api.ebay.com/buy/browse/v1/item_summary/search",
+                headers={
+                "Authorization": f"Bearer {access_token}",
+                "X-EBAY-C-MARKETPLACE-ID": "EBAY_US",
+                },
+                params={
+                "q": live_query,
+                "limit": 100,
+                "filter": "buyingOptions:{FIXED_PRICE}",
+                },
+                timeout=20,
                 )
+                
+                if search_response.status_code != 200:
+                    return jsonify({
+                        "success": False,
+                        "error": search_response.text
+                }), search_response.status_code
+
+
+                live_data = search_response.json()
+                live_items = live_data.get("itemSummaries", [])
+        
+                print(
+                    "BOWMAN_DEALS_LIVE_SEARCH",
+                    live_query,
+                    "results=", len(live_items)
+                )
+                
                 cur.execute("""
                     SELECT
                         e.title,
