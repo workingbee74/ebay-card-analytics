@@ -11914,8 +11914,12 @@ def deals_dashboard_v2():
                        AND e.asking_price IS NOT NULL
                        AND (e.item_end_date IS NULL OR e.item_end_date > CURRENT_TIMESTAMP)
                        AND (e.asking_price + COALESCE(e.shipping_cost, 0)) < c.median_price
+                       AND (%s = '' OR e.player_name ILIKE %s)
                   LIMIT 50;
-            """)
+            """, (
+                player_filter,
+                f"%{player_filter}%"
+            ))
 
             rows = cur.fetchall()
             
