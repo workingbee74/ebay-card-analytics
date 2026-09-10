@@ -12253,9 +12253,20 @@ def deals_dashboard_v2():
                         1
                     )
 
-                    deal["deal_quality_score"] = round(
+                    base_quality = (
                         min(max(deal["discount_percentage"], 0), 60) * 0.60
-                        + min(deal["cardhedge_match_score"] or 0, 100) * 0.40,
+                        + min(deal["cardhedge_match_score"] or 0, 100) * 0.40
+                    )
+                    
+                    sales_30d_for_score = deal["cardhedge_sales_30day"] or 0
+                    
+                    liquidity_factor = min(
+                        1.0,
+                        0.4 + (min(sales_30d_for_score, 6) * 0.1)
+                    )
+                    
+                    deal["deal_quality_score"] = round(
+                        base_quality * liquidity_factor,
                         1
                     )
 
