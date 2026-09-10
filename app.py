@@ -11996,6 +11996,15 @@ def deals_dashboard_v2():
                 for item in live_items:
                     title = item.get("title", "")
                     card_data = parse_card_title(title)
+
+                    print(
+                        "LIVE_PARSE_DEBUG",
+                        title,
+                        "player=", card_data.get("player_name"),
+                        "card=", card_data.get("card_number"),
+                        "parallel=", card_data.get("parallel"),
+                        "single=", card_data.get("is_single_card"),
+                    )
         
                     if not card_data.get("is_single_card"):
                         continue
