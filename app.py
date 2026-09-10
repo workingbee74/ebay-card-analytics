@@ -12168,48 +12168,44 @@ def deals_dashboard_v2():
 
 
     # Test CardHedge enrichment on only the top screened deal
-    top_deal = next(
-        (
-            deal for deal in deals
-            if deal.get("player_name")
-            and deal.get("card_year")
-            and deal.get("product")
-            and deal.get("card_number")
-        ),
-        None
-    )
-
-    if top_deal:
-
+    cardhedge_candidates = [
+        candidate for candidate in deals
+        if candidate.get("player_name")
+        and candidate.get("card_year")
+        and candidate.get("product")
+        and candidate.get("card_number")
+    ]
+    
+    for deal in cardhedge_candidates[:5]:
         evidence = {
-            "player_name": top_deal["player_name"],
-            "card_year": top_deal["card_year"],
-            "product": top_deal["product"],
-            "card_number": top_deal["card_number"],
-            "parallel": top_deal["parallel"],
+            "player_name": deal["player_name"],
+            "card_year": deal["card_year"],
+            "product": deal["product"],
+            "card_number": deal["card_number"],
+            "parallel": deal["parallel"],
             "serial_numbered_to": None,
         }
 
         cardhedge_result = resolve_with_cardhedge(evidence)
 
-        top_deal["cardhedge_id"] = None
-        top_deal["cardhedge_market_value"] = None
-        top_deal["cardhedge_match_score"] = None
-        top_deal["cardhedge_sales_7day"] = None
-        top_deal["cardhedge_sales_30day"] = None
+        deal["cardhedge_id"] = None
+        deal["cardhedge_market_value"] = None
+        deal["cardhedge_match_score"] = None
+        deal["cardhedge_sales_7day"] = None
+        deal["cardhedge_sales_30day"] = None
 
         best = cardhedge_result.get("best")
 
         if best:
             card = best["card"]
 
-            top_deal["cardhedge_id"] = card.get("card_id")
-            top_deal["cardhedge_match_score"] = best.get("score")
-            top_deal["cardhedge_sales_7day"] = card.get("7 Day Sales")
-            top_deal["cardhedge_sales_30day"] = card.get("30 Day Sales")
+            deal["cardhedge_id"] = card.get("card_id")
+            deal["cardhedge_match_score"] = best.get("score")
+            deal["cardhedge_sales_7day"] = card.get("7 Day Sales")
+            deal["cardhedge_sales_30day"] = card.get("30 Day Sales")
 
-            grade_company = top_deal.get("grade_company")
-            grade = top_deal.get("grade")
+            grade_company = deal.get("grade_company")
+            grade = deal.get("grade")
 
             if grade_company and grade is not None:
                 try:
@@ -12232,7 +12228,7 @@ def deals_dashboard_v2():
                     == target_grade.casefold()
                 ):
                     try:
-                        top_deal["cardhedge_market_value"] = float(
+                        deal["cardhedge_market_value"] = float(
                             price_record["price"]
                         )
                     except (TypeError, ValueError, KeyError):
@@ -12240,37 +12236,37 @@ def deals_dashboard_v2():
                     break
 
 
-            if top_deal["cardhedge_market_value"] is not None:
-                cardhedge_value = top_deal["cardhedge_market_value"]
-                total_cost = top_deal["total_cost"]
+            if deal["cardhedge_market_value"] is not None:
+                cardhedge_value = deal["cardhedge_market_value"]
+                total_cost = deal["total_cost"]
     
-                top_deal["median_price"] = cardhedge_value
+                deal["median_price"] = cardhedge_value
     
                 if cardhedge_value > 0:
-                    top_deal["discount_percentage"] = round(
+                    deal["discount_percentage"] = round(
                         ((cardhedge_value - total_cost) / cardhedge_value) * 100,
                         1
                     )
     
                 if total_cost <= cardhedge_value * 0.80:
-                    top_deal["deal_rating"] = "BUY"
+                    deal["deal_rating"] = "BUY"
                 elif total_cost <= cardhedge_value:
-                    top_deal["deal_rating"] = "FAIR"
+                    deal["deal_rating"] = "FAIR"
                 else:
-                    top_deal["deal_rating"] = "PASS"
+                    deal["deal_rating"] = "PASS"
 
         print(
-            "CARDHEDGE_TOP_DEAL",
-            top_deal["player_name"],
-            top_deal["card_year"],
-            top_deal["card_number"],
-            top_deal["parallel"],
-            "cost=", top_deal["total_cost"],
-            "cardhedge_id=", top_deal["cardhedge_id"],
-            "match=", top_deal["cardhedge_match_score"],
-            "market=", top_deal["cardhedge_market_value"],
-            "sales7=", top_deal["cardhedge_sales_7day"],
-            "sales30=", top_deal["cardhedge_sales_30day"],
+            "CARDHEDGE_deal",
+            deal["player_name"],
+            deal["card_year"],
+            deal["card_number"],
+            deal["parallel"],
+            "cost=", deal["total_cost"],
+            "cardhedge_id=", deal["cardhedge_id"],
+            "match=", deal["cardhedge_match_score"],
+            "market=", deal["cardhedge_market_value"],
+            "sales7=", deal["cardhedge_sales_7day"],
+            "sales30=", deal["cardhedge_sales_30day"],
         )
 
     
