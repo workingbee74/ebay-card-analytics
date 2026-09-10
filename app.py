@@ -11999,6 +11999,9 @@ def deals_dashboard_v2():
                 for item in live_items:
                     title = item.get("title", "")
                     card_data = parse_card_title(title)
+                    if player_filter.lower() in title.lower():
+                        card_data["player_name"] = player_filter.title()
+
 
                     print(
                         "LIVE_PARSE_DEBUG",
