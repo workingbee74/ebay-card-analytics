@@ -11935,7 +11935,7 @@ def deals_dashboard_v2():
                 
                 credentials = f"{EBAY_CLIENT_ID}:{EBAY_CLIENT_SECRET}"
                 
-                    encoded_credentials = base64.b64encode(
+                encoded_credentials = base64.b64encode(
                         credentials.encode("utf-8")
                 ).decode("utf-8")
                 
