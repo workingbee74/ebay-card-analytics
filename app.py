@@ -12206,6 +12206,8 @@ def deals_dashboard_v2():
             deal["cardhedge_match_score"] = best.get("score")
             deal["cardhedge_sales_7day"] = card.get("7 Day Sales")
             deal["cardhedge_sales_30day"] = card.get("30 Day Sales")
+            deal["comparable_count"] = deal["cardhedge_sales_30day"] or 0
+            deal["confidence_score"] = deal["cardhedge_match_score"] or 0
 
             grade_company = deal.get("grade_company")
             grade = deal.get("grade")
