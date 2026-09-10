@@ -12485,8 +12485,8 @@ def deals_dashboard_v2():
                 <th>Total Cost</th>
                 <th>Median</th>
                 <th>Discount</th>
-                <th>Comps</th>
-                <th>Confidence</th>
+                <th>30d Sales</th>
+                <th>CH Match</th>
                 <th>Quality</th>
                 <th>Rating</th>
                 <th>eBay</th>
