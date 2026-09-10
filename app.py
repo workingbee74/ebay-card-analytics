@@ -11931,6 +11931,9 @@ def deals_dashboard_v2():
             # instead of only the pre-qualified "deal" rows.
             if player_filter:
                 live_query = f"Bowman {player_filter}"
+
+                if parallel_filter:
+                    live_query += f" {parallel_filter}"
                 
                 
                 credentials = f"{EBAY_CLIENT_ID}:{EBAY_CLIENT_SECRET}"
