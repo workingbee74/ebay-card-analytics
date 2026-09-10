@@ -11927,6 +11927,22 @@ def deals_dashboard_v2():
             # instead of only the pre-qualified "deal" rows.
             if player_filter:
                 cur.execute("""
+                    SELECT COUNT(*)
+                    FROM ebay_listings
+                    WHERE player_name ILIKE %s OR title ILIKE %s;
+                    """, (
+                    f"%{player_filter}%",
+                    f"%{player_filter}%"
+                ))
+                
+                debug_count = cur.fetchone()[0]
+                
+                print(
+                    "PLAYER_SEARCH_DEBUG",
+                    player_filter,
+                    "total=", debug_count
+                )
+                cur.execute("""
                     SELECT
                         e.title,
                         e.player_name,
