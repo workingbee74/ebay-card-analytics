@@ -12278,7 +12278,10 @@ def deals_dashboard_v2():
             "sales7=", deal["cardhedge_sales_7day"],
             "sales30=", deal["cardhedge_sales_30day"],
         )
-
+        deals.sort(
+            key=lambda x: x["deal_quality_score"],
+            reverse=True
+        )
     
     html = f"""
     <html>
