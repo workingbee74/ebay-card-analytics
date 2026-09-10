@@ -12250,6 +12250,13 @@ def deals_dashboard_v2():
                         ((cardhedge_value - total_cost) / cardhedge_value) * 100,
                         1
                     )
+
+                    deal["deal_quality_score"] = round(
+                        min(max(deal["discount_percentage"], 0), 60) * 0.60
+                        + min(deal["cardhedge_match_score"] or 0, 100) * 0.40,
+                        1
+                    )
+
     
                 if total_cost <= cardhedge_value * 0.80:
                     deal["deal_rating"] = "BUY"
