@@ -12102,10 +12102,13 @@ def deals_dashboard_v2():
     for deal in deals
 ))
     if player_filter:
-        deals = [
-            deal for deal in deals
-            if player_filter.lower() in deal["player_name"].lower()
-        ]
+    deals = [
+        deal for deal in deals
+        if (
+            player_filter.lower() in (deal.get("player_name") or "").lower()
+            or player_filter.lower() in (deal.get("title") or "").lower()
+        )
+    ]
     if rating_filter:
         deals = [
             deal for deal in deals
