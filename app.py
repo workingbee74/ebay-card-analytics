@@ -11922,6 +11922,44 @@ def deals_dashboard_v2():
             ))
 
             rows = cur.fetchall()
+
+            # When a player is searched, query the full collected active eBay universe
+            # instead of only the pre-qualified "deal" rows.
+            if player_filter:
+                cur.execute("""
+                    SELECT
+                        e.title,
+                        e.player_name,
+                        e.card_year,
+                        e.product,
+                        e.parallel,
+                        e.card_number,
+                        e.grade_company,
+                        e.grade,
+                        e.asking_price,
+                        e.shipping_cost,
+                        e.listing_url,
+                        0::bigint AS listing_count,
+                        (e.asking_price + COALESCE(e.shipping_cost, 0)) AS median_price,
+                        0::numeric AS discount_percentage
+                    FROM ebay_listings e
+                    WHERE
+                        e.is_single_card = TRUE
+                        AND e.asking_price IS NOT NULL
+                        AND (e.item_end_date IS NULL OR e.item_end_date > CURRENT_TIMESTAMP)
+                        AND (
+                            e.player_name ILIKE %s
+                            OR e.title ILIKE %s
+                        )
+                    ORDER BY e.date_collected DESC
+                    LIMIT 250;
+                """, (
+                    f"%{player_filter}%",
+                    f"%{player_filter}%"
+                ))
+    
+                rows = cur.fetchall()
+
             
     import statistics
 
