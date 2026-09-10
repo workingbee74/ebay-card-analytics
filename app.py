@@ -12260,7 +12260,12 @@ def deals_dashboard_v2():
                     )
 
     
-                if total_cost <= cardhedge_value * 0.80:
+                match_score = deal["cardhedge_match_score"] or 0
+                sales_30d = deal["cardhedge_sales_30day"] or 0
+                
+                if match_score < 85 or sales_30d < 3:
+                    deal["deal_rating"] = "REVIEW"
+                elif total_cost <= cardhedge_value * 0.80:
                     deal["deal_rating"] = "BUY"
                 elif total_cost <= cardhedge_value:
                     deal["deal_rating"] = "FAIR"
