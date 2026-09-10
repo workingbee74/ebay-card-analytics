@@ -16,6 +16,13 @@ from cardsightai import CardSightAI
 from bs4 import BeautifulSoup
 
 app = Flask(__name__)
+
+@app.route("/routes-test")
+def routes_test():
+    return "\n".join(
+        sorted(str(rule) for rule in app.url_map.iter_rules())
+    ), 200, {"Content-Type": "text/plain"}
+
 VERIFICATION_TOKEN = os.environ.get("EBAY_VERIFICATION_TOKEN", "")
 ENDPOINT_URL = os.environ.get("EBAY_ENDPOINT_URL", "")
 EBAY_CLIENT_ID = os.environ.get("EBAY_CLIENT_ID", "")
