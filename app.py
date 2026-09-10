@@ -12050,11 +12050,13 @@ def deals_dashboard_v2():
                         0
                     ))
 
-            rows = live_rows
-            print(
-                "BOWMAN_DEALS_LIVE_ROWS",
-                "results=", len(live_rows)
-            )
+    if player_filter:
+        rows = live_rows
+        print(
+            "BOWMAN_DEALS_LIVE_ROWS",
+            "results=", len(live_rows)
+        )
+
     import statistics
 
     deals = []
