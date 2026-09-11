@@ -2817,7 +2817,8 @@ def calculate_auction_decision(
     cardhedge_value=None,
     cardhedge_match_score=None,
     cardhedge_sales_30day=None,
-    serial_numbered_to=None
+    serial_numbered_to=None,
+    hours_remaining=None
 ):
     exact_prices = sorted(
         price for price in exact_prices
