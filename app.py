@@ -4349,9 +4349,11 @@ def auction_value_refresh():
                         float(current_bid)
                         if current_bid is not None
                         else None,
-                        valuation_basis
+                        valuation_basis,
+                        cardhedge_value=cardhedge_value,
+                        cardhedge_match_score=cardhedge_match_score,
+                        cardhedge_sales_30day=cardhedge_sales_30day
                     )
-
                     print(
                         "AUCTION_VALUE_DEBUG:",
                         player_name,
