@@ -2778,7 +2778,10 @@ def get_sold_price_tiers(
 def calculate_auction_decision(
     exact_prices,
     current_bid=None,
-    valuation_basis="EXACT_CARD"
+    valuation_basis="EXACT_CARD",
+    cardhedge_value=None,
+    cardhedge_match_score=None,
+    cardhedge_sales_30day=None
 ):
     exact_prices = sorted(
         price for price in exact_prices
@@ -2850,6 +2853,23 @@ def calculate_auction_decision(
 
     recommended_max_bid = conservative_value
 
+
+    # Prefer CardHedge when the identity match and market evidence are strong.
+    if (
+        cardhedge_value is not None
+        and (cardhedge_match_score or 0) >= 85
+        and (cardhedge_sales_30day or 0) >= 3
+    ):
+        conservative_value = round(
+            float(cardhedge_value) * 0.80,
+            2
+        )
+
+        recommended_max_bid = conservative_value
+        evidence_confidence = int(cardhedge_match_score)
+        exact_comp_count = int(cardhedge_sales_30day)
+        valuation_basis = "CARDHEDGE"
+    
     action = "NO BID"
     bid_headroom = None
 
@@ -4241,6 +4261,56 @@ def auction_value_refresh():
                         valuation_basis = "LIMITED_EXACT"
                     else:
                         valuation_basis = "NO_COMPS"
+
+
+                    cardhedge_value = None
+                    cardhedge_match_score = None
+                    cardhedge_sales_30day = None
+
+                    if (
+                        identity_verified
+                        and player_name
+                        and card_year
+                        and product
+                        and card_number
+                    ):
+                        ch_result = resolve_with_cardhedge({
+                            "player_name": player_name,
+                            "card_year": card_year,
+                            "product": product,
+                            "card_number": card_number,
+                            "parallel": parallel,
+                            "serial_numbered_to": None,
+                        })
+
+                        ch_best = ch_result.get("best")
+
+                        if ch_best:
+                            ch_card = ch_best["card"]
+
+                            cardhedge_match_score = ch_best.get("score")
+                            cardhedge_sales_30day = ch_card.get("30 Day Sales")
+
+                            for price_record in ch_card.get("prices", []):
+                                if str(price_record.get("grade", "")).casefold() == "raw":
+                                    try:
+                                        cardhedge_value = float(
+                                            price_record["price"]
+                                        )
+                                    except (TypeError, ValueError, KeyError):
+                                        pass
+                                    break
+
+                        print(
+                            "AUCTION_CARDHEDGE_DEBUG",
+                            player_name,
+                            card_number,
+                            parallel,
+                            "market=", cardhedge_value,
+                            "match=", cardhedge_match_score,
+                            "sales30=", cardhedge_sales_30day,
+                            flush=True,
+                        )
                     
                     decision = calculate_auction_decision(
                         decision_prices,
