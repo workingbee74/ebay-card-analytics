@@ -734,7 +734,28 @@ def resolve_with_cardhedge(evidence):
         # Correct year
         if card_year and str(card_year) in candidate_description:
             score += 15
-
+        
+        # Reject clearly wrong Bowman product families
+        if product:
+            product_text = product.casefold()
+        
+            if product_text == "bowman chrome":
+                if (
+                    "bowman chrome" not in candidate_set
+                    or "mega box" in candidate_set
+                    or "draft" in candidate_set
+                    or "sterling" in candidate_set
+                ):
+                    continue
+        
+            elif product_text == "bowman draft":
+                if "bowman draft" not in candidate_set:
+                    continue
+        
+            elif product_text == "bowman sterling":
+                if "bowman sterling" not in candidate_set:
+                    continue
+        
         # Product/set family
         if product and product.casefold() in candidate_set:
             score += 10
