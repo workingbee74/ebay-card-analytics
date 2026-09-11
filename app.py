@@ -4453,6 +4453,7 @@ def auction_value_refresh():
                         "AUCTION_DECISION_DEBUG:",
                         player_name,
                         card_number,
+                        "serial=", serial_numbered_to,
                         "current_bid=", current_bid,
                         "ch_value=", cardhedge_value,
                         "max_bid=", decision.get("recommended_max_bid"),
