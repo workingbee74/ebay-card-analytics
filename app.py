@@ -5230,7 +5230,7 @@ def auction_watch():
                 text-align: left;
                 padding: 5px 6px;
                 position: sticky;
-                top: 49px;
+                top: 0;
                 z-index: 20;
             }
             
