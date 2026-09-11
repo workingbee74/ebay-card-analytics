@@ -5142,6 +5142,7 @@ def auction_watch():
                     WHERE ah.ebay_item_id = auction_watch_current.ebay_item_id
                     AND COALESCE(ah.autograph, FALSE) = TRUE
                     AND ah.serial_numbered_to IS NOT NULL
+                    AND LOWER(COALESCE(ah.parallel, '')) LIKE '%refractor%'
                 )
                 ORDER BY
                     urgency_score DESC,
