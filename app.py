@@ -3657,9 +3657,9 @@ def ebay_auction_snapshot():
     access_token = token_response.json()["access_token"]
 
     queries = [
-        "Bowman Chrome baseball card",
-        "Bowman Draft baseball card",
-        "Bowman Sterling baseball card",
+    "1st Bowman Chrome auto refractor",
+    "1st Bowman Draft auto refractor",
+    "1st Bowman Sterling auto refractor",
     ]
 
     items = []
