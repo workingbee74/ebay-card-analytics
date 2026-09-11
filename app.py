@@ -4354,6 +4354,20 @@ def auction_value_refresh():
                         cardhedge_match_score=cardhedge_match_score,
                         cardhedge_sales_30day=cardhedge_sales_30day
                     )
+
+                    print(
+                        "AUCTION_DECISION_DEBUG:",
+                        player_name,
+                        card_number,
+                        "current_bid=", current_bid,
+                        "ch_value=", cardhedge_value,
+                        "max_bid=", decision.get("recommended_max_bid"),
+                        "headroom=", decision.get("bid_headroom"),
+                        "action=", decision.get("action"),
+                        "basis=", decision.get("valuation_basis"),
+                        flush=True,
+                    )
+                    
                     print(
                         "AUCTION_VALUE_DEBUG:",
                         player_name,
