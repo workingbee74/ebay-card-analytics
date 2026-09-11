@@ -4337,6 +4337,7 @@ def auction_value_refresh():
                             player_name,
                             card_number,
                             parallel,
+                            "grade=", target_grade,
                             "market=", cardhedge_value,
                             "match=", cardhedge_match_score,
                             "sales30=", cardhedge_sales_30day,
