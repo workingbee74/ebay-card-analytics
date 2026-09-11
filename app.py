@@ -5246,7 +5246,7 @@ def auction_watch():
                 text-align: left;
                 padding: 7px 8px;
                 position: sticky;
-                top: 49px;
+                top: 0;
                 z-index: 20;
             }
             
