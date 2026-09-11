@@ -3714,7 +3714,21 @@ def ebay_auction_snapshot():
 
                 if card_data["manufacturer"] != "Bowman":
                     continue
-
+                # Auction Watch hard filter:
+                # only 1st Bowman + autograph + serial-numbered + refractor
+                if not card_data.get("first_bowman"):
+                    continue
+                
+                if not card_data.get("autograph"):
+                    continue
+                
+                if card_data.get("serial_numbered_to") is None:
+                    continue
+                
+                parallel_text = str(card_data.get("parallel") or "").lower()
+                
+                if "refractor" not in parallel_text:
+                    continue
                 # Match player using the same players table logic
                 cur.execute("""
                     SELECT player_name
@@ -5122,6 +5136,11 @@ def auction_watch():
                     valued_at
                 FROM auction_watch_current
                 WHERE item_end_date > CURRENT_TIMESTAMP
+                AND EXISTS (
+                    SELECT 1
+                    FROM auction_history ah
+                    WHERE ah.ebay_item_id = auction_watch_current.ebay_item_id
+                )
                 ORDER BY
                     urgency_score DESC,
                     momentum_score DESC,
