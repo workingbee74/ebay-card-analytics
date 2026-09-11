@@ -722,8 +722,15 @@ def resolve_with_cardhedge(evidence):
             == candidate_player
         ):
             score += 35
-
-        # Card number is extremely strong evidence
+        
+        # For valuation, reject candidates with the wrong card number
+        if (
+            normalized_card_number
+            and candidate_number != normalized_card_number
+        ):
+            continue
+        
+            # Card number is extremely strong evidence
         if (
             normalized_card_number
             and normalized_card_number
