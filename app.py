@@ -4291,6 +4291,13 @@ def auction_value_refresh():
                             "serial_numbered_to": None,
                         })
 
+                        print(
+                            "AUCTION_CH_RESULT:",
+                            player_name,
+                            ch_result,
+                            flush=True,
+                        )
+                        
                         ch_best = ch_result.get("best")
 
                         if ch_best:
