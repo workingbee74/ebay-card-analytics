@@ -2896,8 +2896,32 @@ def calculate_auction_decision(
         and (cardhedge_match_score or 0) >= 85
         and (cardhedge_sales_30day or 0) >= 3
     ):
+
+    try:
+        serial_limit = int(serial_numbered_to)
+    except (TypeError, ValueError):
+        serial_limit = None
+    
+    scarcity_factor = 0.80
+    
+    if serial_limit is not None:
+        if serial_limit <= 5:
+            scarcity_factor = 0.92
+        elif serial_limit <= 10:
+            scarcity_factor = 0.90
+        elif serial_limit <= 25:
+            scarcity_factor = 0.87
+        elif serial_limit <= 50:
+            scarcity_factor = 0.84
+        elif serial_limit <= 99:
+            scarcity_factor = 0.82
+        elif serial_limit <= 250:
+            scarcity_factor = 0.80
+        else:
+            scarcity_factor = 0.77
+        
         conservative_value = round(
-            float(cardhedge_value) * 0.80,
+            float(cardhedge_value) * scarcity_factor,
             2
         )
 
