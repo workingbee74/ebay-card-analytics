@@ -4021,6 +4021,8 @@ def auction_value_refresh():
                         product,
                         card_number,
                         parallel,
+                        serial_numbered_to,
+                        autograph,
                         grade_company,
                         grade,
                         current_bid,
@@ -4038,6 +4040,8 @@ def auction_value_refresh():
                     product,
                     card_number,
                     parallel,
+                    serial_numbered_to,
+                    autograph,
                     grade_company,
                     grade,
                     current_bid,
@@ -4069,18 +4073,32 @@ def auction_value_refresh():
 
                 (
                     ebay_item_id,
-                    player_name,
-                    card_year,
-                    product,
-                    card_number,
-                    parallel,
-                    grade_company,
-                    grade,
-                    current_bid,
-                    bid_count,
-                    item_end_date
+                        player_name,
+                        card_year,
+                        product,
+                        card_number,
+                        parallel,
+                        serial_numbered_to,
+                        autograph,
+                        grade_company,
+                        grade,
+                        current_bid,
+                        bid_count,
+                        item_end_date
                 ) = auction
+                autograph_flag = (
+                    autograph is True
+                    or str(autograph).strip().lower()
+                    in {"true", "t", "1", "yes", "auto", "autograph"}
+                )
 
+                parallel_text = str(parallel or "").strip().lower()
+
+                bid_eligible = (
+                    autograph_flag
+                    and serial_numbered_to is not None
+                    and "refractor" in parallel_text
+                )
                 try:
                     # Verify player identity against authoritative players table
                     cur.execute("""
@@ -4389,7 +4407,13 @@ def auction_value_refresh():
                     # Never issue an automated BID on uncertain identity
                     if not identity_verified:
                         decision["action"] = "REVIEW"
-                    
+
+                    # Hard buying rule: only numbered autographed refractors
+                    if not bid_eligible:
+                        decision["action"] = "NO BID"
+                        decision["recommended_max_bid"] = None
+                        decision["bid_headroom"] = None
+                        decision["valuation_basis"] = "NOT_BID_ELIGIBLE"
                     cur.execute("""
                         INSERT INTO auction_valuations (
                             ebay_item_id,
