@@ -2816,7 +2816,8 @@ def calculate_auction_decision(
     valuation_basis="EXACT_CARD",
     cardhedge_value=None,
     cardhedge_match_score=None,
-    cardhedge_sales_30day=None
+    cardhedge_sales_30day=None,
+    serial_numbered_to=None
 ):
     exact_prices = sorted(
         price for price in exact_prices
@@ -4420,7 +4421,8 @@ def auction_value_refresh():
                         valuation_basis,
                         cardhedge_value=cardhedge_value,
                         cardhedge_match_score=cardhedge_match_score,
-                        cardhedge_sales_30day=cardhedge_sales_30day
+                        cardhedge_sales_30day=cardhedge_sales_30day,
+                        serial_numbered_to=serial_numbered_to
                     )
 
                     print(
