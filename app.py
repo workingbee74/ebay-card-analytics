@@ -2897,12 +2897,12 @@ def calculate_auction_decision(
         and (cardhedge_sales_30day or 0) >= 3
     ):
 
-    try:
-        serial_limit = int(serial_numbered_to)
-    except (TypeError, ValueError):
-        serial_limit = None
-    
-    scarcity_factor = 0.80
+        try:
+            serial_limit = int(serial_numbered_to)
+        except (TypeError, ValueError):
+            serial_limit = None
+        
+        scarcity_factor = 0.80
     
     if serial_limit is not None:
         if serial_limit <= 5:
