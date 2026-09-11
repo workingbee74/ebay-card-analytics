@@ -4306,8 +4306,24 @@ def auction_value_refresh():
                             cardhedge_match_score = ch_best.get("score")
                             cardhedge_sales_30day = ch_card.get("30 Day Sales")
 
+
+                            if grade_company and grade is not None:
+                                try:
+                                    grade_num = float(grade)
+                                    grade_text = (
+                                        str(int(grade_num))
+                                        if grade_num.is_integer()
+                                        else str(grade_num)
+                                    )
+                                except (TypeError, ValueError):
+                                    grade_text = str(grade).strip()
+
+                                target_grade = f"{grade_company} {grade_text}"
+                            else:
+                                target_grade = "Raw"
+                            
                             for price_record in ch_card.get("prices", []):
-                                if str(price_record.get("grade", "")).casefold() == "raw":
+                               if str(price_record.get("grade", "")).casefold() == target_grade.casefold():
                                     try:
                                         cardhedge_value = float(
                                             price_record["price"]
