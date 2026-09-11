@@ -5141,6 +5141,7 @@ def auction_watch():
                     FROM auction_history ah
                     WHERE ah.ebay_item_id = auction_watch_current.ebay_item_id
                     AND COALESCE(ah.autograph, FALSE) = TRUE
+                    AND ah.serial_numbered_to IS NOT NULL
                 )
                 ORDER BY
                     urgency_score DESC,
