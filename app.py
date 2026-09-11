@@ -4306,6 +4306,7 @@ def auction_value_refresh():
                     cardhedge_value = None
                     cardhedge_match_score = None
                     cardhedge_sales_30day = None
+                    target_grade = "Raw"
 
                     if (
                         identity_verified
