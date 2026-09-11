@@ -728,6 +728,13 @@ def resolve_with_cardhedge(evidence):
             normalized_card_number
             and candidate_number != normalized_card_number
         ):
+            print(
+                "CARDHEDGE_REJECT_NUMBER:",
+                player_name,
+                "wanted=", normalized_card_number,
+                "candidate=", candidate_number,
+                flush=True,
+            )
             continue
         
             # Card number is extremely strong evidence
