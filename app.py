@@ -4262,7 +4262,15 @@ def auction_value_refresh():
                     else:
                         valuation_basis = "NO_COMPS"
 
-
+                    print(
+                        "AUCTION_CH_PATH:",
+                        player_name,
+                        identity_verified,
+                        card_year,
+                        product,
+                        card_number,
+                        flush=True,
+                    )
                     cardhedge_value = None
                     cardhedge_match_score = None
                     cardhedge_sales_30day = None
