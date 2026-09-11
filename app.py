@@ -5143,6 +5143,8 @@ def auction_watch():
                     AND COALESCE(ah.autograph, FALSE) = TRUE
                     AND ah.serial_numbered_to IS NOT NULL
                     AND LOWER(COALESCE(ah.parallel, '')) LIKE '%refractor%'
+                    AND LOWER(COALESCE(ah.title, '')) LIKE '%bowman%'
+                    AND LOWER(COALESCE(ah.title, '')) ~ '(^|[^a-z0-9])1st([^a-z0-9]|$)'
                 )
                 ORDER BY
                     urgency_score DESC,
