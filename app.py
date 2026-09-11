@@ -2904,7 +2904,7 @@ def calculate_auction_decision(
         "recommended_max_bid": recommended_max_bid,
         "bid_headroom": bid_headroom,
         "action": action,
-        "valuation_basis": "ACTIVE_ASKING_PRICES",
+        "valuation_basis": valuation_basis,
     }
 
 @app.route("/ebay/exact-comp-search", methods=["GET"])
