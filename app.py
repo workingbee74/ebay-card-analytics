@@ -1004,6 +1004,13 @@ def get_inventory_market_data(
     card = cards[0]
     prices = card.get("prices", [])
 
+
+    print(
+        "CARDHEDGE_PRICE_RECORDS:",
+        prices,
+        flush=True,
+    )
+    
     if grade_company and grade is not None:
         grade_value = float(grade)
 
