@@ -3137,6 +3137,7 @@ def ebay_exact_comp_search():
         card_number_match = (
             not card_number
             or card_data["card_number"] == card_number.upper()
+            or card_number.upper() in title.upper()
         )
 
         # V1 assumes Base when no requested parallel is supplied
