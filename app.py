@@ -2995,6 +2995,8 @@ def ebay_exact_comp_search():
     card_number = request.args.get("card_number", "").strip()
     product = request.args.get("product", "").strip()
     current_bid_raw = request.args.get("current_bid", "").strip()
+    grade_company = request.args.get("grade_company", "").strip()
+    grade = request.args.get("grade", "").strip()
 
     try:
         current_bid = float(current_bid_raw) if current_bid_raw else None
@@ -3020,6 +3022,12 @@ def ebay_exact_comp_search():
 
     if card_number:
         query_parts.append(card_number)
+
+    if grade_company:
+        query_parts.append(grade_company)
+
+    if grade:
+        query_parts.append(grade)    
 
     query = " ".join(query_parts)
 
