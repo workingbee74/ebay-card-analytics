@@ -3141,11 +3141,19 @@ def ebay_exact_comp_search():
             or card_data["product"] == product
         )
 
-        card_number_match = (
-            not card_number
-            or card_data["card_number"] == card_number.upper()
-            or card_number.upper() in title.upper()
+        normalized_requested_number = (
+            card_number.upper().replace("-", "")
+            if card_number
+            else ""
         )
+
+normalized_title = title.upper().replace("-", "")
+
+card_number_match = (
+    not card_number
+    or card_data["card_number"] == card_number.upper()
+    or normalized_requested_number in normalized_title
+)
 
         # V1 assumes Base when no requested parallel is supplied
         parallel_match = (
