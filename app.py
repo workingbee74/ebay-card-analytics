@@ -3162,12 +3162,19 @@ def ebay_exact_comp_search():
             and not card_data["autograph"]
         )
 
+
+        special_product_match = (
+            "MEGA BOX" not in title.upper()
+            and "SAPPHIRE" not in title.upper()
+        )
+        
         if (
             player_match
             and year_match
             and product_match
             and card_number_match
             and parallel_match
+            and special_product_match
         ):
             match_level = "EXACT"
 
