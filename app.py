@@ -7,6 +7,7 @@ import zipfile
 import re
 import html
 import time
+import statistics
 import json
 import unicodedata
 import base64
