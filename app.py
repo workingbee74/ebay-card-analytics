@@ -3247,7 +3247,21 @@ def ebay_exact_comp_search():
         if result["match_level"] == "EXACT"
         and result["total_price"] is not None
     )
+    if experienced_seller_prices:
+        experienced_seller_median = statistics.median(
+            experienced_seller_prices
+        )
+    else:
+        experienced_seller_median = None
 
+    experienced_seller_prices = sorted(
+        result["total_price"]
+        for result in results
+        if result["match_level"] == "EXACT"
+        and result["total_price"] is not None
+        and (result.get("seller_feedback_score") or 0) >= 1000
+    )
+    
     decision = calculate_auction_decision(
         exact_prices,
         current_bid
@@ -3270,6 +3284,8 @@ def ebay_exact_comp_search():
         "results_returned": len(results),
         "exact_comp_count": exact_comp_count,
         "exact_active_median": exact_active_median,
+        "experienced_seller_comp_count": len(experienced_seller_prices),
+        "experienced_seller_median": experienced_seller_median,
         "exact_lowest_ask": exact_lowest_ask,
         "exact_highest_ask": exact_highest_ask,
         "valuation_basis": "ACTIVE_ASKING_PRICES",
