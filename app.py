@@ -803,7 +803,14 @@ def resolve_with_cardhedge(evidence):
     
     if best and best["score"] < minimum_resolver_score:
         best = None
-        
+
+    if best:
+        print(
+            "CARDHEDGE_BEST_CARD:",
+            best["card"],
+            flush=True,
+        )
+    
     return {
         "success": True,
         "query": query,
