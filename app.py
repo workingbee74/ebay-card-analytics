@@ -691,6 +691,12 @@ def resolve_with_cardhedge(evidence):
 
     candidates = data.get("cards", [])
 
+    print(
+        "CARDHEDGE_RAW_CANDIDATES:",
+        candidates[:3],
+        flush=True,
+    )
+    
     scored_candidates = []
 
     for card in candidates:
