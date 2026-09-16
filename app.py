@@ -3196,6 +3196,12 @@ def ebay_exact_comp_search():
             "price": price,
             "shipping_cost": shipping_cost,
             "total_price": total_price,
+            "seller_feedback_score": (
+                item.get("seller", {}).get("feedbackScore")
+            ),
+            "seller_feedback_percentage": (
+                item.get("seller", {}).get("feedbackPercentage")
+            ),
             "url": item.get("itemWebUrl"),
         })
 
