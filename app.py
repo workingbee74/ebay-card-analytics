@@ -3146,7 +3146,11 @@ def ebay_exact_comp_search():
         )
 
         # V1 assumes Base when no requested parallel is supplied
-        parallel_match = card_data["parallel"] is None
+        parallel_match = (
+            card_data["parallel"] is None
+            and card_data["serial_numbered_to"] is None
+            and not card_data["autograph"]
+        )
 
         if (
             player_match
