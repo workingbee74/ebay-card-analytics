@@ -3101,7 +3101,9 @@ def ebay_exact_comp_search():
                 cur.execute("""
                     SELECT player_name
                     FROM players
-                    WHERE %s ILIKE '%%' || player_name || '%%'
+                    WHERE
+                        REPLACE(%s, '.', '') ILIKE
+                        '%%' || REPLACE(player_name, '.', '') || '%%'
                     ORDER BY LENGTH(player_name) DESC
                     LIMIT 1
                 """, (title,))
