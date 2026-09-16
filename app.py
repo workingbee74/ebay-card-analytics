@@ -3240,27 +3240,28 @@ def ebay_exact_comp_search():
             "url": item.get("itemWebUrl"),
         })
 
-    # Aggregate EXACT comparable listings
-    exact_prices = sorted(
-        result["total_price"]
-        for result in results
-        if result["match_level"] == "EXACT"
-        and result["total_price"] is not None
-    )
-    if experienced_seller_prices:
-        experienced_seller_median = statistics.median(
-            experienced_seller_prices
+        # Aggregate EXACT comparable listings
+        exact_prices = sorted(
+            result["total_price"]
+            for result in results
+            if result["match_level"] == "EXACT"
+            and result["total_price"] is not None
         )
-    else:
-        experienced_seller_median = None
-
-    experienced_seller_prices = sorted(
-        result["total_price"]
-        for result in results
-        if result["match_level"] == "EXACT"
-        and result["total_price"] is not None
-        and (result.get("seller_feedback_score") or 0) >= 1000
-    )
+        
+        experienced_seller_prices = sorted(
+            result["total_price"]
+            for result in results
+            if result["match_level"] == "EXACT"
+            and result["total_price"] is not None
+            and (result.get("seller_feedback_score") or 0) >= 1000
+        )
+        
+        if experienced_seller_prices:
+            experienced_seller_median = statistics.median(
+                experienced_seller_prices
+            )
+        else:
+            experienced_seller_median = None
     
     decision = calculate_auction_decision(
         exact_prices,
