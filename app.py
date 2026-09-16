@@ -8403,6 +8403,27 @@ def inventory_action_detail(inventory_id):
         card[8],
         card[9]
     )
+
+    psa9_market = get_inventory_market_data(
+        cardhedge_id,
+        "PSA",
+        9
+    )
+    
+    psa10_market = get_inventory_market_data(
+        cardhedge_id,
+        "PSA",
+        10
+    )
+    
+    print(
+        "RAW_TO_GRADE_TEST:",
+        "cardhedge_id=", cardhedge_id,
+        "PSA9=", psa9_market["market_value"],
+        "PSA10=", psa10_market["market_value"],
+        flush=True,
+    )
+
     
     trend_data = get_cardhedge_price_trend(
         cardhedge_id,
