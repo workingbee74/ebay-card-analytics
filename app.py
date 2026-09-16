@@ -3263,6 +3263,15 @@ def ebay_exact_comp_search():
             )
         else:
             experienced_seller_median = None
+
+
+        grade_market_confidence = "HIGH"
+        
+        if len(experienced_seller_prices) < 5:
+            grade_market_confidence = "MEDIUM"
+        
+        if len(experienced_seller_prices) < 2:
+            grade_market_confidence = "LOW"
     
     decision = calculate_auction_decision(
         exact_prices,
@@ -3288,6 +3297,7 @@ def ebay_exact_comp_search():
         "exact_active_median": exact_active_median,
         "experienced_seller_comp_count": len(experienced_seller_prices),
         "experienced_seller_median": experienced_seller_median,
+        "grade_market_confidence": grade_market_confidence,
         "exact_lowest_ask": exact_lowest_ask,
         "exact_highest_ask": exact_highest_ask,
         "valuation_basis": "ACTIVE_ASKING_PRICES",
