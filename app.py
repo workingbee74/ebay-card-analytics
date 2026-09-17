@@ -9320,6 +9320,159 @@ def get_ebay_grade_market(
     except (TypeError, ValueError):
         pass
 
+
+    for item in data.get("itemSummaries", []):
+        title = item.get("title", "")
+        card_data = parse_card_title(title)
+    
+        # Authoritative player matching
+        with psycopg.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT player_name
+                    FROM players
+                    WHERE
+                        REPLACE(%s, '.', '') ILIKE
+                        '%%' || REPLACE(player_name, '.', '') || '%%'
+                    ORDER BY LENGTH(player_name) DESC
+                    LIMIT 1
+                """, (title,))
+    
+                player_row = cur.fetchone()
+    
+                if player_row:
+                    card_data["player_name"] = player_row[0]
+    
+        def normalize_text(value):
+            if not value:
+                return ""
+    
+            return "".join(
+                c
+                for c in unicodedata.normalize("NFKD", value)
+                if not unicodedata.combining(c)
+            ).casefold().strip()
+    
+        player_match = (
+            normalize_text(card_data["player_name"])
+            == normalize_text(player)
+        )
+    
+        year_match = (
+            requested_year is None
+            or card_data["card_year"] == requested_year
+        )
+    
+        product_match = (
+            not product
+            or card_data["product"] == product
+        )
+    
+        normalized_requested_number = (
+            card_number.upper().replace("-", "")
+            if card_number
+            else ""
+        )
+    
+        normalized_title = title.upper().replace("-", "")
+    
+        card_number_match = (
+            not card_number
+            or card_data["card_number"] == card_number.upper()
+            or normalized_requested_number in normalized_title
+        )
+    
+        parallel_match = (
+            card_data["parallel"] is None
+            and card_data["serial_numbered_to"] is None
+            and not card_data["autograph"]
+        )
+    
+        special_product_match = (
+            "MEGA BOX" not in title.upper()
+            and "SAPPHIRE" not in title.upper()
+        )
+    
+        grade_company_match = (
+            not grade_company
+            or normalize_text(card_data["grade_company"])
+            == normalize_text(grade_company)
+        )
+    
+        listing_grade = card_data["grade"]
+    
+        try:
+            listing_grade = (
+                float(listing_grade)
+                if listing_grade is not None
+                else None
+            )
+        except (TypeError, ValueError):
+            listing_grade = None
+    
+        grade_match = (
+            requested_grade is None
+            or listing_grade == requested_grade
+        )
+    
+        if (
+            player_match
+            and year_match
+            and product_match
+            and card_number_match
+            and parallel_match
+            and special_product_match
+            and grade_company_match
+            and grade_match
+        ):
+            match_level = "EXACT"
+    
+        elif (
+            player_match
+            and year_match
+            and product_match
+            and card_number_match
+        ):
+            match_level = "RELATED"
+    
+        else:
+            match_level = "REJECT"
+    
+        price = item.get("price", {}).get("value")
+    
+        shipping_options = item.get("shippingOptions", [])
+        shipping_cost = None
+    
+        if shipping_options:
+            shipping_cost = (
+                shipping_options[0]
+                .get("shippingCost", {})
+                .get("value")
+            )
+    
+        total_price = None
+    
+        if price is not None:
+            total_price = float(price)
+    
+            if shipping_cost is not None:
+                total_price += float(shipping_cost)
+    
+        results.append({
+            "match_level": match_level,
+            "title": title,
+            "total_price": total_price,
+            "seller_feedback_score": (
+                item.get("seller", {}).get("feedbackScore")
+            ),
+            "seller_feedback_percentage": (
+                item.get("seller", {}).get("feedbackPercentage")
+            ),
+            "grade_company": card_data["grade_company"],
+            "grade": card_data["grade"],
+            "url": item.get("itemWebUrl"),
+        })
+
     return {
         "success": True,
         "query": query,
