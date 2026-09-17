@@ -9473,6 +9473,13 @@ def get_ebay_grade_market(
             "url": item.get("itemWebUrl"),
         })
 
+
+    exact_results = [
+        result
+        for result in results
+        if result["match_level"] == "EXACT"
+    ]
+
     return {
         "success": True,
         "query": query,
@@ -9480,8 +9487,9 @@ def get_ebay_grade_market(
         "items_returned": len(
             data.get("itemSummaries", [])
         ),
+        "exact_comp_count": len(exact_results),
+        "exact_results": exact_results,
     }
-
 
 @app.route("/ebay/grade-market-test", methods=["GET"])
 def ebay_grade_market_test():
