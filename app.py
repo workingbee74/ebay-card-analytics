@@ -273,6 +273,8 @@ def parse_card_title(title):
     product = None
     if "BOWMAN STERLING" in title_upper:
         product = "Bowman Sterling"
+    elif "BOWMAN PLATINUM" in title_upper:
+        product = "Bowman Platinum"
     elif (
         "BOWMAN DRAFT CHROME" in title_upper
         or "BOWMAN CHROME DRAFT" in title_upper
