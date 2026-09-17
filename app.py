@@ -9576,6 +9576,8 @@ def analyze_raw_to_grade_market(
         year=year,
         product=product,
         card_number=card_number,
+        parallel=parallel,
+        serial_numbered_to=serial_numbered_to,
         grade_company="PSA",
         grade=9,
     )
@@ -9585,6 +9587,8 @@ def analyze_raw_to_grade_market(
         year=year,
         product=product,
         card_number=card_number,
+        parallel=parallel,
+        serial_numbered_to=serial_numbered_to,
         grade_company="PSA",
         grade=10,
     )
