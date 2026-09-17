@@ -4079,6 +4079,121 @@ def ebay_auction_snapshot():
     }), 200
 
 
+@app.route("/inventory/enrich-cardhedge-batch", methods=["POST"])
+def enrich_cardhedge_batch():
+    batch_size = 10
+
+    resolved = 0
+    review = 0
+    insufficient_identity = 0
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+
+            cur.execute("""
+                SELECT
+                    id,
+                    player_name,
+                    card_year,
+                    product,
+                    card_number,
+                    parallel,
+                    serial_numbered_to
+                FROM inventory_cards_cdp_stage
+                WHERE enrichment_status = 'PENDING'
+                ORDER BY id
+                LIMIT %s
+            """, (batch_size,))
+
+            rows = cur.fetchall()
+
+            for row in rows:
+                (
+                    inventory_id,
+                    player_name,
+                    card_year,
+                    product,
+                    card_number,
+                    parallel,
+                    serial_numbered_to,
+                ) = row
+
+                if not (
+                    player_name
+                    and card_year
+                    and product
+                    and card_number
+                ):
+                    cur.execute("""
+                        UPDATE inventory_cards_cdp_stage
+                        SET
+                            enrichment_status = 'REVIEW',
+                            last_enriched_at = NOW()
+                        WHERE id = %s
+                    """, (inventory_id,))
+
+                    insufficient_identity += 1
+                    continue
+
+                evidence = {
+                    "player_name": player_name,
+                    "card_year": card_year,
+                    "product": product,
+                    "card_number": card_number,
+                    "parallel": parallel,
+                    "serial_numbered_to": serial_numbered_to,
+                }
+
+                try:
+                    result = resolve_with_cardhedge(evidence)
+                    best = result.get("best")
+
+                    if best and best["card"].get("card_id"):
+                        cur.execute("""
+                            UPDATE inventory_cards_cdp_stage
+                            SET
+                                external_card_id = %s,
+                                enrichment_status = 'RESOLVED',
+                                last_enriched_at = NOW()
+                            WHERE id = %s
+                        """, (
+                            str(best["card"]["card_id"]),
+                            inventory_id,
+                        ))
+
+                        resolved += 1
+
+                    else:
+                        cur.execute("""
+                            UPDATE inventory_cards_cdp_stage
+                            SET
+                                enrichment_status = 'REVIEW',
+                                last_enriched_at = NOW()
+                            WHERE id = %s
+                        """, (inventory_id,))
+
+                        review += 1
+
+                except Exception as exc:
+                    print(
+                        "CARDHEDGE_BATCH_ERROR:",
+                        inventory_id,
+                        str(exc),
+                        flush=True,
+                    )
+
+                    # Leave PENDING so a temporary API failure can retry later.
+
+        conn.commit()
+
+    return jsonify({
+        "success": True,
+        "processed": len(rows),
+        "resolved": resolved,
+        "review": review,
+        "insufficient_identity": insufficient_identity,
+    }), 200
+
 @app.route("/inventory/enrich", methods=["GET"])
 def inventory_enrich():
 
