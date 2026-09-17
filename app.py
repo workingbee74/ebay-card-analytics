@@ -9659,6 +9659,56 @@ def analyze_raw_to_grade_market(
         "cardhedge_psa10": cardhedge_psa10,
     }
 
+@app.route("/inventory/raw-to-grade/<int:inventory_id>", methods=["GET"])
+def inventory_raw_to_grade(inventory_id):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT
+                    player_name,
+                    card_year,
+                    product,
+                    card_number,
+                    parallel,
+                    serial_numbered_to,
+                    purchase_price,
+                    external_card_id
+                FROM inventory_cards
+                WHERE id = %s
+            """, (inventory_id,))
+
+            row = cur.fetchone()
+
+    if not row:
+        return jsonify({
+            "success": False,
+            "error": "Inventory card not found",
+        }), 404
+
+    (
+        player,
+        year,
+        product,
+        card_number,
+        parallel,
+        serial_numbered_to,
+        raw_price,
+        cardhedge_id,
+    ) = row
+
+    result = analyze_raw_to_grade_market(
+        player=player,
+        year=year,
+        product=product,
+        card_number=card_number,
+        raw_price=raw_price,
+        parallel=parallel,
+        serial_numbered_to=serial_numbered_to,
+        cardhedge_id=cardhedge_id,
+    )
+
+    return jsonify(result), 200
+
 @app.route("/raw-to-grade-market-test", methods=["GET"])
 def raw_to_grade_market_test():
     player = request.args.get("player", "").strip()
