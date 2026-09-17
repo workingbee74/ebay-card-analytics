@@ -1446,7 +1446,8 @@ def buying_opportunities():
             
                     <tbody>
             
-                        <tr>
+                        <tr class="opportunity-row"
+                            onclick="toggleOpportunity('detail-charlie')">
                             <td>
                                 <div class="player-name">Charlie Condon</div>
                                 <div class="card-detail">
@@ -1544,7 +1545,20 @@ def buying_opportunities():
             </div>
 
         </main>
-
+        <script>
+            function toggleOpportunity(detailId) {
+                const detail = document.getElementById(detailId);
+        
+                if (!detail) {
+                    return;
+                }
+        
+                detail.style.display =
+                    detail.style.display === "table-row"
+                        ? "none"
+                        : "table-row";
+            }
+        </script>
     </body>
     </html>
     """
