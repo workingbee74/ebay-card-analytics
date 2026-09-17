@@ -1149,9 +1149,78 @@ def buying_opportunities():
                     attractive grading optionality
                 </div>
 
-                <div class="placeholder">
-                    Opportunity dashboard will appear here.
+                <div class="summary-row">
+                <div class="summary-card">
+                    <div class="summary-number">27</div>
+                    <div class="summary-label">Opportunities</div>
                 </div>
+            
+                <div class="summary-card">
+                    <div class="summary-number positive">18</div>
+                    <div class="summary-label">Buy to Inspect</div>
+                </div>
+            
+                <div class="summary-card">
+                    <div class="summary-number">5</div>
+                    <div class="summary-label">Raw Flip</div>
+                </div>
+            
+                <div class="summary-card">
+                    <div class="summary-number">4</div>
+                    <div class="summary-label">Watch</div>
+                </div>
+            </div>
+            
+            <div class="filter-bar">
+            
+                <select>
+                    <option>All Player Tiers</option>
+                    <option>Established</option>
+                    <option>Emerging</option>
+                    <option>Catalyst</option>
+                </select>
+            
+                <select>
+                    <option>Bowman 1st + Rookie</option>
+                    <option>Bowman 1st</option>
+                    <option>Rookie</option>
+                </select>
+            
+                <select>
+                    <option>All Card Types</option>
+                    <option>Chrome</option>
+                    <option>Autograph</option>
+                    <option>Numbered</option>
+                </select>
+            
+                <select>
+                    <option>All Serial Tiers</option>
+                    <option>/25 or rarer</option>
+                    <option>/50 or rarer</option>
+                    <option>/99 or rarer</option>
+                    <option>/199 or rarer</option>
+                </select>
+            
+                <select>
+                    <option>All Risk Levels</option>
+                    <option>Low Risk</option>
+                    <option>Medium Risk</option>
+                </select>
+            
+                <label class="actionable-toggle">
+                    <input type="checkbox" checked>
+                    Actionable only
+                </label>
+            
+                <button class="refresh-btn">
+                    Refresh
+                </button>
+            
+            </div>
+            
+            <div class="opportunity-area">
+                Opportunity table
+            </div>
 
             </div>
 
