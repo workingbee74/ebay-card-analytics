@@ -9596,10 +9596,45 @@ def analyze_raw_to_grade_market(
     psa9_value = psa9_market.get(
         "experienced_seller_median"
     )
-
+    
     psa10_value = psa10_market.get(
         "experienced_seller_median"
     )
+    
+    psa9_source = "EBAY"
+    psa10_source = "EBAY"
+    
+    cardhedge_psa9 = None
+    cardhedge_psa10 = None
+    
+    if cardhedge_id:
+        cardhedge_psa9 = get_inventory_market_data(
+            cardhedge_id,
+            "PSA",
+            9
+        )
+    
+        cardhedge_psa10 = get_inventory_market_data(
+            cardhedge_id,
+            "PSA",
+            10
+        )
+    
+        if (
+            psa9_value is None
+            and cardhedge_psa9.get("market_value") is not None
+            and (cardhedge_psa9.get("sales_30day") or 0) >= 3
+        ):
+            psa9_value = cardhedge_psa9["market_value"]
+            psa9_source = "CARDHEDGE"
+    
+        if (
+            psa10_value is None
+            and cardhedge_psa10.get("market_value") is not None
+            and (cardhedge_psa10.get("sales_30day") or 0) >= 3
+        ):
+            psa10_value = cardhedge_psa10["market_value"]
+            psa10_source = "CARDHEDGE"
 
     calculation = calculate_raw_to_grade(
         raw_price=raw_price,
@@ -9616,6 +9651,12 @@ def analyze_raw_to_grade_market(
         "psa9_market": psa9_market,
         "psa10_market": psa10_market,
         "calculation": calculation,
+        "psa9_value_used": psa9_value,
+        "psa9_source": psa9_source,
+        "psa10_value_used": psa10_value,
+        "psa10_source": psa10_source,
+        "cardhedge_psa9": cardhedge_psa9,
+        "cardhedge_psa10": cardhedge_psa10,
     }
 
 @app.route("/raw-to-grade-market-test", methods=["GET"])
