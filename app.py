@@ -1294,7 +1294,118 @@ def buying_opportunities():
             </div>
             
             <div class="opportunity-area">
-                Opportunity table
+
+                <table class="opportunity-table">
+                    <thead>
+                        <tr>
+                            <th>Player / Card</th>
+                            <th>Listing</th>
+                            <th>Ask</th>
+                            <th>Raw Floor</th>
+                            <th>Best Routes</th>
+                            <th>Grading Edge</th>
+                            <th>Runway</th>
+                            <th>Risk</th>
+                            <th>Action</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+            
+                    <tbody>
+            
+                        <tr>
+                            <td>
+                                <div class="player-name">Charlie Condon</div>
+                                <div class="card-detail">
+                                    2024 Bowman Chrome 1st · Aqua Refractor /199
+                                </div>
+                            </td>
+            
+                            <td>
+                                <div class="listing-source">eBay</div>
+                                <div class="card-detail">2d 4h</div>
+                            </td>
+            
+                            <td class="money">$68</td>
+                            <td class="money">$64</td>
+            
+                            <td>
+                                <span class="route primary">SGC 10</span>
+                                <span class="route">PSA 10</span>
+                                <div class="route-profit">+$98 / +$122</div>
+                            </td>
+            
+                            <td>
+                                <div class="edge">2.9×</div>
+                                <div class="card-detail">$186 PSA 10</div>
+                            </td>
+            
+                            <td>
+                                <div class="runway">6–9 mo</div>
+                                <span class="status healthy">Healthy</span>
+                            </td>
+            
+                            <td>
+                                <span class="status low">Low</span>
+                            </td>
+            
+                            <td>
+                                <button class="action-btn">
+                                    BUY → INSPECT
+                                </button>
+                            </td>
+            
+                            <td class="expand">›</td>
+                        </tr>
+            
+                        <tr>
+                            <td>
+                                <div class="player-name">Jac Caglianone</div>
+                                <div class="card-detail">
+                                    Bowman 1st Chrome · Refractor
+                                </div>
+                            </td>
+            
+                            <td>
+                                <div class="listing-source">eBay</div>
+                                <div class="card-detail">1d 7h</div>
+                            </td>
+            
+                            <td class="money">$92</td>
+                            <td class="money">$86</td>
+            
+                            <td>
+                                <span class="route primary">SGC 10</span>
+                                <span class="route">PSA 10</span>
+                                <div class="route-profit">+$71 / +$83</div>
+                            </td>
+            
+                            <td>
+                                <div class="edge">2.3×</div>
+                                <div class="card-detail">$142 PSA 10</div>
+                            </td>
+            
+                            <td>
+                                <div class="runway">5–8 wk</div>
+                                <span class="status moderate">Moderate</span>
+                            </td>
+            
+                            <td>
+                                <span class="status low">Low</span>
+                            </td>
+            
+                            <td>
+                                <button class="action-btn">
+                                    BUY → INSPECT
+                                </button>
+                            </td>
+            
+                            <td class="expand">›</td>
+                        </tr>
+            
+                    </tbody>
+                </table>
+            
             </div>
 
             </div>
