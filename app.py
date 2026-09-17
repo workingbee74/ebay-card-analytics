@@ -9515,6 +9515,13 @@ def get_ebay_grade_market(
             "grade_company": card_data["grade_company"],
             "grade": card_data["grade"],
             "url": item.get("itemWebUrl"),
+            "parsed_player": card_data["player_name"],
+            "parsed_year": card_data["card_year"],
+            "parsed_product": card_data["product"],
+            "parsed_card_number": card_data["card_number"],
+            "parsed_parallel": card_data["parallel"],
+            "parsed_serial_to": card_data["serial_numbered_to"],
+            "parsed_autograph": card_data["autograph"],
         })
 
 
