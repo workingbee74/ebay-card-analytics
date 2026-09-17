@@ -9265,6 +9265,8 @@ def get_ebay_grade_market(
     year,
     product,
     card_number,
+    parallel=None,
+    serial_numbered_to=None,
     grade_company="PSA",
     grade=10
 ):
