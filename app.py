@@ -1350,6 +1350,47 @@ def buying_opportunities():
                 font-size: 11px;
                 color: #748295;
             }
+
+
+            .evidence-grid {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 10px;
+                margin-top: 10px;
+            }
+            
+            .evidence-card {
+                padding: 12px 14px;
+                background: white;
+                border: 1px solid #dce3ea;
+                border-radius: 8px;
+            }
+            
+            .evidence-title {
+                margin-bottom: 9px;
+                font-size: 11px;
+                font-weight: 700;
+                color: #172033;
+            }
+            
+            .evidence-line {
+                margin-top: 6px;
+                font-size: 11px;
+                color: #536274;
+            }
+            
+            .metric-line {
+                display: flex;
+                justify-content: space-between;
+                gap: 12px;
+                margin-top: 7px;
+                font-size: 11px;
+                color: #536274;
+            }
+            
+            .metric-line strong {
+                color: #172033;
+            }
             
         </style>
     </head>
@@ -1610,6 +1651,75 @@ def buying_opportunities():
                                         </div>
                         
                                     </div>
+
+                                    <div class="evidence-grid">
+                                    
+                                        <div class="evidence-card">
+                                            <div class="evidence-title">
+                                                Why This Player
+                                            </div>
+                                    
+                                            <div class="evidence-line">
+                                                ✓ Target player
+                                            </div>
+                                            <div class="evidence-line">
+                                                ✓ Prospect trajectory improving
+                                            </div>
+                                            <div class="evidence-line">
+                                                ✓ Collector demand strengthening
+                                            </div>
+                                            <div class="evidence-line">
+                                                ✓ Catalyst still ahead
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="evidence-card">
+                                            <div class="evidence-title">
+                                                Why This Card
+                                            </div>
+                                    
+                                            <div class="evidence-line">
+                                                ✓ 1st Bowman Chrome
+                                            </div>
+                                            <div class="evidence-line">
+                                                ✓ Desirable /199 parallel
+                                            </div>
+                                            <div class="evidence-line">
+                                                ✓ Strong PSA / SGC premium
+                                            </div>
+                                            <div class="evidence-line">
+                                                ✓ Raw downside protected
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="evidence-card">
+                                            <div class="evidence-title">
+                                                Market Evidence
+                                            </div>
+                                    
+                                            <div class="metric-line">
+                                                <span>Raw market</span>
+                                                <strong>HIGH</strong>
+                                            </div>
+                                    
+                                            <div class="metric-line">
+                                                <span>SGC 10</span>
+                                                <strong>MEDIUM</strong>
+                                            </div>
+                                    
+                                            <div class="metric-line">
+                                                <span>PSA 10</span>
+                                                <strong>HIGH</strong>
+                                            </div>
+                                    
+                                            <div class="metric-line">
+                                                <span>Opportunity runway</span>
+                                                <strong>6–9 mo</strong>
+                                            </div>
+                                        </div>
+                                    
+                                    </div>
+
                         
                                 </div>
                         
