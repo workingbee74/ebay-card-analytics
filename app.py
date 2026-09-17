@@ -946,7 +946,220 @@ def resolve_with_cardhedge(evidence):
             evidence["autograph"] = False
 
     return evidence
+@app.route("/buying-opportunities", methods=["GET"])
+def buying_opportunities():
+    return """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1.0">
 
+        <title>Buying Opportunities | Bowman Analytics</title>
+
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                min-height: 100%;
+                font-family:
+                    Inter,
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    Arial,
+                    sans-serif;
+                background: #f5f7fa;
+                color: #172033;
+            }
+
+            body {
+                display: flex;
+            }
+
+            .sidebar {
+                width: 210px;
+                min-height: 100vh;
+                background: #17283b;
+                color: white;
+                padding: 18px 12px;
+                position: fixed;
+                left: 0;
+                top: 0;
+            }
+
+            .brand {
+                padding: 0 8px 20px;
+            }
+
+            .brand-title {
+                font-size: 18px;
+                font-weight: 700;
+            }
+
+            .brand-subtitle {
+                margin-top: 3px;
+                font-size: 11px;
+                color: #aebdca;
+            }
+
+            .nav-item {
+                display: block;
+                padding: 10px 12px;
+                margin-bottom: 4px;
+                border-radius: 7px;
+                color: #dbe5ee;
+                text-decoration: none;
+                font-size: 13px;
+            }
+
+            .nav-item:hover {
+                background: #223a52;
+            }
+
+            .nav-item.active {
+                background: #245c98;
+                color: white;
+                font-weight: 600;
+            }
+
+            .main {
+                margin-left: 210px;
+                width: calc(100% - 210px);
+                min-height: 100vh;
+            }
+
+            .topbar {
+                height: 52px;
+                background: white;
+                border-bottom: 1px solid #dce3ea;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 22px;
+            }
+
+            .topbar-title {
+                font-size: 13px;
+                font-weight: 600;
+                color: #596779;
+            }
+
+            .topbar-status {
+                font-size: 12px;
+                color: #788596;
+            }
+
+            .content {
+                padding: 20px 22px;
+            }
+
+            .page-title {
+                margin: 0;
+                font-size: 27px;
+                line-height: 1.1;
+            }
+
+            .page-subtitle {
+                margin-top: 5px;
+                font-size: 14px;
+                color: #647386;
+            }
+
+            .placeholder {
+                margin-top: 20px;
+                min-height: 400px;
+                background: white;
+                border: 1px solid #dce3ea;
+                border-radius: 9px;
+                padding: 20px;
+                color: #778596;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-title">
+                    Bowman Analytics
+                </div>
+                <div class="brand-subtitle">
+                    Find. Analyze. Profit.
+                </div>
+            </div>
+
+            <a class="nav-item active"
+               href="/buying-opportunities">
+                Buying Opportunities
+            </a>
+
+            <a class="nav-item" href="#">
+                Target Players
+            </a>
+
+            <a class="nav-item" href="/auction-watch">
+                Auction Watch
+            </a>
+
+            <a class="nav-item" href="#">
+                Make Offer
+            </a>
+
+            <a class="nav-item" href="/inventory">
+                Inventory
+            </a>
+
+            <a class="nav-item" href="#">
+                Grading
+            </a>
+
+            <a class="nav-item" href="#">
+                Market Data
+            </a>
+        </aside>
+
+        <main class="main">
+
+            <div class="topbar">
+                <div class="topbar-title">
+                    Acquisition Intelligence
+                </div>
+
+                <div class="topbar-status">
+                    Buying Opportunities
+                </div>
+            </div>
+
+            <div class="content">
+
+                <h1 class="page-title">
+                    Buying Opportunities
+                </h1>
+
+                <div class="page-subtitle">
+                    Raw Bowman 1sts and rookies with
+                    attractive grading optionality
+                </div>
+
+                <div class="placeholder">
+                    Opportunity dashboard will appear here.
+                </div>
+
+            </div>
+
+        </main>
+
+    </body>
+    </html>
+    """
 
 @app.route("/deal-cardhedge-test", methods=["GET"])
 def deal_cardhedge_test():
