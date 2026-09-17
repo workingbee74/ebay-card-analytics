@@ -3037,10 +3037,14 @@ def calculate_raw_to_grade(
 
     lower_value = float(lower_value)
 
+    psa10_net = psa10_value * (1 - selling_fee_rate)
+    psa9_net = psa9_value * (1 - selling_fee_rate)
+    lower_net = lower_value * (1 - selling_fee_rate)
+    
     expected_graded_value = (
-        psa10_probability * psa10_value
-        + psa9_probability * psa9_value
-        + lower_probability * lower_value
+        psa10_probability * psa10_net
+        + psa9_probability * psa9_net
+        + lower_probability * lower_net
     )
 
     total_basis = raw_price + grading_cost
@@ -3066,6 +3070,9 @@ def calculate_raw_to_grade(
         "psa9_value": round(psa9_value, 2),
         "psa10_value": round(psa10_value, 2),
         "grading_cost": round(grading_cost, 2),
+        "selling_fee_rate": selling_fee_rate,
+        "psa9_net": round(psa9_net, 2),
+        "psa10_net": round(psa10_net, 2),
         "psa10_probability": psa10_probability,
         "psa9_probability": psa9_probability,
         "lower_probability": lower_probability,
