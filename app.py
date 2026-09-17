@@ -9673,6 +9673,60 @@ def ebay_grade_market_test():
 
     return jsonify(result), 200
 
+
+@app.route("/inventory/cardhedge-grade-test/<int:inventory_id>", methods=["GET"])
+def inventory_cardhedge_grade_test(inventory_id):
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT
+                    player_name,
+                    external_card_id
+                FROM inventory_cards
+                WHERE id = %s
+            """, (inventory_id,))
+
+            row = cur.fetchone()
+
+    if not row:
+        return jsonify({
+            "success": False,
+            "error": "Inventory card not found",
+        }), 404
+
+    player_name, cardhedge_id = row
+
+    if not cardhedge_id:
+        return jsonify({
+            "success": False,
+            "error": "No Card Hedge ID",
+        }), 400
+
+    raw_market = get_inventory_market_data(
+        cardhedge_id
+    )
+
+    psa9_market = get_inventory_market_data(
+        cardhedge_id,
+        "PSA",
+        9
+    )
+
+    psa10_market = get_inventory_market_data(
+        cardhedge_id,
+        "PSA",
+        10
+    )
+
+    return jsonify({
+        "success": True,
+        "inventory_id": inventory_id,
+        "player_name": player_name,
+        "raw": raw_market,
+        "psa9": psa9_market,
+        "psa10": psa10_market,
+    }), 200
+
 def get_ebay_app_access_token():
     credentials = f"{EBAY_CLIENT_ID}:{EBAY_CLIENT_SECRET}"
 
