@@ -9480,6 +9480,39 @@ def get_ebay_grade_market(
         if result["match_level"] == "EXACT"
     ]
 
+
+    exact_prices = sorted(
+        result["total_price"]
+        for result in exact_results
+        if result["total_price"] is not None
+    )
+    
+    experienced_seller_prices = sorted(
+        result["total_price"]
+        for result in exact_results
+        if result["total_price"] is not None
+        and (result.get("seller_feedback_score") or 0) >= 1000
+    )
+    
+    exact_active_median = (
+        statistics.median(exact_prices)
+        if exact_prices
+        else None
+    )
+    
+    experienced_seller_median = (
+        statistics.median(experienced_seller_prices)
+        if experienced_seller_prices
+        else None
+    )
+    
+    if len(experienced_seller_prices) >= 5:
+        grade_market_confidence = "HIGH"
+    elif len(experienced_seller_prices) >= 2:
+        grade_market_confidence = "MEDIUM"
+    else:
+        grade_market_confidence = "LOW"
+
     return {
         "success": True,
         "query": query,
@@ -9489,6 +9522,12 @@ def get_ebay_grade_market(
         ),
         "exact_comp_count": len(exact_results),
         "exact_results": exact_results,
+        "exact_active_median": exact_active_median,
+        "experienced_seller_comp_count": len(
+            experienced_seller_prices
+        ),
+        "experienced_seller_median": experienced_seller_median,
+        "grade_market_confidence": grade_market_confidence,
     }
 
 @app.route("/ebay/grade-market-test", methods=["GET"])
