@@ -9566,7 +9566,10 @@ def analyze_raw_to_grade_market(
     year,
     product,
     card_number,
-    raw_price
+    raw_price,
+    parallel=None,
+    serial_numbered_to=None,
+    cardhedge_id=None
 ):
     psa9_market = get_ebay_grade_market(
         player=player,
