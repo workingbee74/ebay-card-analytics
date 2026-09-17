@@ -9312,6 +9312,33 @@ def get_ebay_grade_market(
         ),
     }
 
+
+@app.route("/ebay/grade-market-test", methods=["GET"])
+def ebay_grade_market_test():
+    player = request.args.get("player", "").strip()
+    year = request.args.get("year", "").strip()
+    product = request.args.get("product", "").strip()
+    card_number = request.args.get(
+        "card_number",
+        ""
+    ).strip()
+    grade_company = request.args.get(
+        "grade_company",
+        "PSA"
+    ).strip()
+    grade = request.args.get("grade", "10").strip()
+
+    result = get_ebay_grade_market(
+        player=player,
+        year=year,
+        product=product,
+        card_number=card_number,
+        grade_company=grade_company,
+        grade=grade,
+    )
+
+    return jsonify(result), 200
+
 def get_ebay_app_access_token():
     credentials = f"{EBAY_CLIENT_ID}:{EBAY_CLIENT_SECRET}"
 
