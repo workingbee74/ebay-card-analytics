@@ -9391,11 +9391,30 @@ def get_ebay_grade_market(
             or normalized_requested_number in normalized_title
         )
     
-        parallel_match = (
-            card_data["parallel"] is None
-            and card_data["serial_numbered_to"] is None
-            and not card_data["autograph"]
-        )
+        if parallel:
+            parallel_match = (
+                normalize_text(card_data["parallel"])
+                == normalize_text(parallel)
+            )
+        else:
+            parallel_match = (
+                card_data["parallel"] is None
+            )
+        
+        if serial_numbered_to:
+            try:
+                requested_serial_to = int(serial_numbered_to)
+            except (TypeError, ValueError):
+                requested_serial_to = None
+        
+            serial_match = (
+                card_data["serial_numbered_to"]
+                == requested_serial_to
+            )
+        else:
+            serial_match = (
+                card_data["serial_numbered_to"] is None
+            )
     
         special_product_match = (
             "MEGA BOX" not in title.upper()
@@ -9430,6 +9449,7 @@ def get_ebay_grade_market(
             and product_match
             and card_number_match
             and parallel_match
+            and serial_match
             and special_product_match
             and grade_company_match
             and grade_match
