@@ -9580,6 +9580,29 @@ def get_ebay_grade_market(
             "calculation": calculation,
         }
 
+@app.route("/raw-to-grade-market-test", methods=["GET"])
+def raw_to_grade_market_test():
+    player = request.args.get("player", "").strip()
+    year = request.args.get("year", "").strip()
+    product = request.args.get("product", "").strip()
+    card_number = request.args.get(
+        "card_number",
+        ""
+    ).strip()
+    raw_price = request.args.get(
+        "raw_price",
+        type=float
+    )
+
+    result = analyze_raw_to_grade_market(
+        player=player,
+        year=year,
+        product=product,
+        card_number=card_number,
+        raw_price=raw_price,
+    )
+
+    return jsonify(result), 200
 
 @app.route("/ebay/grade-market-test", methods=["GET"])
 def ebay_grade_market_test():
