@@ -9102,6 +9102,32 @@ def ebay_oauth_callback():
 
     return f"eBay authorization code received successfully."
 
+def get_ebay_app_access_token():
+    credentials = f"{EBAY_CLIENT_ID}:{EBAY_CLIENT_SECRET}"
+
+    encoded_credentials = base64.b64encode(
+        credentials.encode("utf-8")
+    ).decode("utf-8")
+
+    response = requests.post(
+        "https://api.ebay.com/identity/v1/oauth2/token",
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": f"Basic {encoded_credentials}",
+        },
+        data={
+            "grant_type": "client_credentials",
+            "scope": "https://api.ebay.com/oauth/api_scope",
+        },
+        timeout=20,
+    )
+
+    if response.status_code != 200:
+        raise RuntimeError(
+            f"Unable to get eBay app token: {response.text}"
+        )
+
+    return response.json()["access_token"]
 
 def get_ebay_user_access_token():
     ensure_ebay_oauth_table()
