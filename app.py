@@ -4099,7 +4099,7 @@ def enrich_cardhedge_batch():
                     card_number,
                     parallel,
                     serial_numbered_to
-                FROM inventory_cards_cdp_stage
+                FROM inventory_cards
                 WHERE enrichment_status = 'PENDING'
                 ORDER BY id
                 LIMIT %s
@@ -4125,7 +4125,7 @@ def enrich_cardhedge_batch():
                     and card_number
                 ):
                     cur.execute("""
-                        UPDATE inventory_cards_cdp_stage
+                        UPDATE inventory_cards
                         SET
                             enrichment_status = 'REVIEW',
                             last_enriched_at = NOW()
@@ -4150,7 +4150,7 @@ def enrich_cardhedge_batch():
 
                     if best and best["card"].get("card_id"):
                         cur.execute("""
-                            UPDATE inventory_cards_cdp_stage
+                            UPDATE inventory_cards
                             SET
                                 external_card_id = %s,
                                 enrichment_status = 'RESOLVED',
@@ -4165,7 +4165,7 @@ def enrich_cardhedge_batch():
 
                     else:
                         cur.execute("""
-                            UPDATE inventory_cards_cdp_stage
+                            UPDATE inventory_cards
                             SET
                                 enrichment_status = 'REVIEW',
                                 last_enriched_at = NOW()
