@@ -9447,6 +9447,15 @@ def get_ebay_grade_market(
             requested_grade is None
             or listing_grade == requested_grade
         )
+
+        if autograph is None:
+            autograph_match = True
+        else:
+            autograph_match = (
+                bool(card_data["autograph"])
+                == bool(autograph)
+            )
+
     
         if (
             player_match
@@ -9455,6 +9464,7 @@ def get_ebay_grade_market(
             and card_number_match
             and parallel_match
             and serial_match
+            and autograph_match
             and special_product_match
             and grade_company_match
             and grade_match
