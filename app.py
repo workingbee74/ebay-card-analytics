@@ -9553,6 +9553,7 @@ def get_ebay_grade_market(
         ),
         "exact_comp_count": len(exact_results),
         "exact_results": exact_results,
+        "debug_results": results,
         "exact_active_median": exact_active_median,
         "experienced_seller_comp_count": len(
             experienced_seller_prices
