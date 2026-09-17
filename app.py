@@ -2993,6 +2993,94 @@ def calculate_auction_decision(
         "valuation_basis": valuation_basis,
     }
 
+def calculate_raw_to_grade(
+    raw_price,
+    psa9_value,
+    psa10_value,
+    grading_cost=60.0,
+    psa10_probability=0.70,
+    psa9_probability=0.25,
+    lower_probability=0.05,
+    lower_value=None
+):
+    # Basic validation
+    if raw_price is None:
+        return {
+            "success": False,
+            "reason": "MISSING_RAW_PRICE",
+        }
+
+    if psa9_value is None or psa10_value is None:
+        return {
+            "success": False,
+            "reason": "MISSING_GRADED_MARKET_DATA",
+        }
+
+    raw_price = float(raw_price)
+    psa9_value = float(psa9_value)
+    psa10_value = float(psa10_value)
+    grading_cost = float(grading_cost)
+
+    # Cross-grade sanity check
+    if psa10_value <= psa9_value:
+        return {
+            "success": False,
+            "reason": "GRADE_VALUE_ANOMALY",
+            "psa9_value": psa9_value,
+            "psa10_value": psa10_value,
+            "confidence": "LOW",
+        }
+
+    if lower_value is None:
+        lower_value = raw_price
+
+    lower_value = float(lower_value)
+
+    expected_graded_value = (
+        psa10_probability * psa10_value
+        + psa9_probability * psa9_value
+        + lower_probability * lower_value
+    )
+
+    total_basis = raw_price + grading_cost
+
+    expected_profit = (
+        expected_graded_value - total_basis
+    )
+
+    max_raw_buy = (
+        expected_graded_value - grading_cost
+    )
+
+    expected_roi = None
+
+    if total_basis > 0:
+        expected_roi = (
+            expected_profit / total_basis
+        ) * 100
+
+    return {
+        "success": True,
+        "raw_price": round(raw_price, 2),
+        "psa9_value": round(psa9_value, 2),
+        "psa10_value": round(psa10_value, 2),
+        "grading_cost": round(grading_cost, 2),
+        "psa10_probability": psa10_probability,
+        "psa9_probability": psa9_probability,
+        "lower_probability": lower_probability,
+        "expected_graded_value": round(expected_graded_value, 2),
+        "total_basis": round(total_basis, 2),
+        "expected_profit": round(expected_profit, 2),
+        "expected_roi": (
+            round(expected_roi, 1)
+            if expected_roi is not None
+            else None
+        ),
+        "max_raw_buy": round(max_raw_buy, 2),
+        "confidence": "TEST",
+    }
+
+
 @app.route("/ebay/exact-comp-search", methods=["GET"])
 def ebay_exact_comp_search():
 
