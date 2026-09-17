@@ -2998,6 +2998,7 @@ def calculate_raw_to_grade(
     psa9_value,
     psa10_value,
     grading_cost=60.0,
+    selling_fee_rate=0.13,
     psa10_probability=0.70,
     psa9_probability=0.25,
     lower_probability=0.05,
