@@ -9530,55 +9530,55 @@ def get_ebay_grade_market(
         "grade_market_confidence": grade_market_confidence,
     }
 
-    def analyze_raw_to_grade_market(
-        player,
-        year,
-        product,
-        card_number,
-        raw_price
-    ):
-        psa9_market = get_ebay_grade_market(
-            player=player,
-            year=year,
-            product=product,
-            card_number=card_number,
-            grade_company="PSA",
-            grade=9,
-        )
-    
-        psa10_market = get_ebay_grade_market(
-            player=player,
-            year=year,
-            product=product,
-            card_number=card_number,
-            grade_company="PSA",
-            grade=10,
-        )
-    
-        psa9_value = psa9_market.get(
-            "experienced_seller_median"
-        )
-    
-        psa10_value = psa10_market.get(
-            "experienced_seller_median"
-        )
-    
-        calculation = calculate_raw_to_grade(
-            raw_price=raw_price,
-            psa9_value=psa9_value,
-            psa10_value=psa10_value,
-        )
-    
-        return {
-            "player": player,
-            "year": year,
-            "product": product,
-            "card_number": card_number,
-            "raw_price": raw_price,
-            "psa9_market": psa9_market,
-            "psa10_market": psa10_market,
-            "calculation": calculation,
-        }
+def analyze_raw_to_grade_market(
+    player,
+    year,
+    product,
+    card_number,
+    raw_price
+):
+    psa9_market = get_ebay_grade_market(
+        player=player,
+        year=year,
+        product=product,
+        card_number=card_number,
+        grade_company="PSA",
+        grade=9,
+    )
+
+    psa10_market = get_ebay_grade_market(
+        player=player,
+        year=year,
+        product=product,
+        card_number=card_number,
+        grade_company="PSA",
+        grade=10,
+    )
+
+    psa9_value = psa9_market.get(
+        "experienced_seller_median"
+    )
+
+    psa10_value = psa10_market.get(
+        "experienced_seller_median"
+    )
+
+    calculation = calculate_raw_to_grade(
+        raw_price=raw_price,
+        psa9_value=psa9_value,
+        psa10_value=psa10_value,
+    )
+
+    return {
+        "player": player,
+        "year": year,
+        "product": product,
+        "card_number": card_number,
+        "raw_price": raw_price,
+        "psa9_market": psa9_market,
+        "psa10_market": psa10_market,
+        "calculation": calculation,
+    }
 
 @app.route("/raw-to-grade-market-test", methods=["GET"])
 def raw_to_grade_market_test():
