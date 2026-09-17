@@ -1288,6 +1288,68 @@ def buying_opportunities():
                 font-size: 22px;
                 cursor: pointer;
             }
+
+
+            .detail-row td {
+                padding: 0;
+                background: #f7faff;
+            }
+            
+            .detail-panel {
+                padding: 16px 18px 18px;
+                border-top: 1px solid #dce6f0;
+                border-bottom: 1px solid #dce6f0;
+            }
+            
+            .detail-heading {
+                margin-bottom: 12px;
+                font-size: 14px;
+                font-weight: 700;
+                color: #172033;
+            }
+            
+            .scenario-grid {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 10px;
+            }
+            
+            .scenario-card {
+                min-height: 105px;
+                padding: 12px 14px;
+                background: white;
+                border: 1px solid #dce3ea;
+                border-radius: 8px;
+            }
+            
+            .scenario-card.best {
+                border-color: #8fc5a7;
+                background: #f6fcf8;
+            }
+            
+            .scenario-title {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: .03em;
+                color: #657487;
+            }
+            
+            .scenario-value {
+                margin-top: 7px;
+                font-size: 22px;
+                font-weight: 700;
+                color: #172033;
+            }
+            
+            .scenario-card.best .scenario-value {
+                color: #148447;
+            }
+            
+            .scenario-note {
+                margin-top: 5px;
+                font-size: 11px;
+                color: #748295;
+            }
             
         </style>
     </head>
