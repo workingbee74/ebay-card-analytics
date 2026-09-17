@@ -3080,7 +3080,20 @@ def calculate_raw_to_grade(
         "confidence": "TEST",
     }
 
+@app.route("/raw-to-grade-test", methods=["GET"])
+def raw_to_grade_test():
+    raw_price = request.args.get("raw_price", type=float)
+    psa9_value = request.args.get("psa9_value", type=float)
+    psa10_value = request.args.get("psa10_value", type=float)
 
+    result = calculate_raw_to_grade(
+        raw_price=raw_price,
+        psa9_value=psa9_value,
+        psa10_value=psa10_value,
+    )
+
+    return jsonify(result), 200
+    
 @app.route("/ebay/exact-comp-search", methods=["GET"])
 def ebay_exact_comp_search():
 
