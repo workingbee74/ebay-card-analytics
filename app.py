@@ -9596,13 +9596,24 @@ def analyze_raw_to_grade_market(
         grade=10,
     )
 
-    psa9_value = psa9_market.get(
-        "experienced_seller_median"
-    )
+    psa9_value = None
+    psa10_value = None
     
-    psa10_value = psa10_market.get(
-        "experienced_seller_median"
-    )
+    if psa9_market.get("grade_market_confidence") in (
+        "HIGH",
+        "MEDIUM",
+    ):
+        psa9_value = psa9_market.get(
+            "experienced_seller_median"
+        )
+    
+    if psa10_market.get("grade_market_confidence") in (
+        "HIGH",
+        "MEDIUM",
+    ):
+        psa10_value = psa10_market.get(
+            "experienced_seller_median"
+        )
     
     psa9_source = "EBAY"
     psa10_source = "EBAY"
