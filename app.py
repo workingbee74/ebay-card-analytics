@@ -9615,8 +9615,14 @@ def analyze_raw_to_grade_market(
             "experienced_seller_median"
         )
     
-    psa9_source = "EBAY"
-    psa10_source = "EBAY"
+    psa9_source = None
+    psa10_source = None
+    
+    if psa9_value is not None:
+        psa9_source = "EBAY"
+    
+    if psa10_value is not None:
+        psa10_source = "EBAY"
     
     cardhedge_psa9 = None
     cardhedge_psa10 = None
