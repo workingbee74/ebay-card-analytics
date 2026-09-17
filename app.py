@@ -11053,17 +11053,8 @@ def import_cdp_csv():
                 else "Bowman Chrome"
                 if "Bowman Chrome" in title
             
-                else "Bowman Draft"
-                if "Bowman" in title and "Draft" in title
-            
-                else "Bowman"
-                if "Bowman" in title
-            
                 else "Topps Chrome"
                 if "Topps Chrome" in title
-            
-                else "Topps"
-                if "Topps" in title
             
                 else first.get("set")
             ),
