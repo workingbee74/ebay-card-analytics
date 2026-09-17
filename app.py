@@ -9259,6 +9259,59 @@ def build_ebay_grade_query(
         if part and part.strip()
     )
 
+
+def get_ebay_grade_market(
+    player,
+    year,
+    product,
+    card_number,
+    grade_company="PSA",
+    grade=10
+):
+    query = build_ebay_grade_query(
+        player=player,
+        year=year,
+        product=product,
+        card_number=card_number,
+        grade_company=grade_company,
+        grade=grade,
+    )
+
+    access_token = get_ebay_app_access_token()
+
+    response = requests.get(
+        "https://api.ebay.com/buy/browse/v1/item_summary/search",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "X-EBAY-C-MARKETPLACE-ID": "EBAY_US",
+        },
+        params={
+            "q": query,
+            "limit": 100,
+            "filter": "buyingOptions:{FIXED_PRICE}",
+        },
+        timeout=20,
+    )
+
+    if not response.ok:
+        return {
+            "success": False,
+            "query": query,
+            "status_code": response.status_code,
+            "error": response.text,
+        }
+
+    data = response.json()
+
+    return {
+        "success": True,
+        "query": query,
+        "ebay_total_matches": data.get("total", 0),
+        "items_returned": len(
+            data.get("itemSummaries", [])
+        ),
+    }
+
 def get_ebay_app_access_token():
     credentials = f"{EBAY_CLIENT_ID}:{EBAY_CLIENT_SECRET}"
 
