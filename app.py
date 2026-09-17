@@ -1156,6 +1156,139 @@ def buying_opportunities():
                 padding: 16px;
                 color: #7a8795;
             }
+
+            .opportunity-area {
+                padding: 0;
+                overflow: hidden;
+            }
+            
+            .opportunity-table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+                font-size: 12px;
+            }
+            
+            .opportunity-table th {
+                padding: 10px 12px;
+                text-align: left;
+                background: #f7f9fb;
+                border-bottom: 1px solid #dce3ea;
+                color: #596879;
+                font-size: 11px;
+                font-weight: 600;
+                white-space: nowrap;
+            }
+            
+            .opportunity-table td {
+                padding: 11px 12px;
+                border-bottom: 1px solid #e5eaf0;
+                vertical-align: middle;
+                color: #273548;
+            }
+            
+            .opportunity-table tbody tr:hover {
+                background: #f8fbff;
+            }
+            
+            .player-name {
+                font-size: 13px;
+                font-weight: 700;
+                color: #172033;
+            }
+            
+            .card-detail {
+                margin-top: 3px;
+                color: #758396;
+                font-size: 11px;
+            }
+            
+            .listing-source {
+                color: #2475d0;
+                font-weight: 600;
+            }
+            
+            .money {
+                font-size: 13px;
+                font-weight: 700;
+                white-space: nowrap;
+            }
+            
+            .route {
+                display: inline-block;
+                padding: 3px 6px;
+                margin-right: 3px;
+                border-radius: 5px;
+                background: #e8eef5;
+                color: #34475b;
+                font-size: 10px;
+                font-weight: 700;
+            }
+            
+            .route.primary {
+                background: #dceaff;
+                color: #185ca8;
+            }
+            
+            .route-profit {
+                margin-top: 4px;
+                color: #148447;
+                font-size: 11px;
+                font-weight: 600;
+            }
+            
+            .edge {
+                font-size: 14px;
+                font-weight: 700;
+            }
+            
+            .runway {
+                font-weight: 600;
+                white-space: nowrap;
+            }
+            
+            .status {
+                display: inline-block;
+                margin-top: 4px;
+                padding: 3px 7px;
+                border-radius: 10px;
+                font-size: 10px;
+                font-weight: 600;
+            }
+            
+            .status.healthy,
+            .status.low {
+                background: #e2f5e9;
+                color: #167640;
+            }
+            
+            .status.moderate {
+                background: #fff1d6;
+                color: #9a6500;
+            }
+            
+            .action-btn {
+                min-width: 112px;
+                height: 32px;
+                padding: 0 10px;
+                border: 0;
+                border-radius: 6px;
+                background: #159451;
+                color: white;
+                font-size: 10px;
+                font-weight: 700;
+                cursor: pointer;
+                white-space: nowrap;
+            }
+            
+            .expand {
+                width: 28px;
+                text-align: center;
+                color: #2475d0;
+                font-size: 22px;
+                cursor: pointer;
+            }
+            
         </style>
     </head>
 
