@@ -9217,6 +9217,48 @@ def ebay_oauth_callback():
 
     return f"eBay authorization code received successfully."
 
+
+def build_ebay_grade_query(
+    player,
+    year,
+    product,
+    card_number,
+    grade_company,
+    grade
+):
+    query_parts = []
+
+    if year:
+        query_parts.append(str(year))
+
+    if product:
+        query_parts.append(str(product))
+
+    if player:
+        query_parts.append(str(player))
+
+    if card_number:
+        query_parts.append(str(card_number))
+
+    if grade_company:
+        query_parts.append(str(grade_company))
+
+    if grade is not None:
+        grade_value = float(grade)
+
+        if grade_value.is_integer():
+            grade_text = str(int(grade_value))
+        else:
+            grade_text = str(grade_value)
+
+        query_parts.append(grade_text)
+
+    return " ".join(
+        part.strip()
+        for part in query_parts
+        if part and part.strip()
+    )
+
 def get_ebay_app_access_token():
     credentials = f"{EBAY_CLIENT_ID}:{EBAY_CLIENT_SECRET}"
 
