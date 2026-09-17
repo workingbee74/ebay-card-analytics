@@ -9783,6 +9783,19 @@ def ebay_grade_market_test():
         "serial_numbered_to",
         ""
     ).strip()
+    
+    
+    autograph_raw = request.args.get(
+        "autograph",
+        ""
+    ).strip().lower()
+    
+    if autograph_raw == "true":
+        autograph = True
+    elif autograph_raw == "false":
+        autograph = False
+    else:
+        autograph = None
     grade_company = request.args.get(
         "grade_company",
         "PSA"
@@ -9796,6 +9809,7 @@ def ebay_grade_market_test():
         card_number=card_number,
         parallel=parallel,
         serial_numbered_to=serial_numbered_to,
+        autograph=autograph,
         grade_company=grade_company,
         grade=grade,
     )
