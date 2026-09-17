@@ -1081,6 +1081,81 @@ def buying_opportunities():
                 padding: 20px;
                 color: #778596;
             }
+
+            .summary-row {
+                display: flex;
+                gap: 10px;
+                margin-top: 16px;
+            }
+            .summary-card {
+                width: 125px;
+                padding: 10px 14px;
+                background: white;
+                border: 1px solid #dce3ea;
+                border-radius: 8px;
+            }
+
+            .summary-number {
+                font-size: 21px;
+                font-weight: 700;
+                line-height: 1;
+            }
+            
+            .summary-number.positive {
+                color: #148447;
+            }
+            
+            .summary-label {
+                margin-top: 5px;
+                font-size: 11px;
+                color: #718093;
+            }
+            .filter-bar {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-top: 12px;
+                padding: 10px;
+                background: white;
+                border: 1px solid #dce3ea;
+                border-radius: 8px;
+            }
+
+            .actionable-toggle {
+                margin-left: auto;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                white-space: nowrap;
+                font-size: 12px;
+                color: #536274;
+            }
+            
+            .refresh-btn {
+                height: 34px;
+                padding: 0 16px;
+                border: 0;
+                border-radius: 6px;
+                background: #2475d0;
+                color: white;
+                font-size: 12px;
+                font-weight: 600;
+                cursor: pointer;
+            }
+            
+            .refresh-btn:hover {
+                background: #1d66b7;
+            }
+            
+            .opportunity-area {
+                margin-top: 10px;
+                min-height: 350px;
+                background: white;
+                border: 1px solid #dce3ea;
+                border-radius: 8px;
+                padding: 16px;
+                color: #7a8795;
+            }
         </style>
     </head>
 
