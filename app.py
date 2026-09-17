@@ -9271,11 +9271,7 @@ def get_ebay_grade_market(
     grade=10
 ):
 
-    if parallel:
-        query += f" {parallel}"
     
-    if serial_numbered_to:
-        query += f" /{serial_numbered_to}"
         
     query = build_ebay_grade_query(
         player=player,
@@ -9285,6 +9281,12 @@ def get_ebay_grade_market(
         grade_company=grade_company,
         grade=grade,
     )
+
+    if parallel:
+        query += f" {parallel}"
+        
+    if serial_numbered_to:
+        query += f" /{serial_numbered_to}"
 
     access_token = get_ebay_app_access_token()
 
