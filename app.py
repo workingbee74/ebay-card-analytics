@@ -9642,6 +9642,16 @@ def ebay_grade_market_test():
         "card_number",
         ""
     ).strip()
+        
+    parallel = request.args.get(
+        "parallel",
+        ""
+    ).strip()
+    
+    serial_numbered_to = request.args.get(
+        "serial_numbered_to",
+        ""
+    ).strip()
     grade_company = request.args.get(
         "grade_company",
         "PSA"
@@ -9653,6 +9663,8 @@ def ebay_grade_market_test():
         year=year,
         product=product,
         card_number=card_number,
+        parallel=parallel,
+        serial_numbered_to=serial_numbered_to,
         grade_company=grade_company,
         grade=grade,
     )
