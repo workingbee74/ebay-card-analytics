@@ -9303,6 +9303,23 @@ def get_ebay_grade_market(
 
     data = response.json()
 
+
+    results = []
+    
+    requested_year = None
+    
+    try:
+        requested_year = int(year) if year else None
+    except (TypeError, ValueError):
+        pass
+    
+    requested_grade = None
+    
+    try:
+        requested_grade = float(grade) if grade is not None else None
+    except (TypeError, ValueError):
+        pass
+
     return {
         "success": True,
         "query": query,
