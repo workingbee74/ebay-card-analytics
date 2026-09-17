@@ -9269,6 +9269,7 @@ def get_ebay_grade_market(
     card_number,
     parallel=None,
     serial_numbered_to=None,
+    autograph=None,
     grade_company="PSA",
     grade=10
 ):
