@@ -1491,7 +1491,68 @@ def buying_opportunities():
             
                             <td class="expand">›</td>
                         </tr>
-            
+                        <tr id="detail-charlie"
+                            class="detail-row"
+                            style="display:none;">
+                        
+                            <td colspan="10">
+                        
+                                <div class="detail-panel">
+                        
+                                    <div class="detail-heading">
+                                        Charlie Condon · Opportunity Analysis
+                                    </div>
+                        
+                                    <div class="scenario-grid">
+                        
+                                        <div class="scenario-card">
+                                            <div class="scenario-title">
+                                                KEEP / SELL RAW
+                                            </div>
+                        
+                                            <div class="scenario-value">
+                                                $64
+                                            </div>
+                        
+                                            <div class="scenario-note">
+                                                Estimated raw floor
+                                            </div>
+                                        </div>
+                        
+                                        <div class="scenario-card best">
+                                            <div class="scenario-title">
+                                                SGC 10 · PRIMARY
+                                            </div>
+                        
+                                            <div class="scenario-value">
+                                                +$98
+                                            </div>
+                        
+                                            <div class="scenario-note">
+                                                Faster grading route
+                                            </div>
+                                        </div>
+                        
+                                        <div class="scenario-card">
+                                            <div class="scenario-title">
+                                                PSA 10 · ALTERNATIVE
+                                            </div>
+                        
+                                            <div class="scenario-value">
+                                                +$122
+                                            </div>
+                        
+                                            <div class="scenario-note">
+                                                Higher upside · longer wait
+                                            </div>
+                                        </div>
+                        
+                                    </div>
+                        
+                                </div>
+                        
+                            </td>
+                        </tr>
                         <tr>
                             <td>
                                 <div class="player-name">Jac Caglianone</div>
