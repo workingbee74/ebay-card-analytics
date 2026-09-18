@@ -4528,7 +4528,52 @@ def ebay_search():
                             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                         );
                     """)
-
+                    cur.execute("""
+                        CREATE TABLE IF NOT EXISTS buying_opportunities (
+                            id BIGSERIAL PRIMARY KEY,
+                    
+                            ebay_item_id TEXT,
+                            inventory_card_id BIGINT,
+                    
+                            opportunity_status TEXT NOT NULL DEFAULT 'ACTIVE',
+                            recommended_action TEXT,
+                    
+                            asking_price NUMERIC(12,2),
+                            recommended_max_bid NUMERIC(12,2),
+                            recommended_offer NUMERIC(12,2),
+                            walkaway_price NUMERIC(12,2),
+                    
+                            raw_floor NUMERIC(12,2),
+                            psa_10_value NUMERIC(12,2),
+                            sgc_10_value NUMERIC(12,2),
+                            grading_edge NUMERIC(8,2),
+                    
+                            outcome TEXT,
+                            actual_purchase_price NUMERIC(12,2),
+                            winning_price NUMERIC(12,2),
+                    
+                            inspection_result TEXT,
+                            inspection_notes TEXT,
+                    
+                            grading_company TEXT,
+                            grading_status TEXT,
+                            grading_cost NUMERIC(12,2),
+                            grading_submitted_at TIMESTAMP,
+                    
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    
+                            CONSTRAINT buying_opportunities_ebay_item_fk
+                                FOREIGN KEY (ebay_item_id)
+                                REFERENCES ebay_listings(ebay_item_id)
+                                ON DELETE SET NULL,
+                    
+                            CONSTRAINT buying_opportunities_inventory_fk
+                                FOREIGN KEY (inventory_card_id)
+                                REFERENCES inventory_cards(id)
+                                ON DELETE SET NULL
+                        );
+                    """)
                     cur.execute("""
                         ALTER TABLE inventory_cards
                         ADD COLUMN IF NOT EXISTS quantity INTEGER DEFAULT 1,
