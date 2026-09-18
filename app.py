@@ -1149,7 +1149,7 @@ def buying_opportunities():
             
             .opportunity-area {
                 margin-top: 10px;
-                min-height: 350px;
+                min-height: 0;
                 background: white;
                 border: 1px solid #dce3ea;
                 border-radius: 8px;
