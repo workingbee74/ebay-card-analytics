@@ -4043,7 +4043,7 @@ def analyze_one_buying_opportunity():
     cardhedge_result = resolve_with_cardhedge(
         evidence
     )
-        grade_prices = (
+    grade_prices = (
         cardhedge_result.get("grade_prices") or {}
     )
 
