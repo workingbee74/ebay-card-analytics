@@ -1074,7 +1074,7 @@ def buying_opportunities():
 
             .placeholder {
                 margin-top: 20px;
-                min-height: 400px;
+                min-height: 0;
                 background: white;
                 border: 1px solid #dce3ea;
                 border-radius: 9px;
