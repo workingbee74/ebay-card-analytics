@@ -3981,7 +3981,23 @@ def raw_to_grade_test():
         else False
     )
     return jsonify(result), 200
+@app.route("/buying-opportunities/analyze-one", methods=["GET"])
+def analyze_one_buying_opportunity():
+    opportunity_id = request.args.get(
+        "id",
+        type=int
+    )
 
+    if opportunity_id is None:
+        return jsonify({
+            "success": False,
+            "error": "Missing opportunity id"
+        }), 400
+
+    return jsonify({
+        "success": True,
+        "opportunity_id": opportunity_id
+    }), 200
 @app.route("/grading-probabilities-test", methods=["GET"])
 def grading_probabilities_test():
     return jsonify({
