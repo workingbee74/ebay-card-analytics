@@ -953,7 +953,9 @@ def buying_opportunities():
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT
-                    ebay_item_id,
+                    bo.id AS opportunity_id,
+                    ebay_listings.ebay_item_id,
+                    player_name,
                     player_name,
                     card_year,
                     product,
@@ -964,23 +966,27 @@ def buying_opportunities():
                     rookie_card,
                     grade_company,
                     grade,
-                    asking_price,
+                    ebay_listings.asking_price,
                     shipping_cost,
                     listing_type,
                     condition,
                     listing_url,
                     item_end_date
-                FROM ebay_listings
+                FROM buying_opportunities bo
+                JOIN ebay_listings
+                    ON ebay_listings.ebay_item_id = bo.ebay_item_id
                 WHERE
-                    is_single_card = TRUE
-                    AND player_name IS NOT NULL
-                    AND asking_price IS NOT NULL
+                    bo.opportunity_status = 'ACTIVE'
+                    AND is_single_card = TRUE
+                    ebay_listings.is_single_card = TRUE
+                    AND ebay_listings.player_name IS NOT NULL
+                    AND ebay_listings.asking_price IS NOT NULL
                     AND (
-                        item_end_date IS NULL
-                        OR item_end_date > CURRENT_TIMESTAMP
+                        ebay_listings.item_end_date IS NULL
+                        OR ebay_listings.item_end_date > CURRENT_TIMESTAMP
                     )
-                    AND LOWER(COALESCE(manufacturer, '')) = 'bowman'
-                ORDER BY date_collected DESC
+                    AND LOWER(COALESCE(ebay_listings.manufacturer, '')) = 'bowman'
+                ORDER BY ebay_listings.date_collected DESC
                 LIMIT 50
             """)
 
