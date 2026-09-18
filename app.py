@@ -4052,7 +4052,73 @@ def analyze_one_buying_opportunity():
     psa10_value = grade_prices.get("PSA 10")
     sgc9_value = grade_prices.get("SGC 9")
     sgc10_value = grade_prices.get("SGC 10")
+    related_candidates = (
+        cardhedge_result.get("candidates") or []
+    )
+    same_tier_candidates = []
+    adjacent_tier_candidates = []
+    other_parallel_candidates = []
 
+
+    for candidate in related_candidates:
+        candidate_card = candidate.get("card") or {}
+
+        candidate_variant = (
+            candidate_card.get("variant") or ""
+        ).strip()
+
+        candidate_prices = (
+            candidate_card.get("prices") or []
+        )
+
+
+        candidate_serial_to = None
+
+        serial_match = re.search(
+            r"/(\d+)",
+            candidate_variant
+        )
+
+        if not serial_match:
+            serial_match = re.search(
+                r"/(\d+)",
+                candidate_card.get("description") or ""
+            )
+
+        if serial_match:
+            try:
+                candidate_serial_to = int(
+                    serial_match.group(1)
+                )
+            except (TypeError, ValueError):
+                candidate_serial_to = None
+
+        if (
+            serial_numbered_to is not None
+            and candidate_serial_to is not None
+            and candidate_serial_to == serial_numbered_to
+        ):
+            same_tier_candidates.append(candidate)
+            continue
+
+        if (
+            serial_numbered_to is not None
+            and candidate_serial_to is not None
+        ):
+            tier_ratio = (
+                candidate_serial_to
+                / serial_numbered_to
+            )
+
+            if 0.4 <= tier_ratio <= 2.1:
+                adjacent_tier_candidates.append(
+                    candidate
+                )
+                continue
+        other_parallel_candidates.append(
+            candidate
+        )    
+    
     return jsonify({
         "success": True,
         "opportunity_id": opportunity_id,
@@ -4070,6 +4136,11 @@ def analyze_one_buying_opportunity():
         "psa10": psa10_value,
         "sgc9": sgc9_value,
         "sgc10": sgc10_value,
+        "related_evidence": {
+        "same_tier_count": len(same_tier_candidates),
+        "adjacent_tier_count": len(adjacent_tier_candidates),
+        "other_parallel_count": len(other_parallel_candidates),
+        },
         },
         "asking_price": (
             float(asking_price)
