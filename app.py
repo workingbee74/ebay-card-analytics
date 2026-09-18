@@ -4046,7 +4046,14 @@ def analyze_one_buying_opportunity():
     grade_prices = (
         cardhedge_result.get("grade_prices") or {}
     )
+    best_card = (
+        (cardhedge_result.get("best") or {})
+        .get("card") or {}
+    )
 
+    exact_sales_30day = (
+        best_card.get("30 Day Sales", 0) or 0
+    )
     raw_value = grade_prices.get("RAW")
     psa9_value = grade_prices.get("PSA 9")
     psa10_value = grade_prices.get("PSA 10")
@@ -4263,6 +4270,7 @@ def analyze_one_buying_opportunity():
 
         "related_evidence": {
             "target_tier_type": target_tier_type,
+            "exact_sales_30day": exact_sales_30day,
             "same_tier_count": len(same_tier_candidates),
             "adjacent_tier_count": len(adjacent_tier_candidates),
             "other_parallel_count": len(other_parallel_candidates),
