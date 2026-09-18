@@ -4043,7 +4043,16 @@ def analyze_one_buying_opportunity():
     cardhedge_result = resolve_with_cardhedge(
         evidence
     )
-    
+        grade_prices = (
+        cardhedge_result.get("grade_prices") or {}
+    )
+
+    raw_value = grade_prices.get("RAW")
+    psa9_value = grade_prices.get("PSA 9")
+    psa10_value = grade_prices.get("PSA 10")
+    sgc9_value = grade_prices.get("SGC 9")
+    sgc10_value = grade_prices.get("SGC 10")
+
     return jsonify({
         "success": True,
         "opportunity_id": opportunity_id,
@@ -4055,6 +4064,13 @@ def analyze_one_buying_opportunity():
         "serial_numbered_to": serial_numbered_to,
         "autograph": autograph,
         "cardhedge": cardhedge_result,
+        "exact_grade_prices": {
+        "raw": raw_value,
+        "psa9": psa9_value,
+        "psa10": psa10_value,
+        "sgc9": sgc9_value,
+        "sgc10": sgc10_value,
+        },
         "asking_price": (
             float(asking_price)
             if asking_price is not None
