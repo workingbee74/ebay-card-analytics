@@ -948,6 +948,49 @@ def resolve_with_cardhedge(evidence):
     return evidence
 @app.route("/buying-opportunities", methods=["GET"])
 def buying_opportunities():
+    
+        with psycopg.connect(DATABASE_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT
+                        ebay_item_id,
+                        player_name,
+                        card_year,
+                        product,
+                        parallel,
+                        card_number,
+                        serial_numbered_to,
+                        autograph,
+                        rookie_card,
+                        grade_company,
+                        grade,
+                        asking_price,
+                        shipping_cost,
+                        listing_type,
+                        condition,
+                        listing_url,
+                        item_end_date
+                    FROM ebay_listings
+                    WHERE
+                        is_single_card = TRUE
+                        AND player_name IS NOT NULL
+                        AND asking_price IS NOT NULL
+                        AND (
+                            item_end_date IS NULL
+                            OR item_end_date > CURRENT_TIMESTAMP
+                        )
+                        AND LOWER(COALESCE(manufacturer, '')) = 'bowman'
+                    ORDER BY date_collected DESC
+                    LIMIT 50
+                """)
+    
+                opportunity_rows = cur.fetchall()
+    
+        print(
+            "BUYING_OPPORTUNITIES_ROWS",
+            len(opportunity_rows)
+        )
+    
     return """
     <!DOCTYPE html>
     <html lang="en">
