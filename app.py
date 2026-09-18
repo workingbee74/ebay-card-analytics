@@ -4471,7 +4471,7 @@ def ebay_search():
                         ADD COLUMN IF NOT EXISTS external_card_id TEXT,
                         ADD COLUMN IF NOT EXISTS cdp_sku TEXT,
                         ADD COLUMN IF NOT EXISTS front_image_url TEXT,
-                        ADD COLUMN IF NOT EXISTS back_image_url TEXT
+                        ADD COLUMN IF NOT EXISTS back_image_url TEXT,
                         ADD COLUMN IF NOT EXISTS market_value NUMERIC(12,2),
                         ADD COLUMN IF NOT EXISTS price_trend TEXT,
                         ADD COLUMN IF NOT EXISTS trend_pct NUMERIC(8,2),
