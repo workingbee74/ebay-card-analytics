@@ -4154,12 +4154,14 @@ def analyze_one_buying_opportunity():
             "sgc9": sgc9_value,
             "sgc10": sgc10_value,
         },
+
         "related_evidence": {
-            "target_tier_type": target_tier_type,"same_tier_count": len(same_tier_candidates),
+            "target_tier_type": target_tier_type,
+            "same_tier_count": len(same_tier_candidates),
             "adjacent_tier_count": len(adjacent_tier_candidates),
             "other_parallel_count": len(other_parallel_candidates),
-        
         },
+
         "asking_price": (
             float(asking_price)
             if asking_price is not None
