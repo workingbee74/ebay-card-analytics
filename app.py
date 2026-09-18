@@ -4135,25 +4135,24 @@ def analyze_one_buying_opportunity():
         other_parallel_candidates.append(
             candidate
         )    
-        related_grade_ratios = []
+    related_grade_ratios = []
 
-        for candidate in related_candidates:
-            candidate_card = candidate.get("card") or {}
-    
-            best_card = (
-                (cardhedge_result.get("best") or {})
-                .get("card") or {}
-            )
-    
-            if (
-                candidate_card.get("card_id")
-                and candidate_card.get("card_id")
-                    == best_card.get("card_id")
-            ):
-                continue
-    
-            
-          prices_by_grade = {}
+    for candidate in related_candidates:
+        candidate_card = candidate.get("card") or {}
+
+        best_card = (
+            (cardhedge_result.get("best") or {})
+            .get("card") or {}
+        )
+
+        if (
+            candidate_card.get("card_id")
+            and candidate_card.get("card_id")
+                == best_card.get("card_id")
+        ):
+            continue
+
+        prices_by_grade = {}
 
         for price_record in candidate_card.get("prices", []):
             grade_name = (
