@@ -995,7 +995,7 @@ def buying_opportunities():
             }
 
             .brand {
-                padding: 0 8px 20px;
+                padding: 0 0 20px;
             }
 
             .brand-title {
