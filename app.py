@@ -996,7 +996,86 @@ def buying_opportunities():
         "BUYING_OPPORTUNITIES_ROWS",
         len(opportunity_rows)
     )
+    opportunity_html = ""
 
+    for row in opportunity_rows:
+        opportunity_id = row[0]
+        ebay_item_id = row[1]
+        player_name = row[2]
+        card_year = row[3]
+        product = row[4]
+        parallel = row[5]
+        card_number = row[6]
+        serial_numbered_to = row[7]
+        autograph = row[8]
+        rookie_card = row[9]
+        grade_company = row[10]
+        grade = row[11]
+        asking_price = row[12]
+        shipping_cost = row[13]
+        listing_type = row[14]
+        condition = row[15]
+        listing_url = row[16]
+        item_end_date = row[17]
+        total_ask = float(asking_price or 0) + float(shipping_cost or 0)
+
+        card_parts = []
+
+        if card_year:
+            card_parts.append(str(card_year))
+
+        if product:
+            card_parts.append(str(product))
+
+        if parallel:
+            card_parts.append(str(parallel))
+
+        if serial_numbered_to:
+            card_parts.append(f"/{serial_numbered_to}")
+
+        card_description = " · ".join(card_parts)
+        opportunity_html += f"""
+            <tr class="opportunity-row">
+                <td>
+                    <div class="player-name">{player_name}</div>
+                    <div class="card-detail">
+                        {card_description}
+                    </div>
+                </td>
+
+                <td>
+                    <div class="listing-source">eBay</div>
+                </td>
+
+                <td class="money">${total_ask:,.2f}</td>
+
+                <td colspan="6">
+                    <div class="card-detail">
+                        Opportunity #{opportunity_id}
+                    </div>
+                </td>
+
+                <td class="expand"
+                    onclick="toggleOpportunity(
+                        'detail-{opportunity_id}',
+                        this
+                    )">›</td>
+            </tr>
+
+            <tr id="detail-{opportunity_id}"
+                class="detail-row"
+                style="display:none;">
+
+                <td colspan="10">
+                    <div class="detail-panel">
+                        <div class="detail-heading">
+                            {player_name} · Opportunity Analysis
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        """
+    
     return """
     <!DOCTYPE html>
     <html lang="en">
@@ -1597,7 +1676,7 @@ def buying_opportunities():
                     </thead>
             
                     <tbody>
-            
+                        """ + opportunity_html + """
                         <tr class="opportunity-row">
                            
                             <td>
