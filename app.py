@@ -3788,19 +3788,77 @@ def calculate_auction_decision(
         "action": action,
         "valuation_basis": valuation_basis,
     }
+def get_grading_cost(
+    company,
+    service_level=None,
+    declared_value=None
+):
+    company = (company or "").upper()
+
+    if company == "PSA":
+        return 60.0
+
+    if company == "SGC":
+        return 40.0
+
+    if company == "BGS":
+        return 50.0
+
+    if company == "CGC":
+        return 40.0
+
+    return None
+def get_grading_probabilities(stage="PRE_INSPECTION"):
+    stage = (stage or "").upper()
+
+    if stage == "PRE_INSPECTION":
+        return {
+            "psa10": 0.40,
+            "psa9": 0.45,
+            "lower": 0.15,
+        }
+
+    if stage == "CLEAN_INSPECTION":
+        return {
+            "psa10": 0.70,
+            "psa9": 0.25,
+            "lower": 0.05,
+        }
+
+    return {
+        "psa10": 0.40,
+        "psa9": 0.45,
+        "lower": 0.15,
+    }
 
 def calculate_raw_to_grade(
     raw_price,
     psa9_value,
     psa10_value,
-    grading_cost=60.0,
+    grading_cost=None,
     selling_fee_rate=0.13,
-    psa10_probability=0.70,
-    psa9_probability=0.25,
-    lower_probability=0.05,
+    psa10_probability=None,
+    psa9_probability=None,
+    lower_probability=None,
     lower_value=None
 ):
     # Basic validation
+    if grading_cost is None:
+        grading_cost = get_grading_cost("PSA")
+    if (
+        psa10_probability is None
+        or psa9_probability is None
+        or lower_probability is None
+    ):
+        probabilities = get_grading_probabilities(
+            "PRE_INSPECTION"
+        )
+
+        psa10_probability = probabilities["psa10"]
+        psa9_probability = probabilities["psa9"]
+        lower_probability = probabilities["lower"]
+
+    
     if raw_price is None:
         return {
             "success": False,
@@ -3897,7 +3955,18 @@ def raw_to_grade_test():
     )
 
     return jsonify(result), 200
-    
+
+@app.route("/grading-probabilities-test", methods=["GET"])
+def grading_probabilities_test():
+    return jsonify({
+        "pre_inspection": get_grading_probabilities(
+            "PRE_INSPECTION"
+        ),
+        "clean_inspection": get_grading_probabilities(
+            "CLEAN_INSPECTION"
+        ),
+    }), 200
+
 @app.route("/ebay/exact-comp-search", methods=["GET"])
 def ebay_exact_comp_search():
 
