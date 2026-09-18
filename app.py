@@ -1767,7 +1767,8 @@ def buying_opportunities():
                                 </button>
                             </td>
             
-                            <td class="expand">›</td>
+                            <td class="expand"
+                                onclick="toggleOpportunity('detail-charlie', this)">›</td>
                         </tr>
             
                     </tbody>
@@ -1792,6 +1793,21 @@ def buying_opportunities():
                         : "table-row";
             }
         </script>
+    
+        <script>
+        function toggleOpportunity(detailId, arrow) {
+            const detail = document.getElementById(detailId);
+    
+            if (detail.style.display === "none") {
+                detail.style.display = "table-row";
+                arrow.textContent = "⌄";
+            } else {
+                detail.style.display = "none";
+                arrow.textContent = "›";
+            }
+        }
+    </script>
+    
     </body>
     </html>
     """
