@@ -4195,6 +4195,19 @@ def analyze_one_buying_opportunity():
                 "variant": candidate_card.get("variant"),
                 "sales_30day": candidate_card.get("30 Day Sales", 0) or 0,
             })
+        psa9_related_sales = sum(
+            item["sales_30day"]
+            for item in related_grade_ratios
+            if item["grade"] == "PSA 9"
+        )
+    
+        psa10_related_sales = sum(
+            item["sales_30day"]
+            for item in related_grade_ratios
+            if item["grade"] == "PSA 10"
+        )
+    
+    
     return jsonify({
     "success": True,
     "opportunity_id": opportunity_id,
@@ -4219,6 +4232,8 @@ def analyze_one_buying_opportunity():
             "same_tier_count": len(same_tier_candidates),
             "adjacent_tier_count": len(adjacent_tier_candidates),
             "other_parallel_count": len(other_parallel_candidates),
+            "psa9_related_sales": psa9_related_sales,
+            "psa10_related_sales": psa10_related_sales,
         },
         "related_grade_ratios": related_grade_ratios,
         "asking_price": (
