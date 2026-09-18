@@ -4181,6 +4181,7 @@ def analyze_one_buying_opportunity():
                 "grade": "PSA 9",
                 "ratio": related_psa9 / related_raw,
                 "variant": candidate_card.get("variant"),
+                "sales_30day": candidate_card.get("30 Day Sales", 0) or 0,
             })
 
         if (
@@ -4192,6 +4193,7 @@ def analyze_one_buying_opportunity():
                 "grade": "PSA 10",
                 "ratio": related_psa10 / related_raw,
                 "variant": candidate_card.get("variant"),
+                "sales_30day": candidate_card.get("30 Day Sales", 0) or 0,
             })
     return jsonify({
     "success": True,
