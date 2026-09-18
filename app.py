@@ -4206,7 +4206,23 @@ def analyze_one_buying_opportunity():
             for item in related_grade_ratios
             if item["grade"] == "PSA 10"
         )
+        if psa9_related_sales >= 5:
+            psa9_related_confidence = "HIGH"
+        elif psa9_related_sales >= 3:
+            psa9_related_confidence = "MEDIUM"
+        elif psa9_related_sales >= 1:
+            psa9_related_confidence = "LOW"
+        else:
+            psa9_related_confidence = "NONE"
     
+        if psa10_related_sales >= 5:
+            psa10_related_confidence = "HIGH"
+        elif psa10_related_sales >= 3:
+            psa10_related_confidence = "MEDIUM"
+        elif psa10_related_sales >= 1:
+            psa10_related_confidence = "LOW"
+        else:
+            psa10_related_confidence = "NONE"
     
     return jsonify({
     "success": True,
@@ -4234,6 +4250,8 @@ def analyze_one_buying_opportunity():
             "other_parallel_count": len(other_parallel_candidates),
             "psa9_related_sales": psa9_related_sales,
             "psa10_related_sales": psa10_related_sales,
+            "psa9_confidence": psa9_related_confidence,
+            "psa10_confidence": psa10_related_confidence,
         },
         "related_grade_ratios": related_grade_ratios,
         "asking_price": (
