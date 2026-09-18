@@ -1635,7 +1635,8 @@ def buying_opportunities():
                                 </button>
                             </td>
             
-                            <td class="expand">›</td>
+                            <td class="expand"
+                                onclick="toggleOpportunity('detail-charlie', this)">›</td>
                         </tr>
                         <tr id="detail-charlie"
                             class="detail-row"
