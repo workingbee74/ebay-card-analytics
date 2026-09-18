@@ -3993,11 +3993,62 @@ def analyze_one_buying_opportunity():
             "success": False,
             "error": "Missing opportunity id"
         }), 400
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT
+                    e.player_name,
+                    e.card_year,
+                    e.product,
+                    e.card_number,
+                    e.parallel,
+                    e.serial_numbered_to,
+                    e.autograph,
+                    bo.asking_price
+                FROM buying_opportunities bo
+                JOIN ebay_listings e
+                    ON e.ebay_item_id = bo.ebay_item_id
+                WHERE bo.id = %s
+            """, (opportunity_id,))
 
+            row = cur.fetchone()
+
+
+    if row is None:
+        
+    return jsonify({
+        "success": False,
+        "error": "Opportunity not found",
+        "opportunity_id": opportunity_id
+    }), 404
+
+    player_name = row[0]
+    card_year = row[1]
+    product = row[2]
+    card_number = row[3]
+    parallel = row[4]
+    serial_numbered_to = row[5]
+    autograph = row[6]
+    asking_price = row[7]
+
+    
     return jsonify({
         "success": True,
-        "opportunity_id": opportunity_id
+        "opportunity_id": opportunity_id,
+        "player_name": player_name,
+        "card_year": card_year,
+        "product": product,
+        "card_number": card_number,
+        "parallel": parallel,
+        "serial_numbered_to": serial_numbered_to,
+        "autograph": autograph,
+        "asking_price": (
+            float(asking_price)
+            if asking_price is not None
+            else None
+        )
     }), 200
+    
 @app.route("/grading-probabilities-test", methods=["GET"])
 def grading_probabilities_test():
     return jsonify({
