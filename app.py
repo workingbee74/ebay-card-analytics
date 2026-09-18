@@ -4054,7 +4054,22 @@ def ebay_exact_comp_search():
             "MEGA BOX" not in title.upper()
             and "SAPPHIRE" not in title.upper()
         )
+        grade_company_match = (
+            not grade_company
+            or (
+                card_data["grade_company"] is not None
+                and str(card_data["grade_company"]).upper()
+                    == str(grade_company).upper()
+            )
+        )
         
+        grade_match = (
+            not grade
+            or (
+                card_data["grade"] is not None
+                and str(card_data["grade"]) == str(grade)
+            )
+        )
         if (
             player_match
             and year_match
@@ -4062,6 +4077,8 @@ def ebay_exact_comp_search():
             and card_number_match
             and parallel_match
             and special_product_match
+            and grade_company_match
+            and grade_match
         ):
             match_level = "EXACT"
 
