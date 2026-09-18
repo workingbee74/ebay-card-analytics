@@ -4152,21 +4152,8 @@ def analyze_one_buying_opportunity():
             ):
                 continue
     
-            prices_by_grade = {}
-    
-            for price_record in candidate_card.get("prices", []):
-                grade_name = (
-                    price_record.get("grade") or ""
-                ).strip().upper()
-    
-                try:
-                    price_value = float(
-                        price_record.get("price")
-                    )
-                except (TypeError, ValueError):
-                    continue
-    
-                   prices_by_grade = {}
+            
+          prices_by_grade = {}
 
         for price_record in candidate_card.get("prices", []):
             grade_name = (
@@ -4208,23 +4195,23 @@ def analyze_one_buying_opportunity():
                 "variant": candidate_card.get("variant"),
             })
     return jsonify({
-        "success": True,
-        "opportunity_id": opportunity_id,
-        "player_name": player_name,
-        "card_year": card_year,
-        "product": product,
-        "card_number": card_number,
-        "parallel": parallel,
-        "serial_numbered_to": serial_numbered_to,
-        "autograph": autograph,
-        "cardhedge": cardhedge_result,
-        "exact_grade_prices": {
-            "raw": raw_value,
-            "psa9": psa9_value,
-            "psa10": psa10_value,
-            "sgc9": sgc9_value,
-            "sgc10": sgc10_value,
-        },
+    "success": True,
+    "opportunity_id": opportunity_id,
+    "player_name": player_name,
+    "card_year": card_year,
+    "product": product,
+    "card_number": card_number,
+    "parallel": parallel,
+    "serial_numbered_to": serial_numbered_to,
+    "autograph": autograph,
+    "cardhedge": cardhedge_result,
+    "exact_grade_prices": {
+        "raw": raw_value,
+        "psa9": psa9_value,
+        "psa10": psa10_value,
+        "sgc9": sgc9_value,
+        "sgc10": sgc10_value,
+    },
 
         "related_evidence": {
             "target_tier_type": target_tier_type,
