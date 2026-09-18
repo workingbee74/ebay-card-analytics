@@ -1315,7 +1315,7 @@ def buying_opportunities():
             }
             
             .scenario-card {
-                min-height: 105px;
+                min-height: 90px;
                 padding: 12px 14px;
                 background: white;
                 border: 1px solid #dce3ea;
