@@ -1296,7 +1296,7 @@ def buying_opportunities():
             }
             
             .detail-panel {
-                padding: 16px 18px 18px;
+                padding: 12px 18px 14px;
                 border-top: 1px solid #dce6f0;
                 border-bottom: 1px solid #dce6f0;
             }
