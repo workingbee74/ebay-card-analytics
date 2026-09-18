@@ -1592,8 +1592,8 @@ def buying_opportunities():
             
                     <tbody>
             
-                        <tr class="opportunity-row"
-                            onclick="toggleOpportunity('detail-charlie')">
+                        <tr class="opportunity-row">
+                           
                             <td>
                                 <div class="player-name">Charlie Condon</div>
                                 <div class="card-detail">
