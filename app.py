@@ -1822,34 +1822,32 @@ def buying_opportunities():
             </div>
 
         </main>
-        <script>
-            function toggleOpportunity(detailId) {
-                const detail = document.getElementById(detailId);
-        
-                if (!detail) {
-                    return;
-                }
-        
-                detail.style.display =
-                    detail.style.display === "table-row"
-                        ? "none"
-                        : "table-row";
-            }
-        </script>
-    
-        <script>
+       <script>
         function toggleOpportunity(detailId, arrow) {
             const detail = document.getElementById(detailId);
-    
-            if (detail.style.display === "none") {
-                detail.style.display = "table-row";
-                arrow.textContent = "⌄";
-            } else {
+        
+            if (!detail) {
+                return;
+            }
+        
+            const isOpen =
+                window.getComputedStyle(detail).display !== "none";
+        
+            if (isOpen) {
                 detail.style.display = "none";
-                arrow.textContent = "›";
+        
+                if (arrow) {
+                    arrow.textContent = "›";
+                }
+            } else {
+                detail.style.display = "table-row";
+        
+                if (arrow) {
+                    arrow.textContent = "⌄";
+                }
             }
         }
-    </script>
+        </script>
     
     </body>
     </html>
