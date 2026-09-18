@@ -4030,7 +4030,19 @@ def analyze_one_buying_opportunity():
     serial_numbered_to = row[5]
     autograph = row[6]
     asking_price = row[7]
+    evidence = {
+        "player_name": player_name,
+        "card_year": card_year,
+        "product": product,
+        "card_number": card_number,
+        "parallel": parallel,
+        "serial_numbered_to": serial_numbered_to,
+        "autograph": autograph,
+    }
 
+    cardhedge_result = resolve_with_cardhedge(
+        evidence
+    )
     
     return jsonify({
         "success": True,
@@ -4042,6 +4054,7 @@ def analyze_one_buying_opportunity():
         "parallel": parallel,
         "serial_numbered_to": serial_numbered_to,
         "autograph": autograph,
+        "cardhedge": cardhedge_result,
         "asking_price": (
             float(asking_price)
             if asking_price is not None
