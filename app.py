@@ -4248,7 +4248,19 @@ def analyze_one_buying_opportunity():
             item["ratio"] * item["sales_30day"]
             for item in psa9_ratio_items
         ) / psa9_total_weight
-        
+
+    inferred_psa9_value = None
+
+    if (
+        raw_value is not None
+        and psa9_weighted_ratio is not None
+        and psa9_related_confidence in ("MEDIUM", "HIGH")
+    ):
+        inferred_psa9_value = round(
+            raw_value * psa9_weighted_ratio,
+            2
+        )
+    
     return jsonify({
     "success": True,
     "opportunity_id": opportunity_id,
@@ -4278,6 +4290,7 @@ def analyze_one_buying_opportunity():
             "psa10_related_sales": psa10_related_sales,
             "psa9_confidence": psa9_related_confidence,
             "psa9_weighted_ratio": psa9_weighted_ratio,
+            "inferred_psa9_value": inferred_psa9_value,
             "psa10_confidence": psa10_related_confidence,
         },
         "related_grade_ratios": related_grade_ratios,
