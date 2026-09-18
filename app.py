@@ -4547,6 +4547,8 @@ def ebay_search():
                             psa_10_value NUMERIC(12,2),
                             sgc_10_value NUMERIC(12,2),
                             grading_edge NUMERIC(8,2),
+                            expected_profit NUMERIC(12,2),
+                            expected_roi NUMERIC(8,2),
                     
                             outcome TEXT,
                             actual_purchase_price NUMERIC(12,2),
@@ -4573,6 +4575,11 @@ def ebay_search():
                                 REFERENCES inventory_cards(id)
                                 ON DELETE SET NULL
                         );
+                    """)
+                    cur.execute("""
+                        ALTER TABLE buying_opportunities
+                        ADD COLUMN IF NOT EXISTS expected_profit NUMERIC(12,2),
+                        ADD COLUMN IF NOT EXISTS expected_roi NUMERIC(8,2);
                     """)
                     cur.execute("""
                         ALTER TABLE inventory_cards
