@@ -971,7 +971,8 @@ def buying_opportunities():
                     listing_type,
                     condition,
                     listing_url,
-                    item_end_date
+                    item_end_date,
+                    bo.raw_floor
                 FROM buying_opportunities bo
                 JOIN ebay_listings
                     ON ebay_listings.ebay_item_id = bo.ebay_item_id
@@ -1017,6 +1018,7 @@ def buying_opportunities():
         condition = row[15]
         listing_url = row[16]
         item_end_date = row[17]
+        raw_floor = row[18]
         total_ask = float(asking_price or 0) + float(shipping_cost or 0)
 
         card_parts = []
@@ -1049,7 +1051,11 @@ def buying_opportunities():
 
                 <td class="money">${total_ask:,.2f}</td>
 
-                <td colspan="6">
+                <td class="money">
+                    ${float(raw_floor or 0):,.2f}
+                </td>
+                
+                <td colspan="5">
                     <div class="card-detail">
                         Opportunity #{opportunity_id}
                     </div>
