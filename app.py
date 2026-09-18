@@ -4016,11 +4016,11 @@ def analyze_one_buying_opportunity():
 
     if row is None:
         
-    return jsonify({
-        "success": False,
-        "error": "Opportunity not found",
-        "opportunity_id": opportunity_id
-    }), 404
+        return jsonify({
+            "success": False,
+            "error": "Opportunity not found",
+            "opportunity_id": opportunity_id
+        }), 404
 
     player_name = row[0]
     card_year = row[1]
