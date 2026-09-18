@@ -4062,7 +4062,17 @@ def analyze_one_buying_opportunity():
 
     for candidate in related_candidates:
         candidate_card = candidate.get("card") or {}
+        best_card = (
+            (cardhedge_result.get("best") or {})
+            .get("card") or {}
+        )
 
+        if (
+            candidate_card.get("card_id")
+            and candidate_card.get("card_id")
+                == best_card.get("card_id")
+        ):
+            continue
         candidate_variant = (
             candidate_card.get("variant") or ""
         ).strip()
