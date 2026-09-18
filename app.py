@@ -3947,11 +3947,16 @@ def raw_to_grade_test():
     raw_price = request.args.get("raw_price", type=float)
     psa9_value = request.args.get("psa9_value", type=float)
     psa10_value = request.args.get("psa10_value", type=float)
-
+    probabilities = get_grading_probabilities(
+        "PRE_INSPECTION"
+    )
     result = calculate_raw_to_grade(
         raw_price=raw_price,
         psa9_value=psa9_value,
         psa10_value=psa10_value,
+        psa10_probability=probabilities["psa10"],
+        psa9_probability=probabilities["psa9"],
+        lower_probability=probabilities["lower"],
     )
 
     return jsonify(result), 200
