@@ -956,7 +956,6 @@ def buying_opportunities():
                     bo.id AS opportunity_id,
                     ebay_listings.ebay_item_id,
                     player_name,
-                    player_name,
                     card_year,
                     product,
                     parallel,
