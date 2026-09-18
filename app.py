@@ -4135,7 +4135,62 @@ def analyze_one_buying_opportunity():
         other_parallel_candidates.append(
             candidate
         )    
+        related_grade_ratios = []
+
+        for candidate in related_candidates:
+            candidate_card = candidate.get("card") or {}
     
+            best_card = (
+                (cardhedge_result.get("best") or {})
+                .get("card") or {}
+            )
+    
+            if (
+                candidate_card.get("card_id")
+                and candidate_card.get("card_id")
+                    == best_card.get("card_id")
+            ):
+                continue
+    
+            prices_by_grade = {}
+    
+            for price_record in candidate_card.get("prices", []):
+                grade_name = (
+                    price_record.get("grade") or ""
+                ).strip().upper()
+    
+                try:
+                    price_value = float(
+                        price_record.get("price")
+                    )
+                except (TypeError, ValueError):
+                    continue
+    
+                prices_by_grade[grade_name] = price_value
+            related_raw = prices_by_grade.get("RAW")
+            related_psa9 = prices_by_grade.get("PSA 9")
+            related_psa10 = prices_by_grade.get("PSA 10")
+    
+            if (
+                related_raw is not None
+                and related_raw > 0
+                and related_psa10 is not None
+            ):
+                related_grade_ratios.append({
+                    "grade": "PSA 10",
+                    "ratio": related_psa10 / related_raw,
+                    "variant": candidate_card.get("variant"),
+                })
+        if (
+            related_raw is not None
+            and related_raw > 0
+            and related_psa9 is not None
+        ):
+            related_grade_ratios.append({
+                "grade": "PSA 9",
+                "ratio": related_psa9 / related_raw,
+                "variant": candidate_card.get("variant"),
+            })
     return jsonify({
         "success": True,
         "opportunity_id": opportunity_id,
@@ -4161,7 +4216,7 @@ def analyze_one_buying_opportunity():
             "adjacent_tier_count": len(adjacent_tier_candidates),
             "other_parallel_count": len(other_parallel_candidates),
         },
-
+        "related_grade_ratios": related_grade_ratios,
         "asking_price": (
             float(asking_price)
             if asking_price is not None
