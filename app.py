@@ -977,8 +977,8 @@ def buying_opportunities():
                     ON ebay_listings.ebay_item_id = bo.ebay_item_id
                 WHERE
                     bo.opportunity_status = 'ACTIVE'
-                    AND is_single_card = TRUE
-                    ebay_listings.is_single_card = TRUE
+                    
+                    AND ebay_listings.is_single_card = TRUE
                     AND ebay_listings.player_name IS NOT NULL
                     AND ebay_listings.asking_price IS NOT NULL
                     AND (
