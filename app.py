@@ -3808,6 +3808,20 @@ def get_grading_cost(
         return 40.0
 
     return None
+
+MIN_OPPORTUNITY_PROFIT = 40.0
+MIN_OPPORTUNITY_ROI = 20.0
+def qualifies_as_buying_opportunity(
+    expected_profit,
+    expected_roi
+):
+    if expected_profit is None or expected_roi is None:
+        return False
+
+    return (
+        float(expected_profit) >= MIN_OPPORTUNITY_PROFIT
+        and float(expected_roi) >= MIN_OPPORTUNITY_ROI
+    )
 def get_grading_probabilities(stage="PRE_INSPECTION"):
     stage = (stage or "").upper()
 
@@ -3958,7 +3972,14 @@ def raw_to_grade_test():
         psa9_probability=probabilities["psa9"],
         lower_probability=probabilities["lower"],
     )
-
+    result["qualifies_as_opportunity"] = (
+        qualifies_as_buying_opportunity(
+            result.get("expected_profit"),
+            result.get("expected_roi"),
+        )
+        if result.get("success")
+        else False
+    )
     return jsonify(result), 200
 
 @app.route("/grading-probabilities-test", methods=["GET"])
