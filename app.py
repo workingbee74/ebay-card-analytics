@@ -4166,21 +4166,26 @@ def analyze_one_buying_opportunity():
                 except (TypeError, ValueError):
                     continue
     
-                prices_by_grade[grade_name] = price_value
-            related_raw = prices_by_grade.get("RAW")
-            related_psa9 = prices_by_grade.get("PSA 9")
-            related_psa10 = prices_by_grade.get("PSA 10")
-    
-            if (
-                related_raw is not None
-                and related_raw > 0
-                and related_psa10 is not None
-            ):
-                related_grade_ratios.append({
-                    "grade": "PSA 10",
-                    "ratio": related_psa10 / related_raw,
-                    "variant": candidate_card.get("variant"),
-                })
+                   prices_by_grade = {}
+
+        for price_record in candidate_card.get("prices", []):
+            grade_name = (
+                price_record.get("grade") or ""
+            ).strip().upper()
+
+            try:
+                price_value = float(
+                    price_record.get("price")
+                )
+            except (TypeError, ValueError):
+                continue
+
+            prices_by_grade[grade_name] = price_value
+
+        related_raw = prices_by_grade.get("RAW")
+        related_psa9 = prices_by_grade.get("PSA 9")
+        related_psa10 = prices_by_grade.get("PSA 10")
+
         if (
             related_raw is not None
             and related_raw > 0
@@ -4189,6 +4194,17 @@ def analyze_one_buying_opportunity():
             related_grade_ratios.append({
                 "grade": "PSA 9",
                 "ratio": related_psa9 / related_raw,
+                "variant": candidate_card.get("variant"),
+            })
+
+        if (
+            related_raw is not None
+            and related_raw > 0
+            and related_psa10 is not None
+        ):
+            related_grade_ratios.append({
+                "grade": "PSA 10",
+                "ratio": related_psa10 / related_raw,
                 "variant": candidate_card.get("variant"),
             })
     return jsonify({
