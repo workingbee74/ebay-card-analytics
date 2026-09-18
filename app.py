@@ -1360,7 +1360,7 @@ def buying_opportunities():
             }
             
             .evidence-card {
-                padding: 12px 14px;
+                padding: 10px 14px;
                 background: white;
                 border: 1px solid #dce3ea;
                 border-radius: 8px;
