@@ -824,11 +824,30 @@ def resolve_with_cardhedge(evidence):
             best["card"],
             flush=True,
         )
-    
+    grade_prices = {}
+
+    if best:
+        best_card = best.get("card") or {}
+
+        for price_record in best_card.get("prices", []):
+            grade_name = (
+                price_record.get("grade") or ""
+            ).strip()
+
+            price_value = price_record.get("price")
+
+            if not grade_name or price_value is None:
+                continue
+
+            try:
+                grade_prices[grade_name.upper()] = float(price_value)
+            except (TypeError, ValueError):
+                continue    
     return {
         "success": True,
         "query": query,
         "best": best,
+        "grade_prices": grade_prices,
         "candidates": scored_candidates[:5],
     }
 
