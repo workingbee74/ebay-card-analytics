@@ -4263,6 +4263,21 @@ def analyze_one_buying_opportunity():
     probabilities = get_grading_probabilities(
         "PRE_INSPECTION"
     )
+    grading_analysis = None
+    
+    if (
+        asking_price is not None
+        and psa9_value is not None
+        and psa10_value is not None
+    ):
+        grading_analysis = calculate_raw_to_grade(
+            raw_price=asking_price,
+            psa9_value=psa9_value,
+            psa10_value=psa10_value,
+            psa10_probability=probabilities["psa10"],
+            psa9_probability=probabilities["psa9"],
+            lower_probability=probabilities["lower"],
+        )
     return jsonify({
     "success": True,
     "opportunity_id": opportunity_id,
