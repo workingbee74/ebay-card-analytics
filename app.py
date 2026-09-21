@@ -4144,6 +4144,11 @@ def analyze_one_buying_opportunity():
         )    
     related_grade_ratios = []
 
+    psa9_related_sales = 0
+    psa10_related_sales = 0
+    psa9_related_confidence = "NONE"
+    psa10_related_confidence = "NONE"
+    
     for candidate in related_candidates:
         candidate_card = candidate.get("card") or {}
 
