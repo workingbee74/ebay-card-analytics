@@ -4260,7 +4260,9 @@ def analyze_one_buying_opportunity():
             raw_value * psa9_weighted_ratio,
             2
         )
-    
+    probabilities = get_grading_probabilities(
+        "PRE_INSPECTION"
+    )
     return jsonify({
     "success": True,
     "opportunity_id": opportunity_id,
