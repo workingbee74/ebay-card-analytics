@@ -4256,7 +4256,22 @@ def analyze_one_buying_opportunity():
             item["ratio"] * item["sales_30day"]
             for item in psa9_ratio_items
         ) / psa9_total_weight
-
+        psa10_ratio_items = [
+            item
+            for item in related_grade_ratios
+            if item["grade"] == "PSA 10"
+        ]
+        
+        psa10_total_weight = sum(
+            item["sales_30day"]
+            for item in psa10_ratio_items
+        )
+        
+        if psa10_total_weight > 0:
+            psa10_weighted_ratio = sum(
+                item["ratio"] * item["sales_30day"]
+                for item in psa10_ratio_items
+            ) / psa10_total_weight
     inferred_psa9_value = None
 
     if (
