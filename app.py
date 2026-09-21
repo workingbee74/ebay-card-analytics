@@ -4311,6 +4311,7 @@ def analyze_one_buying_opportunity():
             "psa10_confidence": psa10_related_confidence,
         },
         "related_grade_ratios": related_grade_ratios,
+        "grading_analysis": grading_analysis,
         "asking_price": (
             float(asking_price)
             if asking_price is not None
