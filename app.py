@@ -4150,6 +4150,8 @@ def analyze_one_buying_opportunity():
     psa10_related_confidence = "NONE"
     psa9_weighted_ratio = None
     inferred_psa9_value = None
+    psa10_weighted_ratio = None
+    inferred_psa10_value = None
     for candidate in related_candidates:
         candidate_card = candidate.get("card") or {}
 
