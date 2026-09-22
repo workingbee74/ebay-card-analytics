@@ -3864,6 +3864,19 @@ def calculate_raw_to_grade(
         or psa9_probability is None
         or lower_probability is None
     ):
+
+        effective_psa9_value = (
+            psa9_value
+            if psa9_value is not None
+            else inferred_psa9_value
+        )
+        
+        effective_psa10_value = (
+            psa10_value
+            if psa10_value is not None
+            else inferred_psa10_value
+        )
+        
         probabilities = get_grading_probabilities(
             "PRE_INSPECTION"
         )
@@ -4303,13 +4316,13 @@ def analyze_one_buying_opportunity():
     
     if (
         asking_price is not None
-        and psa9_value is not None
-        and psa10_value is not None
+        and effective_psa9_value is not None
+        and effective_psa10_value is not None
     ):
         grading_analysis = calculate_raw_to_grade(
             raw_price=asking_price,
-            psa9_value=psa9_value,
-            psa10_value=psa10_value,
+            psa9_value=effective_psa9_value,
+            psa10_value=effective_psa10_value,
             psa10_probability=probabilities["psa10"],
             psa9_probability=probabilities["psa9"],
             lower_probability=probabilities["lower"],
