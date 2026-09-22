@@ -4283,6 +4283,19 @@ def analyze_one_buying_opportunity():
             raw_value * psa9_weighted_ratio,
             2
         )
+
+        inferred_psa10_value = None
+        
+        if (
+            raw_value is not None
+            and psa10_weighted_ratio is not None
+            and psa10_related_confidence in ("MEDIUM", "HIGH")
+        ):
+            inferred_psa10_value = round(
+                raw_value * psa10_weighted_ratio,
+                2
+            )
+    
     probabilities = get_grading_probabilities(
         "PRE_INSPECTION"
     )
